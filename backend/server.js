@@ -66,6 +66,57 @@ app.get('/api/admin/stats', async (req, res) => {
   res.json({ quotes: 0, applications: 0, inventory: 0 });
 });
 
+// Simple in-memory store for demo quotes (replace with DB in production)
+const quotesStore = [];
+
+// Create a quote (public)
+app.post('/api/quotes', async (req, res) => {
+  const data = req.body || {}
+  // basic validation
+  if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
+
+  const quote = {
+    id: quotesStore.length + 1,
+    createdAt: new Date().toISOString(),
+    ...data
+  }
+
+  // push to memory store
+  quotesStore.push(quote)
+
+  // try to persist to DB if available
+  try {
+    const p = await initDb();
+    // simple insert into a quotes table if it exists
+    await p.query('INSERT INTO quotes (name, email, phone, serviceType, containerSize, quantity, duration, deliveryAddress, message, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [quote.name, quote.email, quote.phone || null, quote.serviceType || null, quote.containerSize || null, quote.quantity || null, quote.duration || null, quote.deliveryAddress || null, quote.message || null, quote.createdAt]).catch(()=>{})
+  } catch (_) {
+    // ignore DB errors in demo mode
+  }
+
+  res.status(201).json({ ok: true, id: quote.id })
+})
+
+// Protected: list quotes
+app.get('/api/quotes', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try {
+    jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+  } catch (err) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+
+  // attempt to read from DB first
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT id, name, email, phone, serviceType, containerSize, quantity, duration, deliveryAddress, message, createdAt FROM quotes ORDER BY createdAt DESC LIMIT 100')
+    return res.json({ quotes: rows })
+  } catch (err) {
+    // fallback to in-memory
+    return res.json({ quotes: quotesStore.slice().reverse() })
+  }
+})
+
 // Database test endpoint
 app.get('/api/dbtest', async (req, res) => {
   try {
