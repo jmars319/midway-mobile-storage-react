@@ -61,13 +61,36 @@ app.get('/api/admin/stats', async (req, res) => {
   } catch (err) {
     return res.status(401).json({ error: 'unauthorized' });
   }
-
-  // return demo stats
-  res.json({ quotes: 0, applications: 0, inventory: 0 });
+  // Try to compute live stats: prefer DB counts, fall back to in-memory stores
+  try {
+    const p = await initDb();
+    const [[qrow]] = await p.query('SELECT COUNT(*) AS cnt FROM quotes') .catch(()=>[[{cnt:0}]])
+    // other counts could be computed similarly if DB tables exist
+    const quotesCount = qrow?.cnt || 0
+    return res.json({ quotes: quotesCount, applications: 0, inventory: 0 })
+  } catch (err) {
+    // fallback to in-memory counts
+    return res.json({ quotes: quotesStore.length, applications: 0, inventory: 0 })
+  }
 });
 
 // Simple in-memory store for demo quotes (replace with DB in production)
 const quotesStore = [];
+// Additional in-memory demo stores for admin data
+const applicationsStore = [
+  { id: 1, name: 'Mike Johnson', position: 'Delivery Driver', date: '2025-10-19', status: 'new' },
+  { id: 2, name: 'Sarah Williams', position: 'Sales Rep', date: '2025-10-18', status: 'reviewing' }
+]
+
+const inventoryStore = [
+  { id: 1, type: '20ft Container', condition: 'New', status: 'Available', quantity: 8 },
+  { id: 2, type: '40ft Container', condition: 'Used - Good', status: 'Available', quantity: 12 }
+]
+
+const ordersStore = [
+  { id: 1, customer: 'HomeDepot Supply', product: 'PanelSeal (5 gal)', quantity: 10, date: '2025-10-19', status: 'shipped' },
+  { id: 2, customer: "Bob's Roofing", product: 'PanelSeal (1 gal)', quantity: 25, date: '2025-10-18', status: 'processing' }
+]
 
 // Create a quote (public)
 app.post('/api/quotes', async (req, res) => {
@@ -114,6 +137,46 @@ app.get('/api/quotes', async (req, res) => {
   } catch (err) {
     // fallback to in-memory
     return res.json({ quotes: quotesStore.slice().reverse() })
+  }
+})
+
+// Protected endpoints for admin data (inventory, applications, orders)
+app.get('/api/inventory', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT id, type, condition, status, quantity FROM inventory LIMIT 100').catch(()=>[[]])
+    return res.json({ inventory: rows })
+  } catch (err) {
+    return res.json({ inventory: inventoryStore })
+  }
+})
+
+app.get('/api/applications', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT id, name, position, date, status FROM applications ORDER BY date DESC LIMIT 100').catch(()=>[[]])
+    return res.json({ applications: rows })
+  } catch (err) {
+    return res.json({ applications: applicationsStore })
+  }
+})
+
+app.get('/api/orders', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT id, customer, product, quantity, date, status FROM orders ORDER BY date DESC LIMIT 100').catch(()=>[[]])
+    return res.json({ orders: rows })
+  } catch (err) {
+    return res.json({ orders: ordersStore })
   }
 })
 
