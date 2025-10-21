@@ -6,7 +6,7 @@ import ApplicationsModule from './modules/ApplicationsModule'
 import OrdersModule from './modules/OrdersModule'
 import SettingsModule from './modules/SettingsModule'
 
-export default function AdminPanel({ user, onLogout }){
+export default function AdminPanel({ user, onLogout, onBackToSite }){
   const modules = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'quotes', name: 'Quote Requests', icon: '💬' },
@@ -30,7 +30,8 @@ export default function AdminPanel({ user, onLogout }){
           ))}
         </nav>
 
-        <div className="p-4">
+        <div className="p-4 space-y-2">
+          <button onClick={() => { if (onBackToSite) onBackToSite(); }} className="w-full bg-gray-200 text-[#0a2a52] px-3 py-2 rounded">Back to site</button>
           <button onClick={() => { localStorage.removeItem('midway_token'); onLogout(); }} className="w-full bg-red-600 text-white px-3 py-2 rounded">Logout</button>
         </div>
       </div>

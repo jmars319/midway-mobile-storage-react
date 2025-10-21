@@ -49,7 +49,7 @@ export default function App(){
   },[])
 
   if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
-  if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} />
+  if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
 
   return (
     <div className="min-h-screen">
