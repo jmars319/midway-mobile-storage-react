@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react'
 
+// OrdersModule loads protected orders from the backend. It expects a JWT to
+// be stored in localStorage under `midway_token`; the module reads that token
+// and includes it in the Authorization header when requesting the API. This
+// keeps the module simple and avoids prop-drilling auth tokens through many
+// components in this demo.
 const API_BASE = 'http://localhost:5001/api'
 
 export default function OrdersModule(){

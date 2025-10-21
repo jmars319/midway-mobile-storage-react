@@ -14,6 +14,10 @@ const API_BASE = 'http://localhost:5001/api'
 // admin components are now in ./admin
 
 /* ---------- Main App ---------- */
+// App responsibilities:
+// - Render the public site pages
+// - Manage a lightweight admin authentication state (token stored in localStorage)
+// - Switch between public, login, and admin views
 export default function App(){
   const [currentPage, setCurrentPage] = useState('public')
   const [user, setUser] = useState(null)
@@ -40,6 +44,9 @@ export default function App(){
   }
 
   // restore token on mount
+  // On mount, restore token from localStorage so the admin session survives
+  // page reloads. This keeps the demo simple: any valid token in storage will
+  // put the app into the admin view (no token validation performed here).
   useEffect(()=>{
     const t = localStorage.getItem('midway_token')
     if (t && !user) {

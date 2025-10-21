@@ -6,6 +6,12 @@ import ApplicationsModule from './modules/ApplicationsModule'
 import OrdersModule from './modules/OrdersModule'
 import SettingsModule from './modules/SettingsModule'
 
+// AdminPanel is a simple single-file admin shell for the demo. It keeps local
+// module selection state and renders each module component. The component
+// expects:
+// - `user` (object) - lightweight authenticated user info
+// - `onLogout` (fn) - callback to clear auth and switch to public view
+// - `onBackToSite` (fn) - callback to switch to public view but keep token
 export default function AdminPanel({ user, onLogout, onBackToSite }){
   const modules = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },

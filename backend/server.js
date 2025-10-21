@@ -6,7 +6,8 @@ import jwt from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 
 // Try loading .env from a few common locations so the server works whether started
-// from the repo root or the backend folder.
+// from the repo root or the backend folder. When debugging DB issues, this log
+// helps confirm which .env file was read.
 const envLoaded1 = dotenv.config({ path: './backend/.env' });
 const envLoaded2 = dotenv.config({ path: './.env' });
 const envUsed = (envLoaded1 && !envLoaded1.error) ? './backend/.env' : ((envLoaded2 && !envLoaded2.error) ? './.env' : 'none');
@@ -19,6 +20,9 @@ app.use(express.json());
 const PORT = process.env.PORT || 5001;
 
 // Simple MySQL pool using mysql2/promise
+// - `initDb()` lazily creates a pool and returns it. Callers should handle
+//   errors (e.g. connection refused) — the server deliberately falls back to
+//   in-memory demo stores when DB access fails to keep the demo functional.
 let pool;
 async function initDb() {
   if (pool) return pool;
@@ -35,11 +39,15 @@ async function initDb() {
 }
 
 // Health
+// Simple health endpoint used during development and health checks.
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: Date.now() });
 });
 
 // Simple login endpoint (demo only)
+// Lightweight demo authentication. This is NOT secure and only intended for
+// local development. In production you should replace this with a proper
+// authentication provider and secure password storage.
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: 'username and password required' });
@@ -49,6 +57,7 @@ app.post('/api/auth/login', async (req, res) => {
     const demoHash = await bcrypt.hash('admin123', 10);
     const match = await bcrypt.compare(password, demoHash);
     if (match) {
+      // JWT for demo: short expiry and default secret when not configured.
       const token = jwt.sign({ username: 'admin', role: 'admin' }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '12h' });
       return res.json({ token });
     }
@@ -58,6 +67,9 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // Example protected endpoint
+// Protected endpoint: returns simple aggregated counts. Prefer DB counts when
+// available; otherwise fall back to in-memory demo store sizes so the admin UI
+// remains usable when a DB is not configured.
 app.get('/api/admin/stats', async (req, res) => {
   const auth = req.headers.authorization || '';
   const token = auth.replace(/^Bearer\s+/i, '');
@@ -74,14 +86,15 @@ app.get('/api/admin/stats', async (req, res) => {
     const quotesCount = qrow?.cnt || 0
     return res.json({ quotes: quotesCount, applications: 0, inventory: 0 })
   } catch (err) {
-    // fallback to in-memory counts
+    // fallback to in-memory counts (useful for local demo and CI)
     return res.json({ quotes: quotesStore.length, applications: 0, inventory: 0 })
   }
 });
 
-// Simple in-memory store for demo quotes (replace with DB in production)
+// In-memory demo stores: used when the DB is not configured or to provide
+// deterministic demo data for local development. Replace or remove these in
+// production in favor of persistent storage.
 const quotesStore = [];
-// Additional in-memory demo stores for admin data
 const applicationsStore = [
   { id: 1, name: 'Mike Johnson', position: 'Delivery Driver', date: '2025-10-19', status: 'new' },
   { id: 2, name: 'Sarah Williams', position: 'Sales Rep', date: '2025-10-18', status: 'reviewing' }
