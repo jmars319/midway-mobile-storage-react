@@ -466,49 +466,295 @@ function Footer(){
 function LoginPage({ onLogin, onBack }){
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const submit = async (e) => {
     e.preventDefault()
+    setError(null)
+    setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, password})})
-      if (res.ok){
-        const json = await res.json();
-        onLogin({ username, token: json.token })
+      const res = await fetch(`${API_BASE}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username, password }) })
+      const payload = await res.json()
+      if (res.ok && payload.token) {
+        onLogin({ username, token: payload.token })
       } else {
-        alert('Login failed')
+        setError(payload.error || 'Invalid credentials')
       }
-    } catch(err){ console.error(err) }
+    } catch (err) {
+      console.error(err)
+      setError('Login failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full p-6 border">
-        <h3 className="text-xl font-semibold">Admin Login</h3>
-        <form onSubmit={submit} className="mt-4 grid gap-2">
-          <input value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="Username" className="p-2 border" />
-          <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="p-2 border" />
-          <div className="flex gap-2 mt-2">
-            <button className="bg-[#e84424] px-3 py-1 rounded">Login</button>
-            <button type="button" className="px-3 py-1" onClick={onBack}>Back</button>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a2a52] via-[#0d3464] to-[#0a2a52]">
+      <div className="max-w-md w-full p-6 bg-white rounded shadow">
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold text-[#0a2a52]">Midway Admin</h2>
+          <div className="text-sm text-gray-500">Sign in to manage orders, quotes, inventory and applications</div>
+        </div>
+
+        {error && <div className="mb-3 text-red-600">{error}</div>}
+
+        <form onSubmit={submit} className="grid gap-3">
+          <label className="text-sm text-[#0a2a52]">Username</label>
+          <input value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="Username" className="p-2 border rounded" />
+
+          <label className="text-sm text-[#0a2a52]">Password</label>
+          <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="p-2 border rounded" />
+
+          <div className="flex items-center justify-between mt-2">
+            <button type="submit" disabled={loading} className="bg-[#e84424] text-white px-4 py-2 rounded font-semibold disabled:opacity-60">{loading? 'Signing in...' : 'Sign In'}</button>
+            <button type="button" onClick={onBack} className="text-sm">Back</button>
           </div>
         </form>
+
+        <div className="mt-4 text-sm text-gray-600">
+          Demo credentials: <div className="mt-1 font-mono text-sm">admin / admin123</div>
+        </div>
       </div>
     </div>
   )
 }
 
 function AdminPanel({ user, onLogout }){
-  return (
-    <div className="min-h-screen p-6 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl">Admin Panel</h2>
-          <div>
-            <span className="mr-2">{user?.username}</span>
-            <button onClick={onLogout} className="bg-[#e84424] px-2 py-1 rounded">Logout</button>
+  const modules = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+    { id: 'quotes', name: 'Quote Requests', icon: '💬' },
+    { id: 'inventory', name: 'Inventory', icon: '📦' },
+    { id: 'applications', name: 'Job Applications', icon: '👥' },
+    { id: 'orders', name: 'PanelSeal Orders', icon: '🛒' },
+    { id: 'settings', name: 'Settings', icon: '⚙️' }
+  ]
+
+  const [activeModule, setActiveModule] = useState('dashboard')
+
+  // token stored in localStorage by App on login; read here
+  const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
+
+  function Sidebar(){
+    return (
+      <div className="w-64 bg-[#0a2a52] text-white h-screen flex flex-col">
+        <div className="p-6 text-[#e84424] font-bold text-xl">Midway Admin</div>
+        <nav className="flex-1 px-2">
+          {modules.map(m => (
+            <button key={m.id} onClick={()=>setActiveModule(m.id)} className={`w-full text-left px-4 py-3 rounded mb-1 ${activeModule===m.id? 'bg-[#e84424] text-white': 'hover:bg-[#0d3464]'}`}>
+              <span className="mr-2">{m.icon}</span>{m.name}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-4">
+          <button onClick={() => { localStorage.removeItem('midway_token'); onLogout(); }} className="w-full bg-red-600 text-white px-3 py-2 rounded">Logout</button>
+        </div>
+      </div>
+    )
+  }
+
+  /* ---------- Modules ---------- */
+  function DashboardModule(){
+    const stats = [
+      { label: 'Pending Quotes', value: '12', color: 'bg-blue-500' },
+      { label: 'Active Rentals', value: '38', color: 'bg-green-500' },
+      { label: 'Available Units', value: '15', color: 'bg-[#e84424]' },
+      { label: 'New Applications', value: '5', color: 'bg-purple-500' }
+    ]
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-6">Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {stats.map(s=> (
+            <div key={s.label} className="bg-white p-4 rounded shadow flex items-center gap-4">
+              <div className={`${s.color} w-12 h-12 rounded-full flex items-center justify-center text-white`}>★</div>
+              <div>
+                <div className="text-sm text-gray-500">{s.label}</div>
+                <div className="text-xl font-bold">{s.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  function QuotesModule(){
+    const [quotes, setQuotes] = useState([])
+
+    useEffect(()=>{
+      async function load(){
+        try{
+          const res = await fetch(`${API_BASE}/quotes`, { headers: { Authorization: `Bearer ${token}` }})
+          if (res.ok) setQuotes(await res.json().then(j=>j.quotes||[]))
+        }catch(e){ console.error(e) }
+      }
+      load()
+    },[])
+
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-4">Quote Requests</h1>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-[#0a2a52] text-white">
+              <tr>
+                <th className="px-6 py-3 text-left">Customer</th>
+                <th className="px-6 py-3 text-left">Service</th>
+                <th className="px-6 py-3 text-left">Size</th>
+                <th className="px-6 py-3 text-left">Date</th>
+                <th className="px-6 py-3 text-left">Status</th>
+                <th className="px-6 py-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {quotes.map(q => (
+                <tr key={q.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">{q.name}</td>
+                  <td className="px-6 py-4">{q.serviceType || '—'}</td>
+                  <td className="px-6 py-4">{q.containerSize || '—'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{new Date(q.createdAt).toLocaleString()}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${q.status==='responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{q.status||'pending'}</span></td>
+                  <td className="px-6 py-4">
+                    <button className="text-[#e84424] hover:text-[#d13918] font-semibold mr-3">View</button>
+                    <button className="text-blue-600 hover:text-blue-700 font-semibold">Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  function InventoryModule(){
+    const inventory = [
+      { id: 1, type: '20ft Container', condition: 'New', status: 'Available', quantity: 8 },
+      { id: 2, type: '40ft Container', condition: 'Used - Good', status: 'Available', quantity: 12 },
+      { id: 3, type: '40ft High Cube', condition: 'New', status: 'Available', quantity: 5 },
+      { id: 4, type: 'Full-Size Trailer', condition: 'Excellent', status: 'Rented', quantity: 3 }
+    ]
+
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-4">Inventory</h1>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Type</th><th className="px-6 py-3 text-left">Condition</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Qty</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
+            <tbody>
+              {inventory.map(i=> (
+                <tr key={i.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">{i.type}</td>
+                  <td className="px-6 py-4">{i.condition}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${i.status==='Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{i.status}</span></td>
+                  <td className="px-6 py-4">{i.quantity}</td>
+                  <td className="px-6 py-4"><button className="text-[#e84424] mr-3">Edit</button><button className="text-blue-600">Details</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  function ApplicationsModule(){
+    const applications = [
+      { id: 1, name: 'Mike Johnson', position: 'Delivery Driver', date: '2025-10-19', status: 'new' },
+      { id: 2, name: 'Sarah Williams', position: 'Sales Rep', date: '2025-10-18', status: 'reviewing' }
+    ]
+
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-4">Job Applications</h1>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Name</th><th className="px-6 py-3 text-left">Position</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
+            <tbody>
+              {applications.map(a=> (
+                <tr key={a.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">{a.name}</td>
+                  <td className="px-6 py-4">{a.position}</td>
+                  <td className="px-6 py-4">{a.date}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${a.status==='new' ? 'bg-blue-100 text-blue-800' : a.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{a.status}</span></td>
+                  <td className="px-6 py-4"><button className="text-[#e84424] mr-3">View</button><button className="text-blue-600">Resume</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  function OrdersModule(){
+    const orders = [
+      { id: 1, customer: 'HomeDepot Supply', product: 'PanelSeal (5 gal)', quantity: 10, date: '2025-10-19', status: 'shipped' },
+      { id: 2, customer: "Bob's Roofing", product: 'PanelSeal (1 gal)', quantity: 25, date: '2025-10-18', status: 'processing' }
+    ]
+
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-4">PanelSeal Orders</h1>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Customer</th><th className="px-6 py-3 text-left">Product</th><th className="px-6 py-3 text-left">Qty</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
+            <tbody>
+              {orders.map(o=> (
+                <tr key={o.id} className="border-b hover:bg-gray-50">
+                  <td className="px-6 py-4">{o.customer}</td>
+                  <td className="px-6 py-4">{o.product}</td>
+                  <td className="px-6 py-4">{o.quantity}</td>
+                  <td className="px-6 py-4">{o.date}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${o.status==='shipped' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{o.status}</span></td>
+                  <td className="px-6 py-4"><button className="text-[#e84424] mr-3">View</button><button className="text-blue-600">Track</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  function SettingsModule(){
+    const [info, setInfo] = useState({ phone:'', email:'', address:'' })
+    const save = ()=> alert('Settings saved (demo)')
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold text-[#0a2a52] mb-6">Settings</h1>
+        <div className="grid gap-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Business Information</h2>
+            <div className="grid gap-3">
+              <input placeholder="Phone" value={info.phone} onChange={e=>setInfo({...info, phone:e.target.value})} className="p-2 border rounded" />
+              <input placeholder="Email" value={info.email} onChange={e=>setInfo({...info, email:e.target.value})} className="p-2 border rounded" />
+              <input placeholder="Address" value={info.address} onChange={e=>setInfo({...info, address:e.target.value})} className="p-2 border rounded" />
+              <div className="text-right"><button onClick={save} className="bg-[#e84424] text-white px-4 py-2 rounded">Save Changes</button></div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Admin Users</h2>
+            <button className="bg-blue-600 text-white px-3 py-2 rounded">Add New Admin</button>
           </div>
         </div>
-        <div className="mt-6">Dashboard & modules go here (placeholders)</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-screen flex bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 overflow-auto">
+        {activeModule === 'dashboard' && <DashboardModule />}
+        {activeModule === 'quotes' && <QuotesModule />}
+        {activeModule === 'inventory' && <InventoryModule />}
+        {activeModule === 'applications' && <ApplicationsModule />}
+        {activeModule === 'orders' && <OrdersModule />}
+        {activeModule === 'settings' && <SettingsModule />}
       </div>
     </div>
   )
@@ -524,8 +770,12 @@ export default function App(){
     document.documentElement.style.scrollPaddingTop = '100px'
   },[])
 
-  const handleLogin = (userData) => { setUser(userData); setCurrentPage('admin') }
-  const handleLogout = () => { setUser(null); setCurrentPage('public') }
+  const handleLogin = (userData) => { 
+    setUser(userData); 
+    if (userData?.token) localStorage.setItem('midway_token', userData.token)
+    setCurrentPage('admin') 
+  }
+  const handleLogout = () => { localStorage.removeItem('midway_token'); setUser(null); setCurrentPage('public') }
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id)
@@ -535,6 +785,15 @@ export default function App(){
       window.scrollTo({ top: targetPosition, behavior: 'smooth' })
     }
   }
+
+  // restore token on mount
+  useEffect(()=>{
+    const t = localStorage.getItem('midway_token')
+    if (t && !user) {
+      setUser({ username: 'admin', token: t })
+      setCurrentPage('admin')
+    }
+  },[])
 
   if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
   if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} />
