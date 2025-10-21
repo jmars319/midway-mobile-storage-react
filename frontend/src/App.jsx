@@ -51,9 +51,19 @@ export default function App(){
   if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
   if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
 
+  const handleAdminClick = () => {
+    const t = localStorage.getItem('midway_token')
+    if (t) {
+      setUser({ username: 'admin', token: t })
+      setCurrentPage('admin')
+    } else {
+      setCurrentPage('login')
+    }
+  }
+
   return (
     <div className="min-h-screen">
-      <NavBar onLoginClick={()=>setCurrentPage('login')} scrollTo={scrollToSection} />
+      <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
       <main className="pt-24">
         <HeroSection />
         <ServicesSection />
