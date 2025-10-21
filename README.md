@@ -46,4 +46,8 @@ Files of interest
 - `frontend/src/App.jsx` — app entry; handles auth state and page switching
 - `frontend/src/admin/*` — admin UI and modules
 
+SEO & Metadata
+- The main HTML meta tags are in `frontend/index.html`. Update the `title`, `description`, `og:*`, and `twitter:*` tags there to change site-wide metadata.
+- For production, replace the placeholder canonical URL and `/og-image.png` with real assets.
+
 If you want me to add a DB seed endpoint, test scripts, or CI steps, tell me and I will add them.
