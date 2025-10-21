@@ -5,7 +5,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 
-dotenv.config({ path: './backend/.env' });
+// Try loading .env from a few common locations so the server works whether started
+// from the repo root or the backend folder.
+const envLoaded1 = dotenv.config({ path: './backend/.env' });
+const envLoaded2 = dotenv.config({ path: './.env' });
+const envUsed = (envLoaded1 && !envLoaded1.error) ? './backend/.env' : ((envLoaded2 && !envLoaded2.error) ? './.env' : 'none');
+console.log('dotenv loaded from:', envUsed);
 
 const app = express();
 app.use(cors());
