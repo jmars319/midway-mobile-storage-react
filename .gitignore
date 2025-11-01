@@ -3,3 +3,6 @@ copilot-instructions/
 backend/.env
 backend/node_modules
 frontend/node_modules
+
+# Local backend runtime log
+backend.log
