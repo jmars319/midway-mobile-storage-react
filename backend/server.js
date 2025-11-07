@@ -209,6 +209,52 @@ app.get('/api/dbtest', async (req, res) => {
   }
 });
 
+// Protected: seed demo data for local development
+app.post('/api/admin/seed', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+
+  // Populate in-memory stores
+  quotesStore.length = 0
+  quotesStore.push({ id: 1, name: 'Demo Customer', email: 'demo@example.com', serviceType: 'rental', containerSize: '20ft', quantity: 1, createdAt: new Date().toISOString(), status: 'pending' })
+
+  applicationsStore.length = 0
+  applicationsStore.push({ id: 1, name: 'Mike Johnson', position: 'Delivery Driver', date: '2025-10-19', status: 'new' })
+  applicationsStore.push({ id: 2, name: 'Sarah Williams', position: 'Sales Rep', date: '2025-10-18', status: 'reviewing' })
+
+  inventoryStore.length = 0
+  inventoryStore.push({ id: 1, type: '20ft Container', condition: 'New', status: 'Available', quantity: 8 })
+  inventoryStore.push({ id: 2, type: '40ft Container', condition: 'Used - Good', status: 'Available', quantity: 12 })
+
+  ordersStore.length = 0
+  ordersStore.push({ id: 1, customer: 'HomeDepot Supply', product: 'PanelSeal (5 gal)', quantity: 10, date: '2025-10-19', status: 'shipped' })
+  ordersStore.push({ id: 2, customer: "Bob's Roofing", product: 'PanelSeal (1 gal)', quantity: 25, date: '2025-10-18', status: 'processing' })
+
+  // Try to persist to DB (best-effort, ignore errors)
+  try {
+    const p = await initDb();
+    // Quotes table insert (if exists)
+    await p.query("INSERT INTO quotes (name,email,serviceType,containerSize,quantity,createdAt) VALUES (?,?,?,?,?,?)", [quotesStore[0].name, quotesStore[0].email, quotesStore[0].serviceType, quotesStore[0].containerSize, quotesStore[0].quantity, quotesStore[0].createdAt]).catch(()=>{})
+    // Applications
+    for (const a of applicationsStore) {
+      await p.query('INSERT INTO applications (name,position,date,status) VALUES (?,?,?,?)', [a.name, a.position, a.date, a.status]).catch(()=>{})
+    }
+    // Inventory
+    for (const i of inventoryStore) {
+      await p.query('INSERT INTO inventory (type,condition,status,quantity) VALUES (?,?,?,?)', [i.type, i.condition, i.status, i.quantity]).catch(()=>{})
+    }
+    // Orders
+    for (const o of ordersStore) {
+      await p.query('INSERT INTO orders (customer,product,quantity,date,status) VALUES (?,?,?,?,?)', [o.customer, o.product, o.quantity, o.date, o.status]).catch(()=>{})
+    }
+  } catch (err) {
+    // ignore DB errors in demo seed
+  }
+
+  return res.json({ ok: true })
+})
+
 app.listen(PORT, () => {
   console.log(`Midway backend listening on port ${PORT}`);
 });
