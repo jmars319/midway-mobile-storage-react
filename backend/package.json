@@ -5,8 +5,10 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "dev:open": "sh -c \"nodemon server.js & sleep 1; open http://localhost:5173; wait\"",
+  "start:open": "npm run dev:open"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
