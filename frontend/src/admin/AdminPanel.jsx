@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getActiveLogoUrl } from '../lib/media'
 import DashboardModule from './modules/DashboardModule'
 import QuotesModule from './modules/QuotesModule'
 import InventoryModule from './modules/InventoryModule'
 import ApplicationsModule from './modules/ApplicationsModule'
 import OrdersModule from './modules/OrdersModule'
 import SettingsModule from './modules/SettingsModule'
+import MessagesModule from './modules/MessagesModule'
 
 // AdminPanel is a simple single-file admin shell for the demo. It keeps local
 // module selection state and renders each module component. The component
@@ -16,6 +18,7 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
   const modules = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊' },
     { id: 'quotes', name: 'Quote Requests', icon: '💬' },
+    { id: 'messages', name: 'Messages', icon: '✉️' },
     { id: 'inventory', name: 'Inventory', icon: '📦' },
     { id: 'applications', name: 'Job Applications', icon: '👥' },
     { id: 'orders', name: 'PanelSeal Orders', icon: '🛒' },
@@ -25,9 +28,24 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
   const [activeModule, setActiveModule] = useState('dashboard')
 
   function Sidebar(){
+    const [logoUrl, setLogoUrl] = useState(null)
+    useEffect(()=>{
+      let mounted = true
+      getActiveLogoUrl().then(u => { if (mounted) setLogoUrl(u) }).catch(()=>{})
+      return ()=>{ mounted = false }
+    },[])
     return (
       <div className="w-64 bg-[#0a2a52] text-white h-screen flex flex-col">
-        <div className="p-6 text-[#e84424] font-bold text-xl">Midway Admin</div>
+        <div className="p-6 text-[#e84424] font-bold text-xl flex items-center gap-3">
+          {logoUrl ? (
+            <>
+              <img src={logoUrl} alt="logo" className="h-10 object-contain" />
+              <div className="hidden md:block text-[#e84424] font-bold text-xl">Midway Admin</div>
+            </>
+          ) : (
+            <div className="text-[#e84424] font-bold text-xl">Midway Admin</div>
+          )}
+        </div>
         <nav className="flex-1 px-2">
           {modules.map(m => (
             <button key={m.id} onClick={()=>setActiveModule(m.id)} className={`w-full text-left px-4 py-3 rounded mb-1 ${activeModule===m.id? 'bg-[#e84424] text-white': 'hover:bg-[#0d3464]'}`}>
@@ -50,6 +68,7 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
       <div className="flex-1 overflow-auto">
         {activeModule === 'dashboard' && <DashboardModule />}
         {activeModule === 'quotes' && <QuotesModule />}
+  {activeModule === 'messages' && <MessagesModule />}
         {activeModule === 'inventory' && <InventoryModule />}
         {activeModule === 'applications' && <ApplicationsModule />}
         {activeModule === 'orders' && <OrdersModule />}

@@ -9,6 +9,9 @@ import CareersSection from './components/CareersSection'
 import Footer from './components/Footer'
 import LoginPage from './admin/LoginPage'
 import AdminPanel from './admin/AdminPanel'
+import ToastContainer from './components/Toast'
+import PrivacyPolicy from './components/PrivacyPolicy'
+import TermsOfService from './components/TermsOfService'
 
 const API_BASE = 'http://localhost:5001/api'
 // admin components are now in ./admin
@@ -55,6 +58,22 @@ export default function App(){
     }
   },[])
 
+  // deep-linking: set page from URL on mount and handle back/forward
+  useEffect(()=>{
+    const path = window.location.pathname || '/'
+    if (path === '/privacy') setCurrentPage('privacy')
+    else if (path === '/terms') setCurrentPage('terms')
+
+    const onPop = () => {
+      const p = window.location.pathname
+      if (p === '/privacy') setCurrentPage('privacy')
+      else if (p === '/terms') setCurrentPage('terms')
+      else setCurrentPage('public')
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
   if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
 
@@ -72,14 +91,27 @@ export default function App(){
     <div className="min-h-screen">
       <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
       <main className="pt-24">
-        <HeroSection />
-        <ServicesSection />
-        <ProductsSection />
-        <QuoteForm />
-        <AboutSection />
-        <CareersSection />
-        <Footer />
+        {currentPage === 'privacy' ? (
+          <PrivacyPolicy onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
+        ) : currentPage === 'terms' ? (
+          <TermsOfService onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
+        ) : (
+          <>
+            <HeroSection />
+            <ServicesSection />
+            <ProductsSection />
+            <QuoteForm />
+            <AboutSection />
+            <CareersSection />
+          </>
+        )}
+        <Footer onLoginClick={handleAdminClick} onNavigate={(page)=>{
+          setCurrentPage(page)
+          if (page === 'privacy') window.history.pushState({}, '', '/privacy')
+          else if (page === 'terms') window.history.pushState({}, '', '/terms')
+        }} />
       </main>
+      <ToastContainer />
     </div>
   )
 }

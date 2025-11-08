@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import { getActiveLogoUrl } from '../lib/media'
 
 // NavBar receives `onLoginClick` so the parent can decide whether to show the
 // login view or navigate straight to the admin panel (based on token presence).
@@ -18,14 +19,31 @@ export default function NavBar({ onLoginClick, scrollTo }){
     { id: 'quote', label: 'Get Quote' },
     { id: 'about', label: 'About' },
     { id: 'careers', label: 'Careers' },
-    { id: 'contact', label: 'Contact' }
+    // Contact link moved to footer
   ]
+
+  const [logoUrl, setLogoUrl] = useState(null)
+
+  useEffect(()=>{
+    let mounted = true
+    getActiveLogoUrl().then(u => { if (mounted) setLogoUrl(u) }).catch(()=>{})
+    return ()=>{ mounted = false }
+  },[])
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#0a2a52] text-white shadow-lg z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <h1 className="text-2xl font-bold text-[#e84424]">Midway Mobile Storage</h1>
+          <div className="flex items-center gap-3">
+            {logoUrl ? (
+              <>
+                <img src={logoUrl} alt="Midway logo" className="h-12 object-contain" />
+                <span className="text-2xl font-bold text-[#e84424] hidden sm:inline">Midway Mobile Storage</span>
+              </>
+            ) : (
+              <h1 className="text-2xl font-bold text-[#e84424]">Midway Mobile Storage</h1>
+            )}
+          </div>
 
           <div className="hidden md:flex items-center space-x-8">
             {links.map(l => (
@@ -38,12 +56,7 @@ export default function NavBar({ onLoginClick, scrollTo }){
               </button>
             ))}
 
-            <button
-              onClick={onLoginClick}
-              className="bg-[#e84424] hover:bg-[#d13918] text-white px-4 py-2 rounded font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#d13918]"
-            >
-              Admin Login
-            </button>
+            {/* Admin Login moved to footer */}
           </div>
 
           <div className="md:hidden">
@@ -73,14 +86,7 @@ export default function NavBar({ onLoginClick, scrollTo }){
             </button>
           ))}
 
-          <div className="mt-3">
-            <button
-              onClick={() => { onLoginClick(); setMobileMenuOpen(false) }}
-              className="w-full bg-[#e84424] hover:bg-[#d13918] text-white py-3 rounded font-semibold transition focus:outline-none"
-            >
-              Admin Login
-            </button>
-          </div>
+          {/* Admin Login moved to footer; keep mobile menu simple */}
         </div>
       </div>
     </nav>
