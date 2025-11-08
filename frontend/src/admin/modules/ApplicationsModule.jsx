@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { BACKEND } from '../../lib/media'
+import { showToast } from '../../components/Toast'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -6,12 +8,19 @@ export default function ApplicationsModule(){
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [selected, setSelected] = useState(null)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   async function load(){
     setLoading(true); setError(null)
     try{
       const res = await fetch(`${API_BASE}/applications`, { headers: { Authorization: `Bearer ${token}` }})
+      if (res.status === 401) {
+        localStorage.removeItem('midway_token')
+        showToast('Session expired or unauthorized — please log in again', { type: 'error' })
+        window.location.reload()
+        return
+      }
       if (res.ok) {
         const j = await res.json()
         setApplications(j.applications || [])
@@ -47,13 +56,56 @@ export default function ApplicationsModule(){
                   <td className="px-6 py-4">{a.position}</td>
                   <td className="px-6 py-4">{a.date}</td>
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${a.status==='new' ? 'bg-blue-100 text-blue-800' : a.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{a.status}</span></td>
-                  <td className="px-6 py-4"><button className="text-[#e84424] mr-3">View</button><button className="text-blue-600">Resume</button></td>
+                  <td className="px-6 py-4">
+                    <button onClick={() => setSelected(a)} className="text-[#e84424] mr-3">View</button>
+                    <button onClick={() => {
+                      if (a.resume){
+                        // open resume — it may be a full url or a backend uploads path/name
+                        const url = a.resume.startsWith('/') ? `${BACKEND}${a.resume}` : (a.resume.startsWith('http') ? a.resume : `${BACKEND}/uploads/${a.resume}`)
+                        window.open(url, '_blank')
+                      } else {
+                        showToast('No resume available', { type: 'info' })
+                      }
+                    }} className="text-blue-600">Resume</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+      {selected && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-bold">Application: {selected.name}</h3>
+              <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
+            </div>
+            <div className="mt-4 text-sm text-gray-700 space-y-2">
+              <div><strong>Position:</strong> {selected.position}</div>
+              <div><strong>Email:</strong> {selected.email}</div>
+              <div><strong>Phone:</strong> {selected.phone || '—'}</div>
+              <div><strong>Experience:</strong> {selected.experience || '—'}</div>
+              <div>
+                <strong>Status:</strong>
+                <button onClick={async ()=>{
+                  // cycle status: new -> reviewing -> accepted -> rejected
+                  const order = ['new','reviewing','accepted','rejected']
+                  const cur = selected.status || 'new'
+                  const next = order[(order.indexOf(cur) + 1) % order.length]
+                  const token = localStorage.getItem('midway_token')
+                  try{
+                    const res = await fetch(`${API_BASE}/applications/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
+                    if (res.ok){ const j = await res.json(); setSelected(j.application); setApplications(prev => prev.map(it => it.id === j.application.id ? j.application : it)); showToast('Status updated', { type: 'success' }) }
+                    else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
+                  }catch(e){ console.error(e); showToast('Status update error', { type: 'error' }) }
+                }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='new' ? 'bg-blue-100 text-blue-800' : selected.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{selected.status}</button>
+              </div>
+            </div>
+            <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { showToast } from '../../components/Toast'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -12,6 +13,12 @@ export default function DashboardModule(){
       setLoading(true)
       try{
         const res = await fetch(`${API_BASE}/admin/stats`, { headers: { Authorization: `Bearer ${token}` }})
+        if (res.status === 401) {
+          localStorage.removeItem('midway_token')
+          showToast('Session expired or unauthorized — please log in again', { type: 'error' })
+          window.location.reload()
+          return
+        }
         if (res.ok) setStats(await res.json())
       }catch(e){ console.error(e) }
       setLoading(false)

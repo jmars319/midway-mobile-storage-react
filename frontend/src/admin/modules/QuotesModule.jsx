@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { showToast } from '../../components/Toast'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -13,6 +14,13 @@ export default function QuotesModule(){
     setError(null)
     try{
       const res = await fetch(`${API_BASE}/quotes`, { headers: { Authorization: `Bearer ${token}` }})
+      if (res.status === 401) {
+        // token invalid or expired — clear and force a reload so the app shows the login
+        localStorage.removeItem('midway_token')
+        showToast('Session expired or unauthorized — please log in again', { type: 'error' })
+        window.location.reload()
+        return
+      }
       if (res.ok) {
         const j = await res.json()
         setQuotes(j.quotes || [])
