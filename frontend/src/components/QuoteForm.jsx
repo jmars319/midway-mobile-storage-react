@@ -18,6 +18,11 @@ export default function QuoteForm(){
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    // If switching to Purchase service, clear duration since it's not applicable
+    if (name === 'serviceType' && value === 'purchase') {
+      setFormData(prev => ({ ...prev, [name]: value, duration: '' }))
+      return
+    }
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
@@ -43,73 +48,96 @@ export default function QuoteForm(){
           {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">Thanks — your request was submitted.</div>}
 
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Name</div>
-              <input name="name" value={formData.name} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
-            </label>
+            {/* Left column - contact info */}
+            <div className="space-y-4">
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Name</div>
+                <input name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" />
+              </label>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Email</div>
-              <input name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
-            </label>
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Email</div>
+                <input name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" />
+              </label>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Phone</div>
-              <input name="phone" value={formData.phone} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
-            </label>
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Phone</div>
+                <input name="phone" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
+              </label>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Service</div>
-              <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
-                <option value="rental">Rental</option>
-                <option value="purchase">Purchase</option>
-                <option value="trailer">Trailer</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Delivery Address</div>
+                <input name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" />
+              </label>
+            </div>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Container Size</div>
-              <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
-                <option value="20ft">20ft</option>
-                <option value="40ft">40ft</option>
-                <option value="trailer">Trailer</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
+            {/* Right column - service details */}
+            <div className="space-y-4">
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Service</div>
+                <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                  <option value="rental">Rental</option>
+                  <option value="purchase">Purchase</option>
+                  <option value="trailer">Trailer</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Quantity</div>
-              <select name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4+</option>
-              </select>
-            </label>
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Container Size</div>
+                <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                  <option value="20ft">20ft</option>
+                  <option value="40ft">40ft</option>
+                  <option value="trailer">Trailer</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
 
-            <label className="block">
-              <div className="text-sm text-[#0a2a52]">Duration</div>
-              <select name="duration" value={formData.duration} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
-                <option value="short-term">Short-term</option>
-                <option value="medium-term">Medium-term</option>
-                <option value="long-term">Long-term</option>
-                <option value="purchase">Purchase</option>
-              </select>
-            </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label>
+                  <div className="text-sm text-[#0a2a52]">Quantity</div>
+                  <select name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4+">4+</option>
+                  </select>
+                </label>
 
-            <label className="block md:col-span-2">
-              <div className="text-sm text-[#0a2a52]">Delivery Address</div>
-              <input name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
-            </label>
+                <label>
+                  <div className="text-sm text-[#0a2a52]">Duration</div>
+                  <select
+                    id="quote-duration"
+                    name="duration"
+                    value={formData.duration}
+                    onChange={handleChange}
+                    aria-describedby="duration-help"
+                    aria-disabled={formData.serviceType === 'purchase'}
+                    className={`mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424] ${formData.serviceType === 'purchase' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
+                    disabled={formData.serviceType === 'purchase'}
+                  >
+                    <option value="short-term">Short-term (1–6 months)</option>
+                    <option value="medium-term">Medium-term (6–12 months)</option>
+                    <option value="long-term">Long-term (12+ months)</option>
+                  </select>
+                  <div id="duration-help" className="text-xs text-gray-500 mt-2">
+                    {formData.serviceType === 'purchase'
+                      ? 'Purchases are permanent; duration not applicable.'
+                      : 'Choose a timeframe to help us suggest the best options and pricing.'}
+                  </div>
+                </label>
+              </div>
 
-            <label className="block md:col-span-2">
-              <div className="text-sm text-[#0a2a52]">Additional Notes</div>
-              <textarea name="message" value={formData.message} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
-            </label>
+              
 
-            <div className="md:col-span-2 text-right">
-              <button type="submit" className="bg-[#e84424] text-white px-5 py-2 rounded font-semibold">Submit Quote</button>
+              <label className="block">
+                <div className="text-sm text-[#0a2a52]">Additional Notes</div>
+                <textarea name="message" value={formData.message} onChange={handleChange} className="mt-1 p-3 border rounded w-full h-28 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Tell us anything else we should know" />
+              </label>
+
+              <div className="flex items-center justify-end gap-4">
+                <button type="submit" className="ml-auto bg-[#e84424] text-white px-5 py-2 rounded font-semibold">Submit Quote</button>
+              </div>
             </div>
           </form>
         </div>

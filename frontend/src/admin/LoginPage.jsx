@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getActiveLogoUrl } from '../lib/media'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -7,6 +8,13 @@ export default function LoginPage({ onLogin, onBack }){
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [logoUrl, setLogoUrl] = useState(null)
+
+  useEffect(()=>{
+    let mounted = true
+    getActiveLogoUrl().then(u => { if (mounted) setLogoUrl(u) }).catch(()=>{})
+    return ()=>{ mounted = false }
+  },[])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -32,7 +40,11 @@ export default function LoginPage({ onLogin, onBack }){
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a2a52] via-[#0d3464] to-[#0a2a52]">
       <div className="max-w-md w-full p-6 bg-white rounded shadow">
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold text-[#0a2a52]">Midway Admin</h2>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Midway logo" className="mx-auto h-16 object-contain mb-3" />
+          ) : (
+            <h2 className="text-2xl font-bold text-[#0a2a52]">Midway Admin</h2>
+          )}
           <div className="text-sm text-gray-500">Sign in to manage orders, quotes, inventory and applications</div>
         </div>
 
