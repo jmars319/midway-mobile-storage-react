@@ -21,3 +21,69 @@ CREATE TABLE IF NOT EXISTS site_settings (
 INSERT INTO site_settings (businessName, email, phone, address, city, state, zip, country, hours, siteUrl)
 SELECT 'Midway Mobile Storage', 'info@midwaystorage.example', '(555) 555-5555', '123 Storage Ave', 'Somewhere', 'State', '00000', 'US', 'Mon–Fri 8:00–17:00', 'https://midwaymobilestorage.com'
 WHERE NOT EXISTS (SELECT 1 FROM site_settings LIMIT 1);
+
+-- Quotes table for storing quote requests
+CREATE TABLE IF NOT EXISTS quotes (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  serviceType VARCHAR(100),
+  containerSize VARCHAR(50),
+  quantity VARCHAR(50),
+  duration VARCHAR(50),
+  deliveryAddress TEXT,
+  message TEXT,
+  status VARCHAR(50) DEFAULT 'new',
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Messages table for contact form submissions
+CREATE TABLE IF NOT EXISTS messages (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  subject VARCHAR(255),
+  message TEXT,
+  status VARCHAR(50) DEFAULT 'new',
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Applications table for career applications
+CREATE TABLE IF NOT EXISTS applications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  position VARCHAR(255),
+  resume VARCHAR(500),
+  status VARCHAR(50) DEFAULT 'new',
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Inventory table for container/trailer inventory management
+CREATE TABLE IF NOT EXISTS inventory (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  type VARCHAR(100) NOT NULL,
+  size VARCHAR(100),
+  condition VARCHAR(50),
+  location VARCHAR(255),
+  price DECIMAL(10,2),
+  status VARCHAR(50) DEFAULT 'available',
+  notes TEXT,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Orders table for PanelSeal and other product orders
+CREATE TABLE IF NOT EXISTS orders (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  customer VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  address TEXT,
+  product VARCHAR(255) NOT NULL,
+  quantity VARCHAR(50),
+  notes TEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
