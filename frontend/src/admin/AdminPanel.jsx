@@ -6,6 +6,7 @@ import InventoryModule from './modules/InventoryModule'
 import ApplicationsModule from './modules/ApplicationsModule'
 import OrdersModule from './modules/OrdersModule'
 import SettingsModule from './modules/SettingsModule'
+import SiteSettingsModule from './modules/SiteSettingsModule'
 import MessagesModule from './modules/MessagesModule'
 
 // AdminPanel is a simple single-file admin shell for the demo. It keeps local
@@ -22,7 +23,8 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
     { id: 'inventory', name: 'Inventory', icon: '📦' },
     { id: 'applications', name: 'Job Applications', icon: '👥' },
     { id: 'orders', name: 'PanelSeal Orders', icon: '🛒' },
-    { id: 'settings', name: 'Settings', icon: '⚙️' }
+    { id: 'siteinfo', name: 'Site Info', icon: '🏢' },
+    { id: 'settings', name: 'Media & Settings', icon: '⚙️' }
   ]
 
   const [activeModule, setActiveModule] = useState('dashboard')
@@ -68,10 +70,11 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
       <div className="flex-1 overflow-auto">
         {activeModule === 'dashboard' && <DashboardModule />}
         {activeModule === 'quotes' && <QuotesModule />}
-  {activeModule === 'messages' && <MessagesModule />}
+        {activeModule === 'messages' && <MessagesModule />}
         {activeModule === 'inventory' && <InventoryModule />}
         {activeModule === 'applications' && <ApplicationsModule />}
         {activeModule === 'orders' && <OrdersModule />}
+        {activeModule === 'siteinfo' && <SiteSettingsModule token={user?.token} />}
         {activeModule === 'settings' && <SettingsModule />}
       </div>
     </div>

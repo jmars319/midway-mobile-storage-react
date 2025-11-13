@@ -1,9 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 import ContactModal from './ContactModal'
+import { fetchSiteSettings } from '../lib/structuredData'
 
 export default function Footer({ onLoginClick, onNavigate }){
   const [contactOpen, setContactOpen] = useState(false)
+  const [settings, setSettings] = useState(null)
+  
+  useEffect(() => {
+    fetchSiteSettings().then(setSettings)
+  }, [])
   const containerDimensions = [
     { size: "20ft Standard", dimensions: "20' L × 8' W × 8'6\" H", capacity: "1,172 cu ft" },
     { size: "40ft Standard", dimensions: "40' L × 8' W × 8'6\" H", capacity: "2,390 cu ft" },
@@ -33,10 +39,10 @@ export default function Footer({ onLoginClick, onNavigate }){
         <div>
           <h4 className="font-semibold">Contact</h4>
           <ul className="mt-3 space-y-2 text-gray-200">
-            <li className="flex items-center gap-2"><Phone size={16}/> (555) 555-5555</li>
-            <li className="flex items-center gap-2"><Mail size={16}/> info@midwaystorage.example</li>
-            <li className="flex items-center gap-2"><MapPin size={16}/> 123 Storage Ave, Somewhere</li>
-            <li className="flex items-center gap-2"><Clock size={16}/> Mon–Fri 8:00–17:00</li>
+            <li className="flex items-center gap-2"><Phone size={16}/> {settings?.phone || '(555) 555-5555'}</li>
+            <li className="flex items-center gap-2"><Mail size={16}/> {settings?.email || 'info@midwaystorage.example'}</li>
+            <li className="flex items-center gap-2"><MapPin size={16}/> {settings?.address ? `${settings.address}, ${settings.city}` : '123 Storage Ave, Somewhere'}</li>
+            <li className="flex items-center gap-2"><Clock size={16}/> {settings?.hours || 'Mon–Fri 8:00–17:00'}</li>
           </ul>
         </div>
 

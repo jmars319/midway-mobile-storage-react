@@ -1,6 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { fetchSiteSettings } from '../lib/structuredData'
 
 export default function PrivacyPolicy({ onBack }){
+  const [settings, setSettings] = useState(null)
+  
+  useEffect(() => {
+    fetchSiteSettings().then(setSettings)
+  }, [])
+  
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       <button onClick={onBack} className="text-sm text-[#0a2a52] underline mb-4">← Back to site</button>
@@ -39,7 +46,7 @@ export default function PrivacyPolicy({ onBack }){
       <p className="text-gray-700 mt-2">Depending on your jurisdiction, you may have rights to access, correct, or delete your personal information. Contact us to exercise these rights.</p>
 
       <h2 className="text-xl font-semibold mt-6">Contact</h2>
-      <p className="text-gray-700 mt-2">Questions about this policy? Email <a className="text-[#0a2a52] underline">info@midwaystorage.example</a>.</p>
+      <p className="text-gray-700 mt-2">Questions about this policy? Email <a href={`mailto:${settings?.email || 'info@midwaystorage.example'}`} className="text-[#0a2a52] underline">{settings?.email || 'info@midwaystorage.example'}</a>.</p>
 
       <p className="text-gray-500 mt-8 text-sm">This policy may be updated; the Effective Date above reflects the last revision.</p>
     </div>

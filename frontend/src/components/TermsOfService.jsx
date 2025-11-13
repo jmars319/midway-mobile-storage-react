@@ -1,6 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { fetchSiteSettings } from '../lib/structuredData'
 
 export default function TermsOfService({ onBack }){
+  const [settings, setSettings] = useState(null)
+  
+  useEffect(() => {
+    fetchSiteSettings().then(setSettings)
+  }, [])
+  
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       <button onClick={onBack} className="text-sm text-[#0a2a52] underline mb-4">← Back to site</button>
@@ -28,7 +35,7 @@ export default function TermsOfService({ onBack }){
       <p className="text-gray-700 mt-2">We may update these Terms occasionally; the Effective Date above indicates the last revision. Continued use of the site constitutes acceptance of changes.</p>
 
       <h2 className="text-xl font-semibold mt-6">Contact</h2>
-      <p className="text-gray-700 mt-2">Questions about these terms? Email <a className="text-[#0a2a52] underline">info@midwaystorage.example</a>.</p>
+      <p className="text-gray-700 mt-2">Questions about these terms? Email <a href={`mailto:${settings?.email || 'info@midwaystorage.example'}`} className="text-[#0a2a52] underline">{settings?.email || 'info@midwaystorage.example'}</a>.</p>
     </div>
   )
 }
