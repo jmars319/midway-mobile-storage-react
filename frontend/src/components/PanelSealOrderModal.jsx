@@ -37,16 +37,28 @@ export default function PanelSealOrderModal({ open, onClose }){
       <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-6">
         <div className="flex items-start justify-between">
           <h3 className="text-lg font-bold">Order PanelSeal</h3>
-          <button onClick={onClose} className="text-gray-500">✕</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close order form" disabled={submitting}>✕</button>
         </div>
         <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3">
           <div className="grid md:grid-cols-2 gap-3">
-            <input name="name" value={form.name} onChange={change} placeholder="Full name" className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
-            <input name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Full Name *</span>
+              <input name="name" value={form.name} onChange={change} placeholder="Full name" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Email *</span>
+              <input name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+            </label>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
-            <input name="phone" value={form.phone} onChange={change} placeholder="Phone" className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
-            <input name="address" value={form.address} onChange={change} placeholder="Delivery address" className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Phone</span>
+              <input name="phone" value={form.phone} onChange={change} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Delivery Address</span>
+              <input name="address" value={form.address} onChange={change} placeholder="Street, city, state" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+            </label>
           </div>
           <div className="grid md:grid-cols-2 gap-3 items-end">
             <label className="text-sm">

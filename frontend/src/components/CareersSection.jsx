@@ -85,22 +85,40 @@ export default function CareersSection(){
         <div>
           <h4 className="text-lg font-semibold text-[#0a2a52]">Apply Now</h4>
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3">
-            {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded">Thanks — your application was submitted.</div>}
-            <input name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424]" required />
-            <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424]" required />
-            <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424]" />
-            <select name="position" value={formData.position} onChange={handleChange} className="p-2 border rounded focus:ring-2 focus:ring-[#e84424]">
-              <option value="">Select position</option>
+            {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your application was submitted.</div>}
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Full Name *</span>
+              <input name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Email *</span>
+              <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Phone</span>
+              <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Position</span>
+              <select name="position" value={formData.position} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
+                <option value="">Select position</option>
               <option value="driver">Delivery Driver / Equipment Operator</option>
               <option value="contractor-driver">Independent Contractor Driver</option>
               <option value="fabrication">Fabrication Specialist</option>
               <option value="sales">Sales Representative</option>
               <option value="customer-service">Customer Service Coordinator</option>
               <option value="other">Other</option>
-            </select>
-            <textarea name="experience" value={formData.experience} onChange={handleChange} placeholder="Experience summary" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424]" />
-            <input type="file" name="resume" onChange={handleChange} className="mt-1" />
-            <button className="bg-[#e84424] text-white px-4 py-2 rounded mt-2">Submit Application</button>
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Experience Summary</span>
+              <textarea name="experience" value={formData.experience} onChange={handleChange} placeholder="Briefly describe your relevant experience" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
+            </label>
+            <label className="block">
+              <span className="text-sm text-gray-700 font-medium">Resume</span>
+              <input type="file" name="resume" onChange={handleChange} accept=".pdf,.doc,.docx" className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#e84424] file:text-white hover:file:bg-[#c93a1f]" />
+            </label>
+            <button type="submit" className="bg-[#e84424] text-white px-4 py-2 rounded mt-2 hover:bg-[#c93a1f] transition">Submit Application</button>
           </form>
         </div>
       </div>

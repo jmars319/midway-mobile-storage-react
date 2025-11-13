@@ -44,7 +44,7 @@ export default function QuoteForm(){
       <div className="max-w-6xl mx-auto px-6">
         <div className="bg-gray-50 border-t-4 border-[#e84424] p-6 rounded-lg">
           <h4 className="text-xl font-semibold text-[#0a2a52]">Request a Quote</h4>
-          {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">Thanks — your request was submitted.</div>}
+          {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your request was submitted.</div>}
 
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left column - contact info */}
@@ -61,7 +61,7 @@ export default function QuoteForm(){
 
               <label className="block">
                 <span className="text-sm text-[#0a2a52]">Phone</span>
-                <input name="phone" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
+                <input name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
               </label>
 
               <label className="block">
@@ -135,7 +135,7 @@ export default function QuoteForm(){
               </label>
 
               <div className="flex items-center justify-end gap-4">
-                <button type="submit" className="ml-auto bg-[#e84424] text-white px-5 py-2 rounded font-semibold">Submit Quote</button>
+                <button type="submit" className="ml-auto bg-[#e84424] text-white px-5 py-2 rounded font-semibold hover:bg-[#c93a1f] transition">Submit Quote</button>
               </div>
             </div>
           </form>
