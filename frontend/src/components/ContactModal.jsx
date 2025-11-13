@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
-import { BACKEND } from '../lib/media'
+import { API_BASE } from '../config'
 
 export default function ContactModal({ onClose }){
   const [name, setName] = useState('')
@@ -13,7 +13,7 @@ export default function ContactModal({ onClose }){
     if (!name.trim() || !email.trim()) { showToast('Name and email are required', { type: 'error' }); return }
     setLoading(true)
     try {
-      const res = await fetch(`${BACKEND}/api/messages`, {
+      const res = await fetch(`${API_BASE}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, subject, message })
@@ -26,7 +26,6 @@ export default function ContactModal({ onClose }){
         showToast((j && j.error) ? j.error : 'Failed to send message', { type: 'error' })
       }
     } catch (e) {
-      console.error('contact submit error', e)
       showToast('Failed to send message', { type: 'error' })
     }
     setLoading(false)
@@ -41,8 +40,8 @@ export default function ContactModal({ onClose }){
         </div>
 
         <div className="mt-4 grid gap-3">
-          <input placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
-          <input placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+          <input placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+          <input type="email" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
           <input placeholder="Subject (optional)" value={subject} onChange={e=>setSubject(e.target.value)} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           <textarea placeholder="Message" value={message} onChange={e=>setMessage(e.target.value)} className="p-2 border rounded h-32 w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
         </div>

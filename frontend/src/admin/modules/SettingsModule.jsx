@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react'
 import ConfirmModal from '../../components/ConfirmModal'
 import { showToast } from '../../components/Toast'
 import { SERVICES_DATA } from '../../components/ServicesSection'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE, BACKEND_ORIGIN } from '../../config'
 
 export default function SettingsModule(){
-  const BACKEND_ORIGIN = API_BASE.replace(/\/api\/?.*$/, '')
   const [selectedFile, setSelectedFile] = useState(null)
   const [selectedPreviewUrl, setSelectedPreviewUrl] = useState(null)
   const [selectedTags, setSelectedTags] = useState([])
@@ -29,7 +27,7 @@ export default function SettingsModule(){
       if (res.status === 401) { localStorage.removeItem('midway_token'); window.location.reload(); return }
       if (res.ok){ const j = await res.json(); setMedia(j.media || []) }
       else setError('Failed to load media')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
   }
 
   useEffect(()=>{ loadMedia() },[])
@@ -61,7 +59,7 @@ export default function SettingsModule(){
         setSelectedPreviewUrl(null);
         setSelectedTags([]);
       } else { setError('Upload failed') }
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setUploading(false)
   }
 
@@ -74,7 +72,7 @@ export default function SettingsModule(){
       const res = await fetch(`${API_BASE}/media/${encodeURIComponent(name)}/tags`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ tags }) })
       if (res.status === 401) { localStorage.removeItem('midway_token'); window.location.reload(); return }
       if (res.ok) await loadMedia(); else setError('Failed to set tags')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
   }
 
   async function handleDelete(name){
@@ -82,7 +80,7 @@ export default function SettingsModule(){
       const res = await fetch(`${API_BASE}/media/${encodeURIComponent(name)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }})
       if (res.status === 401) { localStorage.removeItem('midway_token'); window.location.reload(); return }
       if (res.ok) await loadMedia(); else setError('Delete failed')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
   }
 
   // helpers to get active logo/hero
@@ -273,7 +271,7 @@ export default function SettingsModule(){
                   setPendingDelete(prev => ({ ...(prev||{}), loading: true }))
                   try{
                     await handleDelete(pendingDelete.name)
-                  }catch(e){ console.error(e); showToast('Delete failed', { type: 'error' }) }
+                  }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Delete failed', { type: 'error' }) }
                   setPendingDelete(null)
                 }}
               />

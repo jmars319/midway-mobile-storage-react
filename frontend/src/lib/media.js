@@ -1,5 +1,4 @@
-const API_BASE = 'http://localhost:5001/api'
-const BACKEND_ORIGIN = API_BASE.replace(/\/api\/?.*$/, '')
+import { API_BASE, BACKEND_ORIGIN } from '../config'
 
 export async function getActiveLogoUrl(){
   try{
@@ -10,12 +9,12 @@ export async function getActiveLogoUrl(){
     if (!j || !j.url) return null
     return BACKEND_ORIGIN + j.url
   }catch(e){
-    console.error('getActiveLogoUrl error', e)
+    if (import.meta.env.DEV) console.error('getActiveLogoUrl error', e)
     return null
   }
 }
 
-export const BACKEND = BACKEND_ORIGIN
+export { BACKEND_ORIGIN as BACKEND }
 
 export async function getActiveHeroUrl(){
   try{
@@ -25,7 +24,7 @@ export async function getActiveHeroUrl(){
     if (!j || !j.url) return null
     return BACKEND_ORIGIN + j.url
   }catch(e){
-    console.error('getActiveHeroUrl error', e)
+    if (import.meta.env.DEV) console.error('getActiveHeroUrl error', e)
     return null
   }
 }

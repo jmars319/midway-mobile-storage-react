@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ConfirmModal from '../../components/ConfirmModal'
 import { showToast } from '../../components/Toast'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../../config'
 
 export default function InventoryModule(){
   const [inventory, setInventory] = useState([])
@@ -29,7 +28,7 @@ export default function InventoryModule(){
         const j = await res.json()
         setInventory(j.inventory || [])
       } else setError('Failed to load inventory')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
   }
 
@@ -89,7 +88,7 @@ export default function InventoryModule(){
               const res = await fetch(`${API_BASE}/inventory/${pendingDelete.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
               if (res.ok){ setInventory(prev => prev.filter(it => it.id !== pendingDelete.id)); if (selected && selected.id === pendingDelete.id) setSelected(null); setPendingDelete(null); showToast('Item deleted', { type: 'success' }) }
               else { const txt = await res.text(); showToast('Delete failed: ' + txt, { type: 'error' }); setPendingDelete(null) }
-            }catch(e){ console.error(e); showToast('Delete error', { type: 'error' }); setPendingDelete(null) }
+            }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Delete error', { type: 'error' }); setPendingDelete(null) }
             finally{ setPendingDeleteLoading(false) }
           }}
         />
@@ -115,7 +114,7 @@ export default function InventoryModule(){
                     const res = await fetch(`${API_BASE}/inventory/${selected.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: newStatus }) })
                     if (res.ok){ const j = await res.json(); setSelected(j.item); setInventory(prev => prev.map(it => it.id === j.item.id ? j.item : it)); showToast('Status updated', { type: 'success' }) }
                     else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
-                  }catch(e){ console.error(e); showToast('Status update error', { type: 'error' }) }
+                  }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
                 }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{selected.status}</button>
               </div>
               <div><strong>Quantity:</strong> {selected.quantity}</div>
@@ -145,10 +144,10 @@ function EditInventoryModal({ item, onClose, onSaved }){
   const token = localStorage.getItem('midway_token')
   async function save(){
     try{
-      const res = await fetch(`http://localhost:5001/api/inventory/${item.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
+      const res = await fetch(`${API_BASE}/inventory/${item.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
       if (res.ok){ const j = await res.json(); onSaved(j.item); showToast('Saved', { type: 'success' }) }
       else { const txt = await res.text(); showToast('Save failed: ' + txt, { type: 'error' }) }
-    }catch(e){ console.error(e); showToast('Save error', { type: 'error' }) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Save error', { type: 'error' }) }
   }
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -181,10 +180,10 @@ function CreateInventoryModal({ onClose, onCreated }){
   const token = localStorage.getItem('midway_token')
   async function create(){
     try{
-      const res = await fetch(`http://localhost:5001/api/inventory`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
+      const res = await fetch(`${API_BASE}/inventory`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
       if (res.ok){ const j = await res.json(); onCreated(j.item); showToast('Created', { type: 'success' }) }
       else { const txt = await res.text(); showToast('Create failed: ' + txt, { type: 'error' }) }
-    }catch(e){ console.error(e); showToast('Create error', { type: 'error' }) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Create error', { type: 'error' }) }
   }
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

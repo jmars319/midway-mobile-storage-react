@@ -27,7 +27,7 @@ export default function MessagesModule(){
       } else {
         setError('Failed to load messages')
       }
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
   }
 
@@ -84,7 +84,7 @@ export default function MessagesModule(){
                         const res = await fetch(`${API_BASE}/messages`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: m.id, status: 'responded' }) })
                         if (res.ok) { showToast('Marked responded', { type: 'success' }); load() }
                         else showToast('Failed to update', { type: 'error' })
-                      }catch(e){ console.error(e); showToast('Failed', { type: 'error' }) }
+                      }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Failed', { type: 'error' }) }
                     }} className="text-sm text-[#e84424] hover:text-[#d13918]">Mark Responded</button>
                   </td>
                 </tr>

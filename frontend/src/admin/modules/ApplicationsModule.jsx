@@ -25,7 +25,7 @@ export default function ApplicationsModule(){
         const j = await res.json()
         setApplications(j.applications || [])
       } else setError('Failed to load applications')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
   }
 
@@ -98,7 +98,7 @@ export default function ApplicationsModule(){
                     const res = await fetch(`${API_BASE}/applications/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
                     if (res.ok){ const j = await res.json(); setSelected(j.application); setApplications(prev => prev.map(it => it.id === j.application.id ? j.application : it)); showToast('Status updated', { type: 'success' }) }
                     else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
-                  }catch(e){ console.error(e); showToast('Status update error', { type: 'error' }) }
+                  }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
                 }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='new' ? 'bg-blue-100 text-blue-800' : selected.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{selected.status}</button>
               </div>
             </div>

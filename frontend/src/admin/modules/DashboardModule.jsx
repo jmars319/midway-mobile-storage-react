@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../../config'
 
 export default function DashboardModule(){
   const [stats, setStats] = useState({ quotes: 0, applications: 0, inventory: 0 })
@@ -20,7 +19,7 @@ export default function DashboardModule(){
           return
         }
         if (res.ok) setStats(await res.json())
-      }catch(e){ console.error(e) }
+      }catch(e){ if (import.meta.env.DEV) console.error(e) }
       setLoading(false)
     }
     load()

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../config'
 
 export default function PanelSealOrderModal({ open, onClose }){
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
@@ -29,7 +28,7 @@ export default function PanelSealOrderModal({ open, onClose }){
       })})
       if (res.ok){ showToast('Order submitted — we will follow up shortly', { type: 'success' }); onClose() }
       else { const txt = await res.text(); showToast('Order failed: ' + txt, { type: 'error' }) }
-    }catch(err){ console.error(err); showToast('Order error', { type: 'error' }) }
+    }catch(err){ showToast('Order error', { type: 'error' }) }
     setSubmitting(false)
   }
 

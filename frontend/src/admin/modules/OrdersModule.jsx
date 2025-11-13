@@ -29,7 +29,7 @@ export default function OrdersModule(){
         const j = await res.json()
         setOrders(j.orders || [])
       } else setError('Failed to load orders')
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
   }
 
@@ -91,7 +91,7 @@ export default function OrdersModule(){
                       const res = await fetch(`${API_BASE}/orders/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
                       if (res.ok){ const j = await res.json(); setSelected(j.order); setOrders(prev => prev.map(it => it.id === j.order.id ? j.order : it)); showToast('Status updated', { type: 'success' }) }
                       else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
-                    }catch(e){ console.error(e); showToast('Status update error', { type: 'error' }) }
+                    }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
                 }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='shipped' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{selected.status}</button>
               </div>
             </div>

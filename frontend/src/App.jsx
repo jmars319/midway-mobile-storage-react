@@ -12,8 +12,10 @@ import AdminPanel from './admin/AdminPanel'
 import ToastContainer from './components/Toast'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import TermsOfService from './components/TermsOfService'
+import ErrorBoundary from './components/ErrorBoundary'
+import { fetchSiteSettings, generateStructuredData, injectStructuredData } from './lib/structuredData'
 
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from './config'
 // admin components are now in ./admin
 
 /* ---------- Main App ---------- */
@@ -24,10 +26,18 @@ const API_BASE = 'http://localhost:5001/api'
 export default function App(){
   const [currentPage, setCurrentPage] = useState('public')
   const [user, setUser] = useState(null)
+  const [siteSettings, setSiteSettings] = useState(null)
 
   useEffect(()=>{
     // set document padding to avoid header overlap
     document.documentElement.style.scrollPaddingTop = '100px'
+    
+    // Fetch site settings and inject structured data
+    fetchSiteSettings().then(settings => {
+      setSiteSettings(settings)
+      const structuredData = generateStructuredData(settings)
+      injectStructuredData(structuredData)
+    })
   },[])
 
   const handleLogin = (userData) => { 
@@ -74,6 +84,53 @@ export default function App(){
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
+  // Update page title and meta tags when currentPage changes
+  useEffect(()=>{
+    const updateMeta = (title, description, url) => {
+      document.title = title
+      const metaDesc = document.querySelector('meta[name="description"]')
+      if (metaDesc) metaDesc.setAttribute('content', description)
+      
+      const ogTitle = document.querySelector('meta[property="og:title"]')
+      if (ogTitle) ogTitle.setAttribute('content', title)
+      
+      const ogDesc = document.querySelector('meta[property="og:description"]')
+      if (ogDesc) ogDesc.setAttribute('content', description)
+      
+      const ogUrl = document.querySelector('meta[property="og:url"]')
+      if (ogUrl) ogUrl.setAttribute('content', url)
+      
+      const twitterTitle = document.querySelector('meta[name="twitter:title"]')
+      if (twitterTitle) twitterTitle.setAttribute('content', title)
+      
+      const twitterDesc = document.querySelector('meta[name="twitter:description"]')
+      if (twitterDesc) twitterDesc.setAttribute('content', description)
+      
+      const canonical = document.querySelector('link[rel="canonical"]')
+      if (canonical) canonical.setAttribute('href', url)
+    }
+
+    if (currentPage === 'privacy') {
+      updateMeta(
+        'Privacy Policy — Midway Mobile Storage',
+        'Our privacy policy explains how Midway Mobile Storage collects, uses, and protects your personal information.',
+        'https://midwaymobilestorage.com/privacy'
+      )
+    } else if (currentPage === 'terms') {
+      updateMeta(
+        'Terms of Service — Midway Mobile Storage',
+        'Terms of Service for Midway Mobile Storage. Review our terms governing use of our website and services.',
+        'https://midwaymobilestorage.com/terms'
+      )
+    } else {
+      updateMeta(
+        'Midway Mobile Storage — Portable Storage & Container Rentals',
+        'Midway Mobile Storage provides portable storage containers, rentals, and delivery across the region. Secure, weather-resistant containers for residential and commercial needs.',
+        'https://midwaymobilestorage.com/'
+      )
+    }
+  }, [currentPage])
+
   if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
   if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
 
@@ -88,30 +145,32 @@ export default function App(){
   }
 
   return (
-    <div className="min-h-screen">
-      <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
-      <main className="pt-24">
-        {currentPage === 'privacy' ? (
-          <PrivacyPolicy onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
-        ) : currentPage === 'terms' ? (
-          <TermsOfService onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
-        ) : (
-          <>
-            <HeroSection />
-            <ServicesSection />
-            <ProductsSection />
-            <QuoteForm />
-            <AboutSection />
-            <CareersSection />
-          </>
-        )}
-        <Footer onLoginClick={handleAdminClick} onNavigate={(page)=>{
-          setCurrentPage(page)
-          if (page === 'privacy') window.history.pushState({}, '', '/privacy')
-          else if (page === 'terms') window.history.pushState({}, '', '/terms')
-        }} />
-      </main>
-      <ToastContainer />
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen">
+        <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
+        <main className="pt-24">
+          {currentPage === 'privacy' ? (
+            <PrivacyPolicy onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
+          ) : currentPage === 'terms' ? (
+            <TermsOfService onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
+          ) : (
+            <>
+              <HeroSection />
+              <ServicesSection />
+              <ProductsSection />
+              <QuoteForm />
+              <AboutSection />
+              <CareersSection />
+            </>
+          )}
+          <Footer onLoginClick={handleAdminClick} onNavigate={(page)=>{
+            setCurrentPage(page)
+            if (page === 'privacy') window.history.pushState({}, '', '/privacy')
+            else if (page === 'terms') window.history.pushState({}, '', '/terms')
+          }} />
+        </main>
+        <ToastContainer />
+      </div>
+    </ErrorBoundary>
   )
 }

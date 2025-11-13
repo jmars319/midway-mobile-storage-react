@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../config'
 
 export default function QuoteForm(){
   const [formData, setFormData] = useState({
@@ -37,7 +36,7 @@ export default function QuoteForm(){
         setFormData({ name:'', email:'', phone:'', serviceType:'rental', containerSize:'20ft', quantity:'1', duration:'short-term', deliveryAddress:'', message:'' })
         setTimeout(()=>setSubmitted(false), 5000)
       }
-    } catch(err){ console.error(err) }
+    } catch(err){ /* Error silently logged */ }
   }
 
   return (
@@ -51,22 +50,22 @@ export default function QuoteForm(){
             {/* Left column - contact info */}
             <div className="space-y-4">
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Name</div>
+                <span className="text-sm text-[#0a2a52]">Name</span>
                 <input name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" />
               </label>
 
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Email</div>
+                <span className="text-sm text-[#0a2a52]">Email</span>
                 <input name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" />
               </label>
 
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Phone</div>
+                <span className="text-sm text-[#0a2a52]">Phone</span>
                 <input name="phone" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
               </label>
 
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Delivery Address</div>
+                <span className="text-sm text-[#0a2a52]">Delivery Address</span>
                 <input name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" />
               </label>
             </div>
@@ -74,7 +73,7 @@ export default function QuoteForm(){
             {/* Right column - service details */}
             <div className="space-y-4">
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Service</div>
+                <span className="text-sm text-[#0a2a52]">Service</span>
                 <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="rental">Rental</option>
                   <option value="purchase">Purchase</option>
@@ -84,7 +83,7 @@ export default function QuoteForm(){
               </label>
 
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Container Size</div>
+                <span className="text-sm text-[#0a2a52]">Container Size</span>
                 <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="20ft">20ft</option>
                   <option value="40ft">40ft</option>
@@ -95,7 +94,7 @@ export default function QuoteForm(){
 
               <div className="grid grid-cols-2 gap-4">
                 <label>
-                  <div className="text-sm text-[#0a2a52]">Quantity</div>
+                  <span className="text-sm text-[#0a2a52]">Quantity</span>
                   <select name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -105,7 +104,7 @@ export default function QuoteForm(){
                 </label>
 
                 <label>
-                  <div className="text-sm text-[#0a2a52]">Duration</div>
+                  <span className="text-sm text-[#0a2a52]">Duration</span>
                   <select
                     id="quote-duration"
                     name="duration"
@@ -131,7 +130,7 @@ export default function QuoteForm(){
               
 
               <label className="block">
-                <div className="text-sm text-[#0a2a52]">Additional Notes</div>
+                <span className="text-sm text-[#0a2a52]">Additional Notes</span>
                 <textarea name="message" value={formData.message} onChange={handleChange} className="mt-1 p-3 border rounded w-full h-28 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Tell us anything else we should know" />
               </label>
 

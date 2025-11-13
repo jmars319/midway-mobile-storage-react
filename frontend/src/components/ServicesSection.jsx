@@ -1,5 +1,5 @@
 import React from 'react'
-import { BACKEND } from '../lib/media'
+import { API_BASE, BACKEND_ORIGIN } from '../config'
 
 export const SERVICES_DATA = [
   {
@@ -29,11 +29,11 @@ export default function ServicesSection(){
 
   React.useEffect(()=>{
     // fetch public mapping of service background images from the backend
-    fetch(`${BACKEND}/api/public/services-media`).then(r=>r.ok? r.json() : null).then(j=>{
+    fetch(`${API_BASE}/public/services-media`).then(r=>r.ok? r.json() : null).then(j=>{
       if (!j) return
       // prefix backend origin so images load correctly when backend is on a different origin
       const prefixed = {}
-      Object.keys(j).forEach(k => { prefixed[k] = j[k] ? (BACKEND + j[k]) : null })
+      Object.keys(j).forEach(k => { prefixed[k] = j[k] ? (BACKEND_ORIGIN + j[k]) : null })
       setBgMap(prefixed)
     }).catch(()=>{})
   },[])

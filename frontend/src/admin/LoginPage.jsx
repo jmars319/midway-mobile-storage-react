@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getActiveLogoUrl } from '../lib/media'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../config'
 
 export default function LoginPage({ onLogin, onBack }){
   const [username, setUsername] = useState('')
@@ -29,7 +28,6 @@ export default function LoginPage({ onLogin, onBack }){
         setError(payload.error || 'Invalid credentials')
       }
     } catch (err) {
-      console.error(err)
       setError('Login failed')
     } finally {
       setLoading(false)

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
+import { API_BASE } from '../config'
 
 export default function CareersSection(){
   const [formData, setFormData] = useState({ name:'', email:'', phone:'', position:'', experience:'', message:'', resume: null })
@@ -24,7 +25,7 @@ export default function CareersSection(){
       resumeName: formData.resume ? formData.resume.name : null
     }
 
-    fetch('http://localhost:5001/api/applications', {
+    fetch(`${API_BASE}/applications`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     }).then(r => {
       if (r.ok) {
@@ -35,7 +36,6 @@ export default function CareersSection(){
         showToast('Failed to submit application', { type: 'error' })
       }
     }).catch(err => {
-      console.error('Application submit error', err)
       showToast('Failed to submit application', { type: 'error' })
     })
   }

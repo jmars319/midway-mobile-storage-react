@@ -27,7 +27,7 @@ export default function QuotesModule(){
       } else {
         setError('Failed to load quotes')
       }
-    }catch(e){ console.error(e); setError(String(e)) }
+    }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
   }
 
