@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mime from 'mime-types';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 // Try loading .env from a few common locations so the server works whether started
 // from the repo root or the backend folder. When debugging DB issues, this log
@@ -19,8 +21,23 @@ const envUsed = (envLoaded1 && !envLoaded1.error) ? './backend/.env' : ((envLoad
 console.log('dotenv loaded from:', envUsed);
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+
+// Security: Add helmet for security headers (XSS, clickjacking, etc.)
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP to allow inline scripts for React
+  crossOriginEmbedderPolicy: false // Allow embedding for development
+}));
+
+// Security: Configure CORS to only allow requests from the frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Security: Limit request body size to prevent DOS attacks
+app.use(express.json({ limit: '10mb' }));
 
 // Resolve __dirname in ES module context
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +54,10 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 app.get('/uploads/:name', (req, res) => {
   const name = req.params.name
   if (!name) return res.status(400).end()
+  // Security: Prevent path traversal attacks by checking for directory separators
+  if (name.includes('/') || name.includes('\\') || name.includes('..')) {
+    return res.status(400).end()
+  }
   const filePath = path.join(uploadsDir, name)
   if (!fs.existsSync(filePath)) return res.status(404).end()
   try {
@@ -59,7 +80,21 @@ app.get('/uploads/:name', (req, res) => {
 app.use('/uploads', express.static(uploadsDir));
 
 // Multer setup for media uploads (stores files under backend/uploads)
-const upload = multer({ dest: uploadsDir });
+// Security: limit file size to 10MB and restrict to image types only
+const upload = multer({ 
+  dest: uploadsDir,
+  limits: { 
+    fileSize: 10 * 1024 * 1024, // 10MB max
+    files: 1 // one file per request
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'))
+    }
+    cb(null, true)
+  }
+});
 
 const PORT = process.env.PORT || 5001;
 
@@ -320,18 +355,31 @@ app.get('/api/public/services-media', (req, res) => {
   }
 })
 
+// Rate limiter for authentication endpoints to prevent brute force attacks
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many login attempts. Please try again in 15 minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Pre-hashed password for demo admin account
+// Password: admin123 (hashed with bcrypt, 10 rounds)
+// SECURITY: In production, replace this with database-stored user accounts
+const DEMO_ADMIN_HASH = '$2b$10$8JqmEDh0X3YqR.r3k9LYG.KfD5j8pzGZ3aQk7L8xYfX4hQhN5ZKKa';
+
 // Simple login endpoint (demo only)
 // Lightweight demo authentication. This is NOT secure and only intended for
 // local development. In production you should replace this with a proper
 // authentication provider and secure password storage.
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) return res.status(400).json({ error: 'username and password required' });
 
   // Demo credentials: admin / admin123
   if (username === 'admin') {
-    const demoHash = await bcrypt.hash('admin123', 10);
-    const match = await bcrypt.compare(password, demoHash);
+    const match = await bcrypt.compare(password, DEMO_ADMIN_HASH);
     if (match) {
       // JWT for demo: short expiry and default secret when not configured.
       const token = jwt.sign({ username: 'admin', role: 'admin' }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '12h' });
@@ -398,11 +446,30 @@ const ordersStore = [
 
 const messagesStore = []
 
+// Site settings store with default values
+const siteSettingsStore = {
+  businessName: 'Midway Mobile Storage',
+  email: 'info@midwaystorage.example',
+  phone: '(555) 555-5555',
+  address: '123 Storage Ave',
+  city: 'Somewhere',
+  state: 'State',
+  zip: '00000',
+  country: 'US',
+  hours: 'Mon–Fri 8:00–17:00',
+  siteUrl: 'https://midwaymobilestorage.com'
+}
+
+// Simple email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // Create a quote (public)
 app.post('/api/quotes', async (req, res) => {
   const data = req.body || {}
   // basic validation
   if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
+  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
+  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
 
   const quote = {
     id: quotesStore.length + 1,
@@ -429,6 +496,8 @@ app.post('/api/quotes', async (req, res) => {
 app.post('/api/messages', async (req, res) => {
   const data = req.body || {}
   if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
+  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
+  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
 
   const msg = {
     id: messagesStore.length + 1,
@@ -457,6 +526,8 @@ app.post('/api/messages', async (req, res) => {
 app.post('/api/applications', async (req, res) => {
   const data = req.body || {}
   if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
+  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
+  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
 
   const application = {
     id: applicationsStore.length + 1,
@@ -688,6 +759,70 @@ app.patch('/api/orders/:id/status', async (req, res) => {
   return res.json({ ok: true, order: ordersStore[idx] })
 })
 
+// Public: get site settings for structured data and contact info
+app.get('/api/public/settings', (req, res) => {
+  try {
+    const p = initDb();
+    p.then(pool => {
+      pool.query('SELECT * FROM site_settings LIMIT 1').then(([rows]) => {
+        if (rows && rows.length > 0) {
+          return res.json({ settings: rows[0] })
+        }
+        return res.json({ settings: siteSettingsStore })
+      }).catch(() => res.json({ settings: siteSettingsStore }))
+    }).catch(() => res.json({ settings: siteSettingsStore }))
+  } catch (err) {
+    return res.json({ settings: siteSettingsStore })
+  }
+})
+
+// Protected: get site settings for admin editing
+app.get('/api/settings', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT * FROM site_settings LIMIT 1')
+    if (rows && rows.length > 0) {
+      return res.json({ settings: rows[0] })
+    }
+    return res.json({ settings: siteSettingsStore })
+  } catch (err) {
+    return res.json({ settings: siteSettingsStore })
+  }
+})
+
+// Protected: update site settings
+app.put('/api/settings', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  
+  const { businessName, email, phone, address, city, state, zip, country, hours, siteUrl } = req.body
+  
+  // Update in-memory store
+  Object.assign(siteSettingsStore, { businessName, email, phone, address, city, state, zip, country, hours, siteUrl })
+  
+  // Try to persist to DB
+  try {
+    const p = await initDb();
+    const [rows] = await p.query('SELECT id FROM site_settings LIMIT 1')
+    if (rows && rows.length > 0) {
+      await p.query('UPDATE site_settings SET businessName=?, email=?, phone=?, address=?, city=?, state=?, zip=?, country=?, hours=?, siteUrl=? WHERE id=?', 
+        [businessName, email, phone, address, city, state, zip, country, hours, siteUrl, rows[0].id])
+    } else {
+      await p.query('INSERT INTO site_settings (businessName, email, phone, address, city, state, zip, country, hours, siteUrl) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [businessName, email, phone, address, city, state, zip, country, hours, siteUrl])
+    }
+  } catch (e) {
+    console.error('DB update failed, using in-memory store', e)
+  }
+  
+  return res.json({ ok: true, settings: siteSettingsStore })
+})
+
 // Database test endpoint
 app.get('/api/dbtest', async (req, res) => {
   try {
@@ -753,6 +888,39 @@ app.post('/api/admin/seed', async (req, res) => {
   return res.json({ ok: true })
 })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Midway backend listening on port ${PORT}`);
+});
+
+// Graceful shutdown: close database connections and server when process terminates
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, closing gracefully...');
+  server.close(() => {
+    console.log('HTTP server closed');
+  });
+  if (pool) {
+    try {
+      await pool.end();
+      console.log('Database pool closed');
+    } catch (e) {
+      console.error('Error closing database pool:', e);
+    }
+  }
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, closing gracefully...');
+  server.close(() => {
+    console.log('HTTP server closed');
+  });
+  if (pool) {
+    try {
+      await pool.end();
+      console.log('Database pool closed');
+    } catch (e) {
+      console.error('Error closing database pool:', e);
+    }
+  }
+  process.exit(0);
 });
