@@ -25,7 +25,8 @@ const app = express();
 // Security: Add helmet for security headers (XSS, clickjacking, etc.)
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP to allow inline scripts for React
-  crossOriginEmbedderPolicy: false // Allow embedding for development
+  crossOriginEmbedderPolicy: false, // Allow embedding for development
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow images to be loaded from frontend
 }));
 
 // Security: Configure CORS to only allow requests from the frontend
@@ -367,7 +368,7 @@ const loginLimiter = rateLimit({
 // Pre-hashed password for demo admin account
 // Password: admin123 (hashed with bcrypt, 10 rounds)
 // SECURITY: In production, replace this with database-stored user accounts
-const DEMO_ADMIN_HASH = '$2b$10$8JqmEDh0X3YqR.r3k9LYG.KfD5j8pzGZ3aQk7L8xYfX4hQhN5ZKKa';
+const DEMO_ADMIN_HASH = '$2b$10$G8onYFunulhhTj.0vifIZe4vZ9FKQSFFhedp3H1xIszRhNI2UJvvm';
 
 // Simple login endpoint (demo only)
 // Lightweight demo authentication. This is NOT secure and only intended for
@@ -728,6 +729,42 @@ app.patch('/api/applications/:id/status', async (req, res) => {
   applicationsStore[idx].status = status
   try { const p = await initDb(); await p.query('UPDATE applications SET status=? WHERE id=?', [status, id]).catch(()=>{}) } catch(e){}
   return res.json({ ok: true, application: applicationsStore[idx] })
+})
+
+// Create an order (public) - for PanelSeal and other products
+app.post('/api/orders', async (req, res) => {
+  const data = req.body || {}
+  // basic validation
+  if (!data.customer || !data.email) return res.status(400).json({ error: 'customer name and email required' })
+  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
+  if (data.customer.length > 255) return res.status(400).json({ error: 'customer name too long' })
+  if (!data.product) return res.status(400).json({ error: 'product required' })
+
+  const order = {
+    id: ordersStore.length + 1,
+    customer: data.customer,
+    email: data.email,
+    phone: data.phone || null,
+    address: data.address || null,
+    product: data.product,
+    quantity: data.quantity || null,
+    notes: data.notes || null,
+    status: 'pending',
+    date: new Date().toISOString()
+  }
+
+  // push to memory store
+  ordersStore.push(order)
+
+  // try to persist to DB if available
+  try {
+    const p = await initDb();
+    await p.query('INSERT INTO orders (customer, email, phone, address, product, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [order.customer, order.email, order.phone, order.address, order.product, order.quantity, order.notes, order.status, order.date]).catch(()=>{})
+  } catch (_) {
+    // ignore DB errors in demo mode
+  }
+
+  res.status(201).json({ ok: true, id: order.id })
 })
 
 app.get('/api/orders', async (req, res) => {
