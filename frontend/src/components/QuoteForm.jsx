@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { API_BASE } from '../config'
+import { showToast } from './Toast'
 
 export default function QuoteForm(){
   const [formData, setFormData] = useState({
@@ -32,11 +33,17 @@ export default function QuoteForm(){
         method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)
       })
       if (res.ok){
+        showToast('Quote request submitted successfully!', { type: 'success' })
         setSubmitted(true)
         setFormData({ name:'', email:'', phone:'', serviceType:'rental', containerSize:'20ft', quantity:'1', duration:'short-term', deliveryAddress:'', message:'' })
         setTimeout(()=>setSubmitted(false), 5000)
+      } else {
+        const errorData = await res.json().catch(() => null)
+        showToast(errorData?.error || 'Failed to submit quote request', { type: 'error' })
       }
-    } catch(err){ /* Error silently logged */ }
+    } catch(err){ 
+      showToast('Failed to submit quote request', { type: 'error' })
+    }
   }
 
   return (

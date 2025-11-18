@@ -9,7 +9,8 @@ export default function ContactModal({ onClose }){
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const submit = async () => {
+  const submit = async (e) => {
+    e.preventDefault()
     if (!name.trim() || !email.trim()) { showToast('Name and email are required', { type: 'error' }); return }
     setLoading(true)
     try {
@@ -20,6 +21,11 @@ export default function ContactModal({ onClose }){
       })
       if (res.ok) {
         showToast('Message sent — thank you', { type: 'success' })
+        // Reset form
+        setName('')
+        setEmail('')
+        setSubject('')
+        setMessage('')
         onClose && onClose()
       } else {
         const j = await res.json().catch(()=>null)
@@ -39,7 +45,7 @@ export default function ContactModal({ onClose }){
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700" disabled={loading} aria-label="Close contact form">✕</button>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <form onSubmit={submit} className="mt-4 grid gap-3">
           <label className="block">
             <span className="text-sm text-gray-700 font-medium">Name *</span>
             <input placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required aria-label="Your name" />
@@ -56,12 +62,12 @@ export default function ContactModal({ onClose }){
             <span className="text-sm text-gray-700 font-medium">Message</span>
             <textarea placeholder="Your message" value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 p-2 border rounded h-32 w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" aria-label="Your message" />
           </label>
-        </div>
 
-        <div className="mt-4 flex justify-end gap-3">
-          <button onClick={onClose} className="px-3 py-1 bg-gray-200 rounded" disabled={loading}>Cancel</button>
-          <button onClick={submit} className="px-3 py-1 bg-[#e84424] text-white rounded" disabled={loading}>{loading ? 'Sending…' : 'Send Message'}</button>
-        </div>
+          <div className="mt-4 flex justify-end gap-3">
+            <button type="button" onClick={onClose} className="px-3 py-1 bg-gray-200 rounded" disabled={loading}>Cancel</button>
+            <button type="submit" className="px-3 py-1 bg-[#e84424] text-white rounded" disabled={loading}>{loading ? 'Sending…' : 'Send Message'}</button>
+          </div>
+        </form>
       </div>
     </div>
   )

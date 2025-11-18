@@ -26,7 +26,12 @@ export default function PanelSealOrderModal({ open, onClose }){
         quantity: form.gallons,
         notes: form.notes
       })})
-      if (res.ok){ showToast('Order submitted — we will follow up shortly', { type: 'success' }); onClose() }
+      if (res.ok){ 
+        showToast('Order submitted — we will follow up shortly', { type: 'success' })
+        // Reset form
+        setForm({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
+        onClose() 
+      }
       else { const txt = await res.text(); showToast('Order failed: ' + txt, { type: 'error' }) }
     }catch(err){ showToast('Order error', { type: 'error' }) }
     setSubmitting(false)

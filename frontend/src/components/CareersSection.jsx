@@ -29,8 +29,12 @@ export default function CareersSection(){
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     }).then(r => {
       if (r.ok) {
+        showToast('Application submitted successfully!', { type: 'success' })
         setSubmitted(true)
         setFormData({ name:'', email:'', phone:'', position:'', experience:'', message:'', resume: null })
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]')
+        if (fileInput) fileInput.value = ''
         setTimeout(()=>setSubmitted(false), 5000)
       } else {
         showToast('Failed to submit application', { type: 'error' })

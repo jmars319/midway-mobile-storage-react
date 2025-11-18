@@ -60,13 +60,14 @@ export default function App(){
   // On mount, restore token from localStorage so the admin session survives
   // page reloads. This keeps the demo simple: any valid token in storage will
   // put the app into the admin view (no token validation performed here).
-  useEffect(()=>{
-    const t = localStorage.getItem('midway_token')
-    if (t && !user) {
-      setUser({ username: 'admin', token: t })
-      setCurrentPage('admin')
-    }
-  },[])
+  // Commented out to default to public page on startup
+  // useEffect(()=>{
+  //   const t = localStorage.getItem('midway_token')
+  //   if (t && !user) {
+  //     setUser({ username: 'admin', token: t })
+  //     setCurrentPage('admin')
+  //   }
+  // },[])
 
   // deep-linking: set page from URL on mount and handle back/forward
   useEffect(()=>{
