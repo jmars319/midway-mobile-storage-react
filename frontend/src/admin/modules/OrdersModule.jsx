@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
+import { API_BASE } from '../../config'
 
 // OrdersModule loads protected orders from the backend. It expects a JWT to
 // be stored in localStorage under `midway_token`; the module reads that token
 // and includes it in the Authorization header when requesting the API. This
 // keeps the module simple and avoids prop-drilling auth tokens through many
 // components in this demo.
-const API_BASE = 'http://localhost:5001/api'
 
 export default function OrdersModule(){
   const [orders, setOrders] = useState([])

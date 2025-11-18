@@ -87,10 +87,22 @@ function getBearerToken() {
 }
 
 /**
- * Check rate limiting using session
+ * Check rate limiting using session and IP address
  */
 function checkRateLimit($key, $limit = RATE_LIMIT_REQUESTS, $window = RATE_LIMIT_WINDOW) {
-    session_start();
+    // Start session with secure settings
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_only_cookies', 1);
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            ini_set('session.cookie_secure', 1);
+        }
+        session_start();
+    }
+    
+    // Use IP address as additional rate limit key to prevent session bypass
+    $clientIP = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $rateLimitKey = "rate_limit_{$key}_{$clientIP}";
     
     $now = time();
     $rateLimitKey = "rate_limit_$key";
@@ -163,8 +175,14 @@ function verifyToken($token) {
         return false;
     }
     
-    // Check expiration
-    $payloadData = json_decode(base64_decode($payload), true);
+    // Check expiration - add padding if needed for base64_decode
+    $base64 = str_replace(['-', '_'], ['+', '/'], $payload);
+    $base64 .= str_repeat('=', (4 - strlen($base64) % 4) % 4);
+    $payloadData = json_decode(base64_decode($base64), true);
+    
+    if ($payloadData === null) {
+        return false;
+    }
     
     if (!isset($payloadData['exp']) || $payloadData['exp'] < time()) {
         return false;

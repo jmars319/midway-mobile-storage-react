@@ -158,25 +158,27 @@ const API_BASE = 'https://yourdomain.com/api';
 
 ## Default Login Credentials
 
+⚠️ **Fallback Credentials (if admin_users table is empty):**
 - **Username:** `admin`
 - **Password:** `admin123`
 
-⚠️ **Change these credentials immediately after deployment!**
+**Important:** The `admin_users` table is created by `schema.sql`. To create a secure admin user:
 
-To create a secure admin user:
-1. Generate password hash: Use an online bcrypt generator or PHP script
-2. Insert into database via phpMyAdmin:
-   ```sql
-   CREATE TABLE IF NOT EXISTS admin_users (
-     id INT PRIMARY KEY AUTO_INCREMENT,
-     username VARCHAR(255) NOT NULL UNIQUE,
-     password VARCHAR(255) NOT NULL,
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-   );
-   
-   INSERT INTO admin_users (username, password) 
-   VALUES ('admin', '$2y$10$YOUR_BCRYPT_HASH_HERE');
+1. Use the provided `create_admin.php` script:
+   ```bash
+   php create_admin.php
    ```
+   
+2. Or manually insert via phpMyAdmin:
+   ```sql
+   -- Generate password hash using PHP
+   -- password_hash('your_password', PASSWORD_BCRYPT)
+   
+   INSERT INTO admin_users (username, password, email) 
+   VALUES ('admin', '$2y$10$YOUR_BCRYPT_HASH_HERE', 'admin@yourdomain.com');
+   ```
+
+⚠️ **Change default credentials immediately after deployment!**
 
 ## Security Features
 

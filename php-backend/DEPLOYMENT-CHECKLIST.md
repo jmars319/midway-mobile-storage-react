@@ -54,12 +54,12 @@
 
 ## Frontend Configuration
 
-- [ ] Update frontend `config.js` with production API URL
-- [ ] Update all hardcoded API_BASE URLs in admin modules
+- [ ] Update frontend `config.js` with production API URL (all modules now import from config)
 - [ ] Build production frontend: `npm run build`
 - [ ] Upload frontend build to `/public_html/`
 - [ ] Test all forms on live site
 - [ ] Test admin panel login and functionality
+- [ ] Verify all API requests go to correct backend
 
 ## Security
 

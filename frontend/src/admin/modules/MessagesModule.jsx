@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../../config'
 
 export default function MessagesModule(){
   const [messages, setMessages] = useState([])

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BACKEND } from '../../lib/media'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
-
-const API_BASE = 'http://localhost:5001/api'
+import { API_BASE } from '../../config'
 
 export default function ApplicationsModule(){
   const [applications, setApplications] = useState([])

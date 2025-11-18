@@ -77,5 +77,15 @@ try {
     }
     
 } catch (Exception $e) {
-    jsonResponse(['error' => $e->getMessage()], 400);
+    if (DEBUG_MODE) {
+        error_log('Applications API Error: ' . $e->getMessage());
+    }
+    
+    $message = (strpos($e->getMessage(), 'required') !== false || 
+                strpos($e->getMessage(), 'Invalid') !== false ||
+                strpos($e->getMessage(), 'must be') !== false)
+        ? $e->getMessage()
+        : 'An error occurred processing your request';
+    
+    jsonResponse(['error' => $message], 400);
 }

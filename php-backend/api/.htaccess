@@ -1,8 +1,5 @@
-<?php
-/**
- * .htaccess for URL Rewriting
- * Routes API requests to appropriate PHP files
- */
+# .htaccess for URL Rewriting
+# Routes API requests to appropriate PHP files
 
 # Enable rewrite engine
 RewriteEngine On

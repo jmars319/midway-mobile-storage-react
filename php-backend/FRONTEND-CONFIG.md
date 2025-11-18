@@ -14,48 +14,36 @@ export const API_BASE = 'http://localhost/api';
 export const API_BASE = 'https://yourdomain.com/api';
 ```
 
-## Option 2: Update Individual Module Files
+## Option 2: Environment Variable
 
-If your modules have hardcoded API URLs, update each one:
+Use Vite's environment variable system:
 
-### Files to Update:
+Create `frontend/.env.local`:
+```bash
+VITE_API_BASE=http://localhost:8000
+```
 
-1. **frontend/src/admin/modules/QuotesModule.jsx**
-   ```javascript
-   const API_BASE = 'https://yourdomain.com/api';
-   ```
+For production:
+```bash
+VITE_API_BASE=https://yourdomain.com/api
+```
 
-2. **frontend/src/admin/modules/MessagesModule.jsx**
-   ```javascript
-   const API_BASE = 'https://yourdomain.com/api';
-   ```
+The `config.js` will automatically use this value if set.
 
-3. **frontend/src/admin/modules/ApplicationsModule.jsx**
-   ```javascript
-   const API_BASE = 'https://yourdomain.com/api';
-   ```
+## Verification
 
-4. **frontend/src/admin/modules/OrdersModule.jsx**
-   ```javascript
-   const API_BASE = 'https://yourdomain.com/api';
-   ```
+All admin modules and public forms now import `API_BASE` from `config.js`:
+- ✅ QuotesModule.jsx
+- ✅ MessagesModule.jsx  
+- ✅ ApplicationsModule.jsx
+- ✅ OrdersModule.jsx
+- ✅ InventoryModule.jsx
+- ✅ QuoteForm.jsx
+- ✅ ContactModal.jsx
+- ✅ PanelSealOrderModal.jsx
+- ✅ CareersSection.jsx
 
-5. **frontend/src/admin/modules/InventoryModule.jsx**
-   ```javascript
-   const API_BASE = 'https://yourdomain.com/api';
-   ```
-
-6. **frontend/src/components/QuoteForm.jsx**
-   - Update API endpoint to use config
-
-7. **frontend/src/components/ContactModal.jsx**
-   - Update API endpoint to use config
-
-8. **frontend/src/components/PanelSealOrderModal.jsx**
-   - Update API endpoint to use config
-
-9. **frontend/src/components/CareersSection.jsx**
-   - Update API endpoint to use config
+Just update `config.js` or the environment variable to switch backends!
 
 ## Testing Locally with PHP Backend
 

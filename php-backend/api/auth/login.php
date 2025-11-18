@@ -51,5 +51,8 @@ try {
     }
     
 } catch (Exception $e) {
-    jsonResponse(['error' => $e->getMessage()], 500);
+    if (DEBUG_MODE) {
+        error_log('Login API Error: ' . $e->getMessage());
+    }
+    jsonResponse(['error' => 'Authentication failed'], 500);
 }

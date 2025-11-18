@@ -46,6 +46,9 @@ try {
         $serviceType = isset($data['serviceType']) ? sanitizeInput($data['serviceType']) : null;
         $containerSize = isset($data['containerSize']) ? sanitizeInput($data['containerSize']) : null;
         $quantity = isset($data['quantity']) ? intval($data['quantity']) : null;
+        if ($quantity !== null && ($quantity < 0 || $quantity > 1000)) {
+            jsonResponse(['error' => 'Quantity must be between 0 and 1000'], 400);
+        }
         $duration = isset($data['duration']) ? sanitizeInput($data['duration']) : null;
         $deliveryAddress = isset($data['deliveryAddress']) ? sanitizeInput($data['deliveryAddress']) : null;
         $message = isset($data['message']) ? sanitizeInput($data['message']) : null;
@@ -105,5 +108,17 @@ try {
     }
     
 } catch (Exception $e) {
-    jsonResponse(['error' => $e->getMessage()], 400);
+    // Log error if debug mode
+    if (DEBUG_MODE) {
+        error_log('Quotes API Error: ' . $e->getMessage());
+    }
+    
+    // Return generic error to client unless it's a validation error
+    $message = (strpos($e->getMessage(), 'required') !== false || 
+                strpos($e->getMessage(), 'Invalid') !== false ||
+                strpos($e->getMessage(), 'must be') !== false)
+        ? $e->getMessage()
+        : 'An error occurred processing your request';
+    
+    jsonResponse(['error' => $message], 400);
 }
