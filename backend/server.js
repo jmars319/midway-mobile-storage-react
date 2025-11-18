@@ -31,7 +31,7 @@ app.use(helmet({
 
 // Security: Configure CORS to only allow requests from the frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -365,6 +365,15 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiter for public form submissions to prevent spam
+const formLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 10, // Limit each IP to 10 submissions per 5 minutes
+  message: 'Too many submissions. Please try again in a few minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Pre-hashed password for demo admin account
 // Password: admin123 (hashed with bcrypt, 10 rounds)
 // SECURITY: In production, replace this with database-stored user accounts
@@ -464,93 +473,144 @@ const siteSettingsStore = {
 // Simple email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Input sanitization helper
+function sanitizeInput(str) {
+  if (typeof str !== 'string') return str;
+  return str.trim().replace(/[<>"'`]/g, ''); // Remove potential XSS characters
+}
+
+// Validate and sanitize text input
+function validateAndSanitize(value, fieldName, maxLength = 500) {
+  if (!value || typeof value !== 'string') {
+    throw new Error(`${fieldName} is required`);
+  }
+  const sanitized = sanitizeInput(value);
+  if (sanitized.length === 0) {
+    throw new Error(`${fieldName} cannot be empty`);
+  }
+  if (sanitized.length > maxLength) {
+    throw new Error(`${fieldName} is too long (max ${maxLength} characters)`);
+  }
+  return sanitized;
+}
+
 // Create a quote (public)
-app.post('/api/quotes', async (req, res) => {
+app.post('/api/quotes', formLimiter, async (req, res) => {
   const data = req.body || {}
-  // basic validation
-  if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
-  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
-  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
-
-  const quote = {
-    id: quotesStore.length + 1,
-    createdAt: new Date().toISOString(),
-    ...data
-  }
-
-  // push to memory store
-  quotesStore.push(quote)
-
-  // try to persist to DB if available
+  // Improved validation with sanitization
   try {
-    const p = await initDb();
-    // simple insert into a quotes table if it exists
-    await p.query('INSERT INTO quotes (name, email, phone, serviceType, containerSize, quantity, duration, deliveryAddress, message, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [quote.name, quote.email, quote.phone || null, quote.serviceType || null, quote.containerSize || null, quote.quantity || null, quote.duration || null, quote.deliveryAddress || null, quote.message || null, quote.createdAt]).catch(()=>{})
-  } catch (_) {
-    // ignore DB errors in demo mode
-  }
+    const name = validateAndSanitize(data.name, 'Name', 255);
+    const email = validateAndSanitize(data.email, 'Email', 255);
+    if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' })
 
-  res.status(201).json({ ok: true, id: quote.id })
+    const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const quote = {
+      id: quotesStore.length + 1,
+      createdAt,
+      name,
+      email,
+      phone: data.phone ? sanitizeInput(data.phone) : null,
+      serviceType: data.serviceType ? sanitizeInput(data.serviceType) : null,
+      containerSize: data.containerSize ? sanitizeInput(data.containerSize) : null,
+      quantity: data.quantity,
+      duration: data.duration ? sanitizeInput(data.duration) : null,
+      deliveryAddress: data.deliveryAddress ? sanitizeInput(data.deliveryAddress) : null,
+      message: data.message ? sanitizeInput(data.message) : null
+    }
+
+    // push to memory store
+    quotesStore.push(quote)
+
+    // try to persist to DB if available
+    try {
+      const p = await initDb();
+      // simple insert into a quotes table if it exists
+      await p.query('INSERT INTO quotes (name, email, phone, serviceType, containerSize, quantity, duration, deliveryAddress, message, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [quote.name, quote.email, quote.phone || null, quote.serviceType || null, quote.containerSize || null, quote.quantity || null, quote.duration || null, quote.deliveryAddress || null, quote.message || null, quote.createdAt]).catch((err)=>{
+        console.error('Failed to insert quote into DB:', err.message)
+      })
+    } catch (err) {
+      console.error('DB connection error for quotes:', err.message)
+    }
+
+    res.status(201).json({ ok: true, id: quote.id })
+  } catch (err) {
+    return res.status(400).json({ error: err.message || 'Invalid input' })
+  }
 })
 
 // Create a contact message (public)
-app.post('/api/messages', async (req, res) => {
+app.post('/api/messages', formLimiter, async (req, res) => {
   const data = req.body || {}
-  if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
-  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
-  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
-
-  const msg = {
-    id: messagesStore.length + 1,
-    name: data.name,
-    email: data.email,
-    subject: data.subject || null,
-    message: data.message || null,
-    createdAt: new Date().toISOString(),
-    status: 'new'
-  }
-
-  messagesStore.push(msg)
-
-  // try to persist to DB if available
   try {
-    const p = await initDb();
-    await p.query('INSERT INTO messages (name,email,subject,message,createdAt,status) VALUES (?,?,?,?,?,?)', [msg.name, msg.email, msg.subject || null, msg.message || null, msg.createdAt, msg.status]).catch(()=>{})
-  } catch (_) {
-    // ignore DB errors in demo mode
-  }
+    const name = validateAndSanitize(data.name, 'Name', 255);
+    const email = validateAndSanitize(data.email, 'Email', 255);
+    if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' })
 
-  res.status(201).json({ ok: true, id: msg.id })
+    const createdAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const msg = {
+      id: messagesStore.length + 1,
+      name,
+      email,
+      subject: data.subject ? sanitizeInput(data.subject) : null,
+      message: data.message ? sanitizeInput(data.message) : null,
+      createdAt,
+      status: 'new'
+    }
+
+    messagesStore.push(msg)
+
+    // try to persist to DB if available
+    try {
+      const p = await initDb();
+      await p.query('INSERT INTO messages (name,email,subject,message,createdAt,status) VALUES (?,?,?,?,?,?)', [msg.name, msg.email, msg.subject || null, msg.message || null, msg.createdAt, msg.status]).catch((err)=>{
+        console.error('Failed to insert message into DB:', err.message)
+      })
+    } catch (err) {
+      console.error('DB connection error for messages:', err.message)
+    }
+
+    res.status(201).json({ ok: true, id: msg.id })
+  } catch (err) {
+    return res.status(400).json({ error: err.message || 'Invalid input' })
+  }
 })
 
 // Create a job application (public)
-app.post('/api/applications', async (req, res) => {
+app.post('/api/applications', formLimiter, async (req, res) => {
   const data = req.body || {}
-  if (!data.name || !data.email) return res.status(400).json({ error: 'name and email required' })
-  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
-  if (data.name.length > 255) return res.status(400).json({ error: 'name too long' })
-
-  const application = {
-    id: applicationsStore.length + 1,
-    name: data.name,
-    email: data.email,
-    phone: data.phone || null,
-    position: data.position || null,
-    experience: data.experience || null,
-    resume: data.resumeName || null,
-    date: new Date().toISOString().split('T')[0],
-    status: 'new'
-  }
-
-  applicationsStore.push(application)
-
-  // try to persist to DB if available
   try {
-    const p = await initDb();
-    await p.query('INSERT INTO applications (name,email,phone,position,experience,resume,date,status) VALUES (?,?,?,?,?,?,?,?)', [application.name, application.email, application.phone, application.position, application.experience, application.resume, application.date, application.status]).catch(()=>{})
-  } catch (_) {}
+    const name = validateAndSanitize(data.name, 'Name', 255);
+    const email = validateAndSanitize(data.email, 'Email', 255);
+    if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' })
 
-  res.status(201).json({ ok: true, id: application.id })
+    const application = {
+      id: applicationsStore.length + 1,
+      name,
+      email,
+      phone: data.phone ? sanitizeInput(data.phone) : null,
+      position: data.position ? sanitizeInput(data.position) : null,
+      experience: data.experience ? sanitizeInput(data.experience) : null,
+      resume: data.resumeName ? sanitizeInput(data.resumeName) : null,
+      date: new Date().toISOString().split('T')[0],
+      status: 'new'
+    }
+
+    applicationsStore.push(application)
+
+    // try to persist to DB if available
+    try {
+      const p = await initDb();
+      await p.query('INSERT INTO applications (name,email,phone,position,experience,resume,date,status) VALUES (?,?,?,?,?,?,?,?)', [application.name, application.email, application.phone, application.position, application.experience, application.resume, application.date, application.status]).catch((err)=>{
+        console.error('Failed to insert application into DB:', err.message)
+      })
+    } catch (err) {
+      console.error('DB connection error for applications:', err.message)
+    }
+
+    res.status(201).json({ ok: true, id: application.id })
+  } catch (err) {
+    return res.status(400).json({ error: err.message || 'Invalid input' })
+  }
 })
 
 // Protected: list quotes
@@ -612,6 +672,20 @@ app.put('/api/quotes', async (req, res) => {
   return res.json({ ok: true, quote: quotesStore[idx] })
 })
 
+// Protected: delete a quote
+app.delete('/api/quotes/:id', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  const id = Number(req.params.id)
+  if (!id) return res.status(400).json({ error: 'missing id' })
+  const idx = quotesStore.findIndex(q => Number(q.id) === id)
+  if (idx === -1) return res.status(404).json({ error: 'not found' })
+  const [removed] = quotesStore.splice(idx, 1)
+  try { const p = await initDb(); await p.query('DELETE FROM quotes WHERE id=?', [id]).catch(()=>{}) } catch(e){}
+  return res.json({ ok: true, quote: removed })
+})
+
 // Protected: update a message status (body: { id, status })
 app.put('/api/messages', async (req, res) => {
   const auth = req.headers.authorization || '';
@@ -630,6 +704,20 @@ app.put('/api/messages', async (req, res) => {
     await p.query('UPDATE messages SET status=? WHERE id=?', [messagesStore[idx].status || null, id]).catch(()=>{})
   } catch (e) {}
   return res.json({ ok: true, message: messagesStore[idx] })
+})
+
+// Protected: delete a message
+app.delete('/api/messages/:id', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  const id = Number(req.params.id)
+  if (!id) return res.status(400).json({ error: 'missing id' })
+  const idx = messagesStore.findIndex(m => Number(m.id) === id)
+  if (idx === -1) return res.status(404).json({ error: 'not found' })
+  const [removed] = messagesStore.splice(idx, 1)
+  try { const p = await initDb(); await p.query('DELETE FROM messages WHERE id=?', [id]).catch(()=>{}) } catch(e){}
+  return res.json({ ok: true, message: removed })
 })
 
 // Protected endpoints for admin data (inventory, applications, orders)
@@ -731,40 +819,57 @@ app.patch('/api/applications/:id/status', async (req, res) => {
   return res.json({ ok: true, application: applicationsStore[idx] })
 })
 
+// Protected: delete an application
+app.delete('/api/applications/:id', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  const id = Number(req.params.id)
+  if (!id) return res.status(400).json({ error: 'missing id' })
+  const idx = applicationsStore.findIndex(a => Number(a.id) === id)
+  if (idx === -1) return res.status(404).json({ error: 'not found' })
+  const [removed] = applicationsStore.splice(idx, 1)
+  try { const p = await initDb(); await p.query('DELETE FROM applications WHERE id=?', [id]).catch(()=>{}) } catch(e){}
+  return res.json({ ok: true, application: removed })
+})
+
 // Create an order (public) - for PanelSeal and other products
-app.post('/api/orders', async (req, res) => {
+app.post('/api/orders', formLimiter, async (req, res) => {
   const data = req.body || {}
-  // basic validation
-  if (!data.customer || !data.email) return res.status(400).json({ error: 'customer name and email required' })
-  if (!EMAIL_REGEX.test(data.email)) return res.status(400).json({ error: 'invalid email format' })
-  if (data.customer.length > 255) return res.status(400).json({ error: 'customer name too long' })
-  if (!data.product) return res.status(400).json({ error: 'product required' })
-
-  const order = {
-    id: ordersStore.length + 1,
-    customer: data.customer,
-    email: data.email,
-    phone: data.phone || null,
-    address: data.address || null,
-    product: data.product,
-    quantity: data.quantity || null,
-    notes: data.notes || null,
-    status: 'pending',
-    date: new Date().toISOString()
-  }
-
-  // push to memory store
-  ordersStore.push(order)
-
-  // try to persist to DB if available
   try {
-    const p = await initDb();
-    await p.query('INSERT INTO orders (customer, email, phone, address, product, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [order.customer, order.email, order.phone, order.address, order.product, order.quantity, order.notes, order.status, order.date]).catch(()=>{})
-  } catch (_) {
-    // ignore DB errors in demo mode
-  }
+    const customer = validateAndSanitize(data.customer, 'Customer name', 255);
+    const email = validateAndSanitize(data.email, 'Email', 255);
+    if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Please enter a valid email address' })
+    const product = validateAndSanitize(data.product, 'Product', 255);
 
-  res.status(201).json({ ok: true, id: order.id })
+    const order = {
+      id: ordersStore.length + 1,
+      customer,
+      email,
+      phone: data.phone ? sanitizeInput(data.phone) : null,
+      address: data.address ? sanitizeInput(data.address) : null,
+      product,
+      quantity: data.quantity || null,
+      notes: data.notes ? sanitizeInput(data.notes) : null,
+      status: 'pending',
+      date: new Date().toISOString()
+    }
+
+    // push to memory store
+    ordersStore.push(order)
+
+    // try to persist to DB if available
+    try {
+      const p = await initDb();
+      await p.query('INSERT INTO orders (customer, email, phone, address, product, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [order.customer, order.email, order.phone, order.address, order.product, order.quantity, order.notes, order.status, order.date]).catch(()=>{})
+    } catch (_) {
+      // ignore DB errors in demo mode
+    }
+
+    res.status(201).json({ ok: true, id: order.id })
+  } catch (err) {
+    return res.status(400).json({ error: err.message || 'Invalid input' })
+  }
 })
 
 app.get('/api/orders', async (req, res) => {
@@ -794,6 +899,20 @@ app.patch('/api/orders/:id/status', async (req, res) => {
   ordersStore[idx].status = status
   try { const p = await initDb(); await p.query('UPDATE orders SET status=? WHERE id=?', [status, id]).catch(()=>{}) } catch(e){}
   return res.json({ ok: true, order: ordersStore[idx] })
+})
+
+// Protected: delete an order
+app.delete('/api/orders/:id', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.replace(/^Bearer\s+/i, '');
+  try { jwt.verify(token, process.env.JWT_SECRET || 'dev-secret'); } catch (err) { return res.status(401).json({ error: 'unauthorized' }); }
+  const id = Number(req.params.id)
+  if (!id) return res.status(400).json({ error: 'missing id' })
+  const idx = ordersStore.findIndex(o => Number(o.id) === id)
+  if (idx === -1) return res.status(404).json({ error: 'not found' })
+  const [removed] = ordersStore.splice(idx, 1)
+  try { const p = await initDb(); await p.query('DELETE FROM orders WHERE id=?', [id]).catch(()=>{}) } catch(e){}
+  return res.json({ ok: true, order: removed })
 })
 
 // Public: get site settings for structured data and contact info

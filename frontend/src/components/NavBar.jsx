@@ -31,8 +31,16 @@ export default function NavBar({ onLoginClick, scrollTo }){
   },[])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-[#0a2a52] text-white shadow-lg z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      {/* Skip to main content link for accessibility */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#e84424] focus:text-white focus:rounded focus:outline-none"
+      >
+        Skip to main content
+      </a>
+      <nav className="fixed top-0 left-0 right-0 bg-[#0a2a52] text-white shadow-lg z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center gap-3">
             {logoUrl ? (
@@ -90,5 +98,6 @@ export default function NavBar({ onLoginClick, scrollTo }){
         </div>
       </div>
     </nav>
+    </>
   )
 }

@@ -1,0 +1,42 @@
+{
+  "3c947b2ed418750f9d2b556058322a9b": {
+    "originalName": "logo.original.png",
+    "tags": [
+      "logo"
+    ]
+  },
+  "139a1d58136d965890393037184ba4bc": {
+    "originalName": "containerstacks_optimized_lossless.png",
+    "tags": [
+      "hero"
+    ]
+  },
+  "81dc72e5c945c927368dc4bf71b45965": {
+    "originalName": "containerstacks3_webready.webp",
+    "tags": [
+      "gallery",
+      "service:container-rentals"
+    ]
+  },
+  "862ecb1f2952c953260095fabb6cd92d": {
+    "originalName": "paintedcontainers_webready.webp",
+    "tags": [
+      "gallery",
+      "service:container-sales"
+    ]
+  },
+  "03abf93e0ed21733a3122bb1bd66a4da": {
+    "originalName": "rollupdoor_webready.webp",
+    "tags": [
+      "gallery",
+      "service:custom-builds"
+    ]
+  },
+  "a5d9618de85afb43eab454cc57545875": {
+    "originalName": "trailers_webready.webp",
+    "tags": [
+      "gallery",
+      "service:trailer-rentals"
+    ]
+  }
+}

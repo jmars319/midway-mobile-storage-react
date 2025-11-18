@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
+import ConfirmModal from '../../components/ConfirmModal'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -7,6 +8,9 @@ export default function QuotesModule(){
   const [quotes, setQuotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [selected, setSelected] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   async function load(){
@@ -49,10 +53,7 @@ export default function QuotesModule(){
         {!loading && !error && quotes.length === 0 && (
           <div className="p-8 text-center text-gray-600">
             <div className="text-xl font-semibold mb-2">No quote requests yet</div>
-            <div className="mb-4">No customers have submitted quote requests. Use the public quote form to create a test quote or click Refresh.</div>
-            <div>
-              <button onClick={load} className="bg-[#e84424] text-white px-4 py-2 rounded">Refresh</button>
-            </div>
+            <div>No customers have submitted quote requests. Use the public quote form to create a test quote.</div>
           </div>
         )}
 
@@ -77,8 +78,8 @@ export default function QuotesModule(){
                   <td className="px-6 py-4 text-sm text-gray-600">{new Date(q.createdAt).toLocaleString()}</td>
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${q.status==='responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{q.status||'pending'}</span></td>
                   <td className="px-6 py-4">
-                    <button className="text-[#e84424] hover:text-[#d13918] font-semibold mr-3">View</button>
-                    <button className="text-blue-600 hover:text-blue-700 font-semibold">Details</button>
+                    <button onClick={() => setSelected(q)} className="text-[#e84424] hover:text-[#d13918] font-semibold mr-3">View</button>
+                    <button onClick={() => setPendingDelete(q)} className="text-red-600 hover:text-red-700 font-semibold">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -86,6 +87,143 @@ export default function QuotesModule(){
           </table>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {pendingDelete && (
+        <ConfirmModal
+          title="Delete quote request"
+          message={`Delete quote from "${pendingDelete.name}"? This cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setPendingDelete(null)}
+          loading={pendingDeleteLoading}
+          onConfirm={async () => {
+            setPendingDeleteLoading(true)
+            try {
+              const res = await fetch(`${API_BASE}/quotes/${pendingDelete.id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              if (res.ok) {
+                setQuotes(prev => prev.filter(q => q.id !== pendingDelete.id))
+                if (selected && selected.id === pendingDelete.id) setSelected(null)
+                setPendingDelete(null)
+                showToast('Quote deleted', { type: 'success' })
+              } else {
+                const txt = await res.text()
+                showToast('Delete failed: ' + txt, { type: 'error' })
+                setPendingDelete(null)
+              }
+            } catch (e) {
+              if (import.meta.env.DEV) console.error(e)
+              showToast('Delete error', { type: 'error' })
+              setPendingDelete(null)
+            } finally {
+              setPendingDeleteLoading(false)
+            }
+          }}
+        />
+      )}
+
+      {/* Detail view modal */}
+      {selected && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-bold">Quote Request Details</h3>
+              <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="font-semibold text-gray-700">Customer</div>
+                <div className="text-gray-900">{selected.name}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Email</div>
+                <div className="text-gray-900">{selected.email}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Phone</div>
+                <div className="text-gray-900">{selected.phone || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Service Type</div>
+                <div className="text-gray-900">{selected.serviceType || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Container Size</div>
+                <div className="text-gray-900">{selected.containerSize || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Quantity</div>
+                <div className="text-gray-900">{selected.quantity || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Duration</div>
+                <div className="text-gray-900">{selected.duration || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Delivery Address</div>
+                <div className="text-gray-900">{selected.deliveryAddress || '—'}</div>
+              </div>
+              <div className="col-span-2">
+                <div className="font-semibold text-gray-700">Message</div>
+                <div className="text-gray-900 whitespace-pre-wrap">{selected.message || '—'}</div>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Status</div>
+                <button
+                  onClick={async () => {
+                    const newStatus = selected.status === 'responded' ? 'pending' : 'responded'
+                    try {
+                      const res = await fetch(`${API_BASE}/quotes`, {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ id: selected.id, status: newStatus })
+                      })
+                      if (res.ok) {
+                        const j = await res.json()
+                        setSelected(j.quote)
+                        setQuotes(prev => prev.map(q => q.id === j.quote.id ? j.quote : q))
+                        showToast('Status updated', { type: 'success' })
+                      } else {
+                        showToast('Status update failed', { type: 'error' })
+                      }
+                    } catch (e) {
+                      if (import.meta.env.DEV) console.error(e)
+                      showToast('Status update error', { type: 'error' })
+                    }
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm ${selected.status === 'responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                >
+                  {selected.status || 'pending'}
+                </button>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-700">Submitted</div>
+                <div className="text-gray-900">{new Date(selected.createdAt).toLocaleString()}</div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => navigator.clipboard.writeText(JSON.stringify(selected, null, 2))}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+              >
+                Copy JSON
+              </button>
+              <button
+                onClick={() => setSelected(null)}
+                className="px-4 py-2 bg-[#e84424] text-white rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

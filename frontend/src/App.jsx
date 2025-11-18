@@ -148,7 +148,7 @@ export default function App(){
     <ErrorBoundary>
       <div className="min-h-screen">
         <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
-        <main className="pt-24">
+        <main id="main-content" className="pt-24" tabIndex="-1">
           {currentPage === 'privacy' ? (
             <PrivacyPolicy onBack={()=>{ setCurrentPage('public'); window.history.pushState({}, '', '/') }} />
           ) : currentPage === 'terms' ? (

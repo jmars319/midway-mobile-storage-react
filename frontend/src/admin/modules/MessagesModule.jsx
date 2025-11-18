@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
+import ConfirmModal from '../../components/ConfirmModal'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -7,6 +8,8 @@ export default function MessagesModule(){
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   async function load(){
@@ -49,10 +52,7 @@ export default function MessagesModule(){
         {!loading && !error && messages.length === 0 && (
           <div className="p-8 text-center text-gray-600">
             <div className="text-xl font-semibold mb-2">No messages yet</div>
-            <div className="mb-4">No contact messages have been received. Use the public Contact form to create a test message or click Refresh.</div>
-            <div>
-              <button onClick={load} className="bg-[#e84424] text-white px-4 py-2 rounded">Refresh</button>
-            </div>
+            <div>No contact messages have been received. Use the public Contact form to create a test message.</div>
           </div>
         )}
 
@@ -85,7 +85,8 @@ export default function MessagesModule(){
                         if (res.ok) { showToast('Marked responded', { type: 'success' }); load() }
                         else showToast('Failed to update', { type: 'error' })
                       }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Failed', { type: 'error' }) }
-                    }} className="text-sm text-[#e84424] hover:text-[#d13918]">Mark Responded</button>
+                    }} className="text-sm text-[#e84424] hover:text-[#d13918] mr-2">Mark Responded</button>
+                    <button onClick={() => setPendingDelete(m)} className="text-sm text-red-600 hover:text-red-700">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -93,6 +94,42 @@ export default function MessagesModule(){
           </table>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {pendingDelete && (
+        <ConfirmModal
+          title="Delete message"
+          message={`Delete message from "${pendingDelete.name}"? This cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setPendingDelete(null)}
+          loading={pendingDeleteLoading}
+          onConfirm={async () => {
+            setPendingDeleteLoading(true)
+            try {
+              const res = await fetch(`${API_BASE}/messages/${pendingDelete.id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              if (res.ok) {
+                setMessages(prev => prev.filter(m => m.id !== pendingDelete.id))
+                setPendingDelete(null)
+                showToast('Message deleted', { type: 'success' })
+              } else {
+                const txt = await res.text()
+                showToast('Delete failed: ' + txt, { type: 'error' })
+                setPendingDelete(null)
+              }
+            } catch (e) {
+              if (import.meta.env.DEV) console.error(e)
+              showToast('Delete error', { type: 'error' })
+              setPendingDelete(null)
+            } finally {
+              setPendingDeleteLoading(false)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

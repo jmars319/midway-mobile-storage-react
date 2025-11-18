@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
+import ConfirmModal from '../../components/ConfirmModal'
 
 // OrdersModule loads protected orders from the backend. It expects a JWT to
 // be stored in localStorage under `midway_token`; the module reads that token
@@ -13,6 +14,8 @@ export default function OrdersModule(){
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   async function load(){
@@ -47,7 +50,10 @@ export default function OrdersModule(){
         {error && <div className="text-red-600">{error}</div>}
 
         {!loading && !error && orders.length === 0 && (
-          <div className="p-8 text-center text-gray-600">No orders found. Click Refresh.</div>
+          <div className="p-8 text-center text-gray-600">
+            <div className="text-xl font-semibold mb-2">No orders yet</div>
+            <div>No PanelSeal orders have been placed.</div>
+          </div>
         )}
 
         {!loading && !error && orders.length > 0 && (
@@ -63,7 +69,7 @@ export default function OrdersModule(){
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${o.status==='shipped' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{o.status}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(o)} className="text-[#e84424] mr-3">View</button>
-                    <button onClick={() => { if (o.trackingUrl) window.open(o.trackingUrl, '_blank') }} className="text-blue-600">Track</button>
+                    <button onClick={() => setPendingDelete(o)} className="text-red-600">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -71,6 +77,44 @@ export default function OrdersModule(){
           </table>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {pendingDelete && (
+        <ConfirmModal
+          title="Delete order"
+          message={`Delete order from "${pendingDelete.customer}"? This cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setPendingDelete(null)}
+          loading={pendingDeleteLoading}
+          onConfirm={async () => {
+            setPendingDeleteLoading(true)
+            try {
+              const res = await fetch(`${API_BASE}/orders/${pendingDelete.id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              if (res.ok) {
+                setOrders(prev => prev.filter(o => o.id !== pendingDelete.id))
+                if (selected && selected.id === pendingDelete.id) setSelected(null)
+                setPendingDelete(null)
+                showToast('Order deleted', { type: 'success' })
+              } else {
+                const txt = await res.text()
+                showToast('Delete failed: ' + txt, { type: 'error' })
+                setPendingDelete(null)
+              }
+            } catch (e) {
+              if (import.meta.env.DEV) console.error(e)
+              showToast('Delete error', { type: 'error' })
+              setPendingDelete(null)
+            } finally {
+              setPendingDeleteLoading(false)
+            }
+          }}
+        />
+      )}
+
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">

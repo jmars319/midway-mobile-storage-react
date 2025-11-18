@@ -49,7 +49,10 @@ export default function InventoryModule(){
         {error && <div className="text-red-600">{error}</div>}
 
         {!loading && !error && inventory.length === 0 && (
-          <div className="p-8 text-center text-gray-600">No inventory items found. Click Refresh.</div>
+          <div className="p-8 text-center text-gray-600">
+            <div className="text-xl font-semibold mb-2">No inventory items</div>
+            <div>No containers in inventory. Click "Add Item" to create one.</div>
+          </div>
         )}
 
         {!loading && !error && inventory.length > 0 && (

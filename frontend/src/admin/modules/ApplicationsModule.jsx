@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { BACKEND } from '../../lib/media'
 import { showToast } from '../../components/Toast'
+import ConfirmModal from '../../components/ConfirmModal'
 
 const API_BASE = 'http://localhost:5001/api'
 
@@ -9,6 +10,8 @@ export default function ApplicationsModule(){
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   async function load(){
@@ -43,7 +46,10 @@ export default function ApplicationsModule(){
         {error && <div className="text-red-600">{error}</div>}
 
         {!loading && !error && applications.length === 0 && (
-          <div className="p-8 text-center text-gray-600">No applications found. Click Refresh.</div>
+          <div className="p-8 text-center text-gray-600">
+            <div className="text-xl font-semibold mb-2">No applications yet</div>
+            <div>No job applications have been submitted.</div>
+          </div>
         )}
 
         {!loading && !error && applications.length > 0 && (
@@ -66,7 +72,8 @@ export default function ApplicationsModule(){
                       } else {
                         showToast('No resume available', { type: 'info' })
                       }
-                    }} className="text-blue-600">Resume</button>
+                    }} className="text-blue-600 mr-3">Resume</button>
+                    <button onClick={() => setPendingDelete(a)} className="text-red-600">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -74,6 +81,44 @@ export default function ApplicationsModule(){
           </table>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {pendingDelete && (
+        <ConfirmModal
+          title="Delete application"
+          message={`Delete application from "${pendingDelete.name}"? This cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onCancel={() => setPendingDelete(null)}
+          loading={pendingDeleteLoading}
+          onConfirm={async () => {
+            setPendingDeleteLoading(true)
+            try {
+              const res = await fetch(`${API_BASE}/applications/${pendingDelete.id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              if (res.ok) {
+                setApplications(prev => prev.filter(a => a.id !== pendingDelete.id))
+                if (selected && selected.id === pendingDelete.id) setSelected(null)
+                setPendingDelete(null)
+                showToast('Application deleted', { type: 'success' })
+              } else {
+                const txt = await res.text()
+                showToast('Delete failed: ' + txt, { type: 'error' })
+                setPendingDelete(null)
+              }
+            } catch (e) {
+              if (import.meta.env.DEV) console.error(e)
+              showToast('Delete error', { type: 'error' })
+              setPendingDelete(null)
+            } finally {
+              setPendingDeleteLoading(false)
+            }
+          }}
+        />
+      )}
+
       {selected && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">

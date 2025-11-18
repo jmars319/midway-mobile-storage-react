@@ -49,11 +49,11 @@ export default function LoginPage({ onLogin, onBack }){
         {error && <div className="mb-3 text-red-600">{error}</div>}
 
         <form onSubmit={submit} className="grid gap-3">
-          <label className="text-sm text-[#0a2a52]">Username</label>
-          <input value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="Username" className="p-2 border rounded" />
+          <label htmlFor="username" className="text-sm text-[#0a2a52]">Username</label>
+          <input id="username" value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="Username" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424] focus:outline-none" required autoComplete="username" />
 
-          <label className="text-sm text-[#0a2a52]">Password</label>
-          <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="p-2 border rounded" />
+          <label htmlFor="password" className="text-sm text-[#0a2a52]">Password</label>
+          <input id="password" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="p-2 border rounded focus:ring-2 focus:ring-[#e84424] focus:outline-none" required autoComplete="current-password" />
 
           <div className="flex items-center justify-between mt-2">
             <button type="submit" disabled={loading} className="bg-[#e84424] text-white px-4 py-2 rounded font-semibold disabled:opacity-60">{loading? 'Signing in...' : 'Sign In'}</button>
@@ -61,9 +61,11 @@ export default function LoginPage({ onLogin, onBack }){
           </div>
         </form>
 
-        <div className="mt-4 text-sm text-gray-600">
-          Demo credentials: <div className="mt-1 font-mono text-sm">admin / admin123</div>
-        </div>
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-4 text-sm text-gray-600">
+            Demo credentials: <div className="mt-1 font-mono text-sm">admin / admin123</div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -27,7 +27,7 @@ This checklist will guide you through deploying your website step-by-step. Follo
 - [ ] Test contact form
 - [ ] Test career application form
 - [ ] Test PanelSeal order form
-- [ ] Test admin login with credentials: `admin` / `password123`
+- [ ] Test admin login with credentials: `admin` / `admin123`
 - [ ] Verify all images load correctly
 - [ ] Test on mobile devices (responsive design)
 
@@ -94,62 +94,75 @@ Frontend:
 ```sql
 CREATE TABLE IF NOT EXISTS site_settings (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  key_name VARCHAR(255) UNIQUE,
-  value TEXT,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  businessName VARCHAR(255) NOT NULL DEFAULT 'Midway Mobile Storage',
+  email VARCHAR(255) NOT NULL DEFAULT 'info@midwaystorage.example',
+  phone VARCHAR(50) NOT NULL DEFAULT '(555) 555-5555',
+  address VARCHAR(255) NOT NULL DEFAULT '123 Storage Ave',
+  city VARCHAR(100) NOT NULL DEFAULT 'Somewhere',
+  state VARCHAR(100) NOT NULL DEFAULT 'State',
+  zip VARCHAR(20) NOT NULL DEFAULT '00000',
+  country VARCHAR(10) NOT NULL DEFAULT 'US',
+  hours VARCHAR(255) NOT NULL DEFAULT 'Mon–Fri 8:00–17:00',
+  siteUrl VARCHAR(255) NOT NULL DEFAULT 'https://midwaymobilestorage.com',
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS quotes (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255),
-  email VARCHAR(255),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
-  company VARCHAR(255),
-  service VARCHAR(255),
+  serviceType VARCHAR(100),
+  containerSize VARCHAR(50),
+  quantity VARCHAR(50),
+  duration VARCHAR(50),
+  deliveryAddress TEXT,
   message TEXT,
   status VARCHAR(50) DEFAULT 'new',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS messages (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255),
-  email VARCHAR(255),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   subject VARCHAR(255),
   message TEXT,
   status VARCHAR(50) DEFAULT 'new',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS applications (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255),
-  email VARCHAR(255),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
   position VARCHAR(255),
   resume VARCHAR(500),
   status VARCHAR(50) DEFAULT 'new',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS inventory (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  type VARCHAR(100),
+  type VARCHAR(100) NOT NULL,
   size VARCHAR(100),
-  status VARCHAR(50),
+  `condition` VARCHAR(50),
   location VARCHAR(255),
   price DECIMAL(10,2),
+  status VARCHAR(50) DEFAULT 'available',
   notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS orders (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  customer VARCHAR(255),
-  email VARCHAR(255),
+  customer VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
   address TEXT,
-  product VARCHAR(255),
+  product VARCHAR(255) NOT NULL,
   quantity VARCHAR(50),
   notes TEXT,
   status VARCHAR(50) DEFAULT 'pending',
@@ -356,7 +369,7 @@ GoDaddy needs special configuration for single-page apps:
 
 ### 5.3 Admin Panel Tests
 - [ ] Navigate to: `https://yourdomain.com/#admin` OR scroll to footer and click "Admin Login"
-- [ ] Login with: `admin` / `password123`
+- [ ] Login with: `admin` / `admin123`
 - [ ] Dashboard loads with statistics
 - [ ] Check "Quotes" module - your test quote should appear
 - [ ] Check "Messages" module - your test message should appear
@@ -421,7 +434,7 @@ Test in multiple browsers:
 ### 6.5 Change Default Admin Password
 **CRITICAL - DO THIS NOW:**
 - [ ] Log into admin panel
-- [ ] Currently, password is `password123` (anyone can guess this!)
+- [ ] Currently, password is `admin123` (anyone can guess this!)
 - [ ] **TO DO:** You need to implement a password change feature OR update the hash in `backend/server.js`
   
 **Temporary Solution (until you build password change feature):**
@@ -431,8 +444,8 @@ Test in multiple browsers:
    node -e "const bcrypt = require('bcrypt'); bcrypt.hash('YOUR_NEW_SECURE_PASSWORD', 10, (e,h) => console.log(h))"
    ```
 2. Copy the output hash
-3. In Railway, update the environment variable or edit `backend/server.js` line 354
-4. Replace the hash with your new hash
+3. In Railway, update the environment variable or edit `backend/server.js` line 370
+4. Replace the `DEMO_ADMIN_HASH` constant with your new hash
 5. Redeploy backend
 6. Test login with new password
 
@@ -533,7 +546,7 @@ Test in multiple browsers:
 ### Issue: "Admin login not working"
 - [ ] Verify Railway backend is running
 - [ ] Check rate limiting (wait 15 minutes if blocked)
-- [ ] Verify credentials: `admin` / `password123`
+- [ ] Verify credentials: `admin` / `admin123`
 - [ ] Check Railway logs for authentication errors
 
 ### Issue: "Forms not submitting"
