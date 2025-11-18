@@ -1,0 +1,22 @@
+# Ignore configuration with sensitive data
+config.php
+
+# Ignore uploads directory
+uploads/
+
+# Ignore logs
+*.log
+
+# Ignore macOS files
+.DS_Store
+
+# Ignore editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore temp files
+tmp/
+temp/

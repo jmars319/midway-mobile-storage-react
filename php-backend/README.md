@@ -1,0 +1,223 @@
+# PHP Backend for GoDaddy cPanel
+
+This is a PHP implementation of the Midway Mobile Storage backend API, designed to work with GoDaddy's shared hosting and cPanel.
+
+## Features
+
+- ✅ RESTful API endpoints matching the Node.js backend
+- ✅ JWT authentication
+- ✅ Rate limiting (session-based)
+- ✅ Input sanitization and validation
+- ✅ CORS support
+- ✅ MySQL database integration
+- ✅ Secure file handling
+
+## Directory Structure
+
+```
+php-backend/
+├── api/
+│   ├── .htaccess           # URL rewriting rules
+│   ├── auth/
+│   │   └── login.php       # Authentication endpoint
+│   ├── health.php          # Health check
+│   ├── quotes.php          # Quote requests
+│   ├── messages.php        # Contact messages
+│   ├── applications.php    # Job applications
+│   ├── orders.php          # PanelSeal orders
+│   └── inventory.php       # Inventory management
+├── config.php              # Configuration settings
+├── database.php            # Database connection handler
+├── utils.php               # Utility functions
+└── README.md              # This file
+```
+
+## Installation on GoDaddy
+
+### 1. Database Setup
+
+1. Log into cPanel
+2. Go to **MySQL® Databases**
+3. Create a new database (e.g., `username_midway`)
+4. Create a database user with a strong password
+5. Add the user to the database with **ALL PRIVILEGES**
+6. Note your database credentials
+
+### 2. Import Database Schema
+
+1. Go to **phpMyAdmin** in cPanel
+2. Select your database
+3. Click **Import** tab
+4. Upload `backend/schema.sql` from the Node.js backend directory
+5. Execute the SQL to create tables
+
+### 3. Upload PHP Backend Files
+
+1. Go to **File Manager** in cPanel
+2. Navigate to `public_html/api/` (create the `api` directory if needed)
+3. Upload all files from `php-backend/` maintaining the directory structure:
+   ```
+   public_html/
+   └── api/
+       ├── .htaccess
+       ├── auth/
+       │   └── login.php
+       ├── health.php
+       ├── quotes.php
+       ├── messages.php
+       ├── applications.php
+       ├── orders.php
+       ├── inventory.php
+       ├── config.php
+       ├── database.php
+       └── utils.php
+   ```
+
+### 4. Configure Database Connection
+
+1. Edit `config.php` with your database credentials:
+   ```php
+   define('DB_HOST', 'localhost');
+   define('DB_USER', 'your_cpanel_username_dbuser');
+   define('DB_PASS', 'your_database_password');
+   define('DB_NAME', 'your_cpanel_username_midway');
+   ```
+
+2. Update CORS allowed origins:
+   ```php
+   define('ALLOWED_ORIGINS', [
+       'https://yourdomain.com',
+       'https://www.yourdomain.com'
+   ]);
+   ```
+
+3. Generate a secure JWT secret:
+   ```php
+   define('JWT_SECRET', 'your-random-secret-key-here');
+   ```
+
+### 5. Set File Permissions
+
+Using cPanel File Manager, set permissions:
+- Directories: `755`
+- PHP files: `644`
+- `.htaccess`: `644`
+
+### 6. Test the API
+
+Visit: `https://yourdomain.com/api/health`
+
+You should see:
+```json
+{"status":"ok","time":1234567890}
+```
+
+## API Endpoints
+
+All endpoints are accessed via: `https://yourdomain.com/api/`
+
+### Public Endpoints (No Authentication)
+
+- `GET /api/health` - Health check
+- `POST /api/quotes` - Submit quote request
+- `POST /api/messages` - Submit contact message
+- `POST /api/applications` - Submit job application
+- `POST /api/orders` - Submit PanelSeal order
+
+### Protected Endpoints (Requires Authentication)
+
+- `POST /api/auth/login` - Login and get JWT token
+- `GET /api/quotes` - List all quotes
+- `PUT /api/quotes` - Update quote status
+- `DELETE /api/quotes/{id}` - Delete quote
+- `GET /api/messages` - List all messages
+- `PUT /api/messages` - Update message status
+- `DELETE /api/messages/{id}` - Delete message
+- `GET /api/applications` - List all applications
+- `DELETE /api/applications/{id}` - Delete application
+- `GET /api/orders` - List all orders
+- `DELETE /api/orders/{id}` - Delete order
+- `GET /api/inventory` - List all inventory
+- `POST /api/inventory` - Create inventory item
+- `PUT /api/inventory` - Update inventory item
+- `DELETE /api/inventory/{id}` - Delete inventory item
+
+## Frontend Configuration
+
+Update your frontend to use the PHP backend:
+
+In `frontend/src/config.js`:
+```javascript
+export const API_BASE = 'https://yourdomain.com/api';
+```
+
+Or update individual module files that have hardcoded API URLs:
+```javascript
+const API_BASE = 'https://yourdomain.com/api';
+```
+
+## Default Login Credentials
+
+- **Username:** `admin`
+- **Password:** `admin123`
+
+⚠️ **Change these credentials immediately after deployment!**
+
+To create a secure admin user:
+1. Generate password hash: Use an online bcrypt generator or PHP script
+2. Insert into database via phpMyAdmin:
+   ```sql
+   CREATE TABLE IF NOT EXISTS admin_users (
+     id INT PRIMARY KEY AUTO_INCREMENT,
+     username VARCHAR(255) NOT NULL UNIQUE,
+     password VARCHAR(255) NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+   
+   INSERT INTO admin_users (username, password) 
+   VALUES ('admin', '$2y$10$YOUR_BCRYPT_HASH_HERE');
+   ```
+
+## Security Features
+
+- **Rate Limiting:** 10 requests per 5 minutes per session for public forms
+- **Input Sanitization:** All user input is sanitized to prevent XSS
+- **SQL Injection Protection:** All queries use prepared statements
+- **JWT Authentication:** Secure token-based authentication for admin endpoints
+- **CORS:** Configured to only allow requests from your domain
+- **Security Headers:** X-Content-Type-Options, X-Frame-Options, X-XSS-Protection
+
+## Troubleshooting
+
+### 500 Internal Server Error
+- Check PHP error logs in cPanel
+- Verify file permissions
+- Ensure `.htaccess` syntax is correct
+- Check if `mod_rewrite` is enabled (ask GoDaddy support)
+
+### Database Connection Failed
+- Verify database credentials in `config.php`
+- Ensure database user has proper privileges
+- Check if database exists
+
+### CORS Errors
+- Verify your domain is in `ALLOWED_ORIGINS` in `config.php`
+- Check that frontend is using HTTPS if backend is on HTTPS
+
+### 404 on API Endpoints
+- Verify `.htaccess` file is in the `/api/` directory
+- Check if URL rewriting is enabled on your hosting plan
+- Contact GoDaddy support if needed
+
+## PHP Requirements
+
+- PHP 7.4 or higher
+- PDO MySQL extension
+- mod_rewrite enabled (for URL rewriting)
+- Sessions enabled
+
+GoDaddy shared hosting typically includes all these by default.
+
+## Support
+
+For issues specific to GoDaddy hosting, contact their support team. For application-specific questions, refer to the main project documentation.
