@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import { getActiveLogoUrl } from '../lib/media'
-import DashboardModule from './modules/DashboardModule'
-import QuotesModule from './modules/QuotesModule'
-import InventoryModule from './modules/InventoryModule'
-import ApplicationsModule from './modules/ApplicationsModule'
-import OrdersModule from './modules/OrdersModule'
-import SettingsModule from './modules/SettingsModule'
-import SiteSettingsModule from './modules/SiteSettingsModule'
-import MessagesModule from './modules/MessagesModule'
+
+// Lazy load admin modules for better code splitting
+const DashboardModule = lazy(() => import('./modules/DashboardModule'))
+const QuotesModule = lazy(() => import('./modules/QuotesModule'))
+const InventoryModule = lazy(() => import('./modules/InventoryModule'))
+const ApplicationsModule = lazy(() => import('./modules/ApplicationsModule'))
+const OrdersModule = lazy(() => import('./modules/OrdersModule'))
+const SettingsModule = lazy(() => import('./modules/SettingsModule'))
+const SiteSettingsModule = lazy(() => import('./modules/SiteSettingsModule'))
+const MessagesModule = lazy(() => import('./modules/MessagesModule'))
 
 // AdminPanel is a simple single-file admin shell for the demo. It keeps local
 // module selection state and renders each module component. The component
@@ -68,14 +70,20 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
     <div className="h-screen flex bg-gray-100">
       <Sidebar />
       <div className="flex-1 overflow-auto">
-        {activeModule === 'dashboard' && <DashboardModule />}
-        {activeModule === 'quotes' && <QuotesModule />}
-        {activeModule === 'messages' && <MessagesModule />}
-        {activeModule === 'inventory' && <InventoryModule />}
-        {activeModule === 'applications' && <ApplicationsModule />}
-        {activeModule === 'orders' && <OrdersModule />}
-        {activeModule === 'siteinfo' && <SiteSettingsModule token={user?.token} />}
-        {activeModule === 'settings' && <SettingsModule />}
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-full">
+            <div className="text-xl text-gray-600">Loading module...</div>
+          </div>
+        }>
+          {activeModule === 'dashboard' && <DashboardModule />}
+          {activeModule === 'quotes' && <QuotesModule />}
+          {activeModule === 'messages' && <MessagesModule />}
+          {activeModule === 'inventory' && <InventoryModule />}
+          {activeModule === 'applications' && <ApplicationsModule />}
+          {activeModule === 'orders' && <OrdersModule />}
+          {activeModule === 'siteinfo' && <SiteSettingsModule token={user?.token} />}
+          {activeModule === 'settings' && <SettingsModule />}
+        </Suspense>
       </div>
     </div>
   )

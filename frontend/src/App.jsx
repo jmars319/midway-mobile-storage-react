@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import NavBar from './components/NavBar'
 import HeroSection from './components/HeroSection'
 import ServicesSection from './components/ServicesSection'
@@ -7,8 +7,6 @@ import QuoteForm from './components/QuoteForm'
 import AboutSection from './components/AboutSection'
 import CareersSection from './components/CareersSection'
 import Footer from './components/Footer'
-import LoginPage from './admin/LoginPage'
-import AdminPanel from './admin/AdminPanel'
 import ToastContainer from './components/Toast'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import TermsOfService from './components/TermsOfService'
@@ -16,7 +14,9 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { fetchSiteSettings, generateStructuredData, injectStructuredData } from './lib/structuredData'
 
 import { API_BASE } from './config'
-// admin components are now in ./admin
+// Lazy load admin components for better performance
+const LoginPage = lazy(() => import('./admin/LoginPage'))
+const AdminPanel = lazy(() => import('./admin/AdminPanel'))
 
 /* ---------- Main App ---------- */
 // App responsibilities:
@@ -132,8 +132,16 @@ export default function App(){
     }
   }, [currentPage])
 
-  if (currentPage === 'login') return <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
-  if (currentPage === 'admin' && user) return <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
+  if (currentPage === 'login') return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-xl">Loading...</div></div>}>
+      <LoginPage onLogin={handleLogin} onBack={()=>setCurrentPage('public')} />
+    </Suspense>
+  )
+  if (currentPage === 'admin' && user) return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-xl">Loading admin panel...</div></div>}>
+      <AdminPanel user={user} onLogout={handleLogout} onBackToSite={() => setCurrentPage('public')} />
+    </Suspense>
+  )
 
   const handleAdminClick = () => {
     const t = localStorage.getItem('midway_token')
@@ -148,6 +156,13 @@ export default function App(){
   return (
     <ErrorBoundary>
       <div className="min-h-screen">
+        {/* Skip to main content link for accessibility */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#e84424] focus:text-white focus:px-4 focus:py-2 focus:rounded"
+        >
+          Skip to main content
+        </a>
         <NavBar onLoginClick={handleAdminClick} scrollTo={scrollToSection} />
         <main id="main-content" className="pt-24" tabIndex="-1">
           {currentPage === 'privacy' ? (
