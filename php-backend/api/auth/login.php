@@ -23,6 +23,10 @@ try {
         jsonResponse(['error' => 'Username and password are required'], 400);
     }
     
+    // Check rate limit for failed login attempts only
+    // This prevents the rate limit from blocking legitimate users after successful logins
+    checkRateLimit('login_attempts');
+    
     $db = Database::getInstance();
     
     // Check if admin_users table exists, if not use default credentials
@@ -34,8 +38,12 @@ try {
         $user = $stmt->fetch();
         
         if (!$user || !password_verify($password, $user['password'])) {
+            // Failed login - rate limit will apply on next attempt
             jsonResponse(['error' => 'Invalid credentials'], 401);
         }
+        
+        // Successful login - reset rate limit counter for this user
+        resetRateLimit('login_attempts');
         
         $token = generateToken(['userId' => $user['id'], 'username' => $user['username']]);
         jsonResponse(['token' => $token, 'username' => $user['username']]);
@@ -44,6 +52,7 @@ try {
         // Fallback to default credentials only in debug mode
         if (DEBUG_MODE && $username === 'admin' && $password === 'admin123') {
             error_log('WARNING: Using fallback admin credentials - DO NOT USE IN PRODUCTION');
+            resetRateLimit('login_attempts');
             $token = generateToken(['userId' => 1, 'username' => 'admin']);
             jsonResponse(['token' => $token, 'username' => 'admin']);
         }

@@ -43,7 +43,7 @@ try {
         
         $name = validateAndSanitize($data['name'] ?? '', 'Name', 100);
         $email = validateAndSanitize($data['email'] ?? '', 'Email', 100);
-        $phone = validateAndSanitize($data['phone'] ?? '', 'Phone', 20);
+        $phone = validateAndSanitize($data['phone'] ?? '', 'Phone', 20, false); // Phone is optional
         
         if (!validateEmail($email)) {
             jsonResponse(['error' => 'Please enter a valid email address'], 400);
@@ -115,9 +115,9 @@ try {
     }
     
 } catch (Exception $e) {
-    if (DEBUG_MODE) {
-        error_log('Applications API Error: ' . $e->getMessage());
-    }
+    // Always log errors for debugging
+    error_log('Applications API Error: ' . $e->getMessage());
+    error_log('Stack trace: ' . $e->getTraceAsString());
     
     $message = (strpos($e->getMessage(), 'required') !== false || 
                 strpos($e->getMessage(), 'Invalid') !== false ||

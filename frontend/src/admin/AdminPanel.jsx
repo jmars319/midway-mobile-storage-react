@@ -27,7 +27,7 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
     { id: 'applications', name: 'Job Applications', icon: '👥' },
     { id: 'orders', name: 'PanelSeal Orders', icon: '🛒' },
     { id: 'siteinfo', name: 'Site Info', icon: '🏢' },
-    { id: 'settings', name: 'Media & Settings', icon: '⚙️' },
+    { id: 'settings', name: 'Media Manager', icon: '🖼️' },
     { id: 'account', name: 'Account Security', icon: '🔐' }
   ]
 

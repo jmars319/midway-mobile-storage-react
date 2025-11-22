@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
 import { API_BASE } from '../../config'
 
-export default function SiteSettingsModule({ token }) {
+export default function SiteSettingsModule() {
   const [settings, setSettings] = useState({
     businessName: '',
     email: '',
@@ -16,22 +16,41 @@ export default function SiteSettingsModule({ token }) {
     siteUrl: ''
   })
   const [loading, setLoading] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(true)
+  const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
   useEffect(() => {
     fetchSettings()
   }, [])
 
   const fetchSettings = async () => {
+    setFetchLoading(true)
     try {
       const res = await fetch(`${API_BASE}/settings`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (res.ok) {
         const data = await res.json()
-        if (data.settings) setSettings(data.settings)
+        if (data.settings) {
+          // Merge with defaults to ensure all fields exist
+          setSettings({
+            businessName: data.settings.businessName || '',
+            email: data.settings.email || '',
+            phone: data.settings.phone || '',
+            address: data.settings.address || '',
+            city: data.settings.city || '',
+            state: data.settings.state || '',
+            zip: data.settings.zip || '',
+            country: data.settings.country || 'US',
+            hours: data.settings.hours || '',
+            siteUrl: data.settings.siteUrl || ''
+          })
+        }
       }
     } catch (e) {
       if (import.meta.env.DEV) console.error('Failed to fetch settings', e)
+    } finally {
+      setFetchLoading(false)
     }
   }
 
@@ -64,12 +83,17 @@ export default function SiteSettingsModule({ token }) {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Site Settings</h2>
+      <h2 className="text-2xl font-bold mb-4">Site Information</h2>
       <p className="text-gray-600 mb-6">
         Configure business information used in structured data, contact forms, and site metadata.
       </p>
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
+      {fetchLoading ? (
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="text-gray-600">Loading settings...</div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">Business Name</label>
           <input
@@ -178,11 +202,12 @@ export default function SiteSettingsModule({ token }) {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          className="bg-[#e84424] text-white px-6 py-2 rounded-md hover:bg-[#c93a1f] disabled:opacity-50"
         >
           {loading ? 'Saving...' : 'Save Settings'}
         </button>
-      </div>
+        </div>
+      )}
 
       <div className="mt-6 p-4 bg-blue-50 rounded-md">
         <p className="text-sm text-gray-700">

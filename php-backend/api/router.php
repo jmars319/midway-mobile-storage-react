@@ -19,6 +19,7 @@ $routes = [
     'auth/login' => 'auth/login.php',
     'auth/change-password' => 'change-password.php',
     'csrf-token' => 'csrf-token.php',
+    'admin/stats' => 'admin/stats.php',
     'public/logo' => 'public/logo.php',
     'public/hero' => 'public/hero.php',
     'public/services-media' => 'public/services-media.php',
@@ -28,11 +29,25 @@ $routes = [
     'applications' => 'applications.php',
     'orders' => 'orders.php',
     'inventory' => 'inventory.php',
+    'media' => 'media.php',
+    'settings' => 'settings.php',
 ];
 
 // Check for exact match
 if (isset($routes[$path])) {
     require __DIR__ . '/' . $routes[$path];
+    exit;
+}
+
+// Check for media tags route (media/{filename}/tags)
+if (preg_match('#^media/([^/]+)/tags$#', $path, $matches)) {
+    require __DIR__ . '/media/tags.php';
+    exit;
+}
+
+// Check for media delete route (media/{filename})
+if (preg_match('#^media/([^/]+)$#', $path, $matches) && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    require __DIR__ . '/media.php';
     exit;
 }
 

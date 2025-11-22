@@ -96,7 +96,7 @@ export default function SettingsModule(){
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-[#0a2a52] mb-6">Settings</h1>
+      <h1 className="text-3xl font-bold text-[#0a2a52] mb-6">Media Manager</h1>
       <div className="grid gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Active Media</h2>
@@ -139,15 +139,6 @@ export default function SettingsModule(){
                 <div className="text-sm text-gray-600">No active hero selected. Mark an uploaded image as hero or upload and mark it now.</div>
               )}
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Business Information</h2>
-          <div className="grid gap-3">
-            <input placeholder="Phone" value={info.phone} onChange={e=>setInfo({...info, phone:e.target.value})} className="p-2 border rounded" />
-            <input placeholder="Email" value={info.email} onChange={e=>setInfo({...info, email:e.target.value})} className="p-2 border rounded" />
-            <input placeholder="Address" value={info.address} onChange={e=>setInfo({...info, address:e.target.value})} className="p-2 border rounded" />
-            <div className="text-right"><button onClick={save} className="bg-[#e84424] text-white px-4 py-2 rounded">Save Changes</button></div>
           </div>
         </div>
 
@@ -196,7 +187,7 @@ export default function SettingsModule(){
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Media Manager</h2>
+          <h2 className="text-xl font-bold text-[#0a2a52] mb-4">Upload & Manage Media</h2>
           <div className="mb-3">
             <label className="block text-sm text-gray-700 mb-1">Upload media (images/videos)</label>
             <input type="file" onChange={handleUpload} accept="image/*,video/*" />

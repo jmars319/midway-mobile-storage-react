@@ -141,6 +141,31 @@ function checkRateLimit($key, $limit = RATE_LIMIT_REQUESTS, $window = RATE_LIMIT
 }
 
 /**
+ * Reset rate limit counter for a specific key
+ * Used to clear rate limit after successful authentication
+ */
+function resetRateLimit($key) {
+    // Start session with secure settings
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_only_cookies', 1);
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            ini_set('session.cookie_secure', 1);
+        }
+        session_start();
+    }
+    
+    // Use IP address as additional rate limit key to prevent session bypass
+    $clientIP = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $rateLimitKey = "rate_limit_{$key}_{$clientIP}";
+    
+    // Clear the rate limit counter for this key
+    if (isset($_SESSION[$rateLimitKey])) {
+        unset($_SESSION[$rateLimitKey]);
+    }
+}
+
+/**
  * Get current datetime in MySQL format
  */
 function getMySQLDateTime() {

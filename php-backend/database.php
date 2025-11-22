@@ -46,6 +46,11 @@ class Database {
             $stmt->execute($params);
             return $stmt;
         } catch (PDOException $e) {
+            // Always log the actual SQL error for debugging
+            error_log("SQL Error: " . $e->getMessage());
+            error_log("SQL Query: " . $sql);
+            error_log("SQL Params: " . json_encode($params));
+            
             if (DEBUG_MODE) {
                 throw new Exception("Query failed: " . $e->getMessage());
             } else {

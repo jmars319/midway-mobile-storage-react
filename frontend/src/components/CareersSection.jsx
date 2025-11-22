@@ -39,7 +39,7 @@ export default function CareersSection(){
       headers: { 'Content-Type': 'application/json' }, 
       credentials: 'include',
       body: JSON.stringify(payload)
-    }).then(r => {
+    }).then(async r => {
       if (r.ok) {
         showToast('Application submitted successfully!', { type: 'success' })
         setSubmitted(true)
@@ -49,10 +49,14 @@ export default function CareersSection(){
         if (fileInput) fileInput.value = ''
         setTimeout(()=>setSubmitted(false), 5000)
       } else {
-        showToast('Failed to submit application', { type: 'error' })
+        const errorData = await r.json().catch(() => ({}))
+        const errorMessage = errorData.error || 'Failed to submit application'
+        showToast(errorMessage, { type: 'error' })
+        console.error('Application submission error:', errorData)
       }
     }).catch(err => {
       showToast('Failed to submit application', { type: 'error' })
+      console.error('Network error:', err)
     })
   }
 
