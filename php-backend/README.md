@@ -127,15 +127,25 @@ All endpoints are accessed via: `https://yourdomain.com/api/`
 
 ### Protected Endpoints (Requires Authentication)
 
+#### Authentication
 - `POST /api/auth/login` - Login and get JWT token
+- `POST /api/auth/change-password` - Change password for authenticated user
+
+#### Quotes
 - `GET /api/quotes` - List all quotes
 - `PUT /api/quotes` - Update quote status
 - `DELETE /api/quotes/{id}` - Delete quote
+
+#### Messages
 - `GET /api/messages` - List all messages
 - `PUT /api/messages` - Update message status
 - `DELETE /api/messages/{id}` - Delete message
+
+#### Applications
 - `GET /api/applications` - List all applications
 - `DELETE /api/applications/{id}` - Delete application
+
+#### Orders
 - `GET /api/orders` - List all orders
 - `DELETE /api/orders/{id}` - Delete order
 - `GET /api/inventory` - List all inventory (returns: id, type, condition, status, quantity, createdAt)
@@ -188,9 +198,56 @@ const API_BASE = 'https://yourdomain.com/api';
 - **Input Sanitization:** All user input is sanitized to prevent XSS
 - **SQL Injection Protection:** All queries use prepared statements
 - **JWT Authentication:** Secure token-based authentication (HS256, 2-hour expiration)
+- **Password Security:** Bcrypt hashing with cost factor 12, minimum 8 characters
+- **Password Change:** Secure password change requiring current password verification
 - **CORS:** Configured to only allow requests from your domain
 - **Security Headers:** 5 protective headers (X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy)
 - **Secure Sessions:** HttpOnly, SameSite=Lax cookies for session management
+
+## Password Management
+
+### Changing Password (Admin Panel)
+
+Admins can change their password through the "Account Security" module in the admin panel:
+
+1. Navigate to **Account Security** (🔐) in the sidebar
+2. Enter current password
+3. Enter new password (minimum 8 characters)
+4. Confirm new password
+5. Click "Change Password"
+
+**Password Requirements:**
+- Minimum 8 characters
+- Must be different from current password
+- Recommended: Use uppercase, lowercase, numbers, and symbols for stronger security
+
+**API Endpoint:**
+```
+POST /api/auth/change-password
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+
+{
+  "currentPassword": "current_password",
+  "newPassword": "new_password",
+  "confirmPassword": "new_password"
+}
+```
+
+**Response (Success):**
+```json
+{
+  "ok": true,
+  "message": "Password changed successfully"
+}
+```
+
+**Response (Error):**
+```json
+{
+  "error": "Current password is incorrect"
+}
+```
 
 ## Troubleshooting
 

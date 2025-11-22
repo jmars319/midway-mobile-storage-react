@@ -10,6 +10,7 @@ const OrdersModule = lazy(() => import('./modules/OrdersModule'))
 const SettingsModule = lazy(() => import('./modules/SettingsModule'))
 const SiteSettingsModule = lazy(() => import('./modules/SiteSettingsModule'))
 const MessagesModule = lazy(() => import('./modules/MessagesModule'))
+const AccountModule = lazy(() => import('./modules/AccountModule'))
 
 // AdminPanel is a simple single-file admin shell for the demo. It keeps local
 // module selection state and renders each module component. The component
@@ -26,7 +27,8 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
     { id: 'applications', name: 'Job Applications', icon: '👥' },
     { id: 'orders', name: 'PanelSeal Orders', icon: '🛒' },
     { id: 'siteinfo', name: 'Site Info', icon: '🏢' },
-    { id: 'settings', name: 'Media & Settings', icon: '⚙️' }
+    { id: 'settings', name: 'Media & Settings', icon: '⚙️' },
+    { id: 'account', name: 'Account Security', icon: '🔐' }
   ]
 
   const [activeModule, setActiveModule] = useState('dashboard')
@@ -83,6 +85,7 @@ export default function AdminPanel({ user, onLogout, onBackToSite }){
           {activeModule === 'orders' && <OrdersModule />}
           {activeModule === 'siteinfo' && <SiteSettingsModule token={user?.token} />}
           {activeModule === 'settings' && <SettingsModule />}
+          {activeModule === 'account' && <AccountModule user={user} />}
         </Suspense>
       </div>
     </div>

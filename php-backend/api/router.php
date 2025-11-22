@@ -17,6 +17,7 @@ $path = ltrim($path, '/');
 $routes = [
     'health' => 'health.php',
     'auth/login' => 'auth/login.php',
+    'auth/change-password' => 'change-password.php',
     'csrf-token' => 'csrf-token.php',
     'public/logo' => 'public/logo.php',
     'public/hero' => 'public/hero.php',
