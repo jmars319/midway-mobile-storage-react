@@ -53,6 +53,7 @@ export default function ApplicationsModule(){
 
         {!loading && !error && applications.length > 0 && (
           <table className="w-full">
+            <caption className="sr-only">Job applications list</caption>
             <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Name</th><th className="px-6 py-3 text-left">Position</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
             <tbody>
               {applications.map(a=> (

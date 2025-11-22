@@ -232,3 +232,43 @@ function requireAuth() {
     
     return $payload;
 }
+
+/**
+ * Start secure session
+ */
+function startSecureSession() {
+    if (session_status() === PHP_SESSION_NONE) {
+        // Configure secure session settings
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 1 : 0);
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.use_strict_mode', 1);
+        session_start();
+    }
+}
+
+/**
+ * Generate CSRF token
+ */
+function generateCsrfToken() {
+    startSecureSession();
+    
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Validate CSRF token
+ */
+function validateCsrfToken($token) {
+    startSecureSession();
+    
+    if (!isset($_SESSION['csrf_token']) || !$token) {
+        return false;
+    }
+    
+    return hash_equals($_SESSION['csrf_token'], $token);
+}

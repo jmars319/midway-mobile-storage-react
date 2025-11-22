@@ -57,6 +57,7 @@ export default function MessagesModule(){
 
         {!loading && !error && messages.length > 0 && (
           <table className="w-full">
+            <caption className="sr-only">Contact messages list</caption>
             <thead className="bg-[#0a2a52] text-white">
               <tr>
                 <th className="px-6 py-3 text-left">Name</th>

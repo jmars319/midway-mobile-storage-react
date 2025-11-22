@@ -58,6 +58,7 @@ export default function QuotesModule(){
 
         {!loading && !error && quotes.length > 0 && (
           <table className="w-full">
+            <caption className="sr-only">Quote requests list</caption>
             <thead className="bg-[#0a2a52] text-white">
               <tr>
                 <th className="px-6 py-3 text-left">Customer</th>

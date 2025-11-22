@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { API_BASE } from '../config'
 import { showToast } from './Toast'
+import { useCsrfToken } from '../hooks/useCsrfToken'
 
 export default function QuoteForm(){
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function QuoteForm(){
     message: ''
   })
   const [submitted, setSubmitted] = useState(false)
+  const { token: csrfToken } = useCsrfToken()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -28,9 +30,18 @@ export default function QuoteForm(){
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!csrfToken) {
+      showToast('Security token not available. Please refresh the page.', { type: 'error' })
+      return
+    }
+    
     try {
       const res = await fetch(`${API_BASE}/quotes`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        credentials: 'include',
+        body: JSON.stringify({ ...formData, csrf_token: csrfToken })
       })
       if (res.ok){
         showToast('Quote request submitted successfully!', { type: 'success' })
@@ -53,44 +64,44 @@ export default function QuoteForm(){
           <h4 className="text-xl font-semibold text-[#0a2a52]">Request a Quote</h4>
           {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your request was submitted.</div>}
 
-          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Request a quote form">
             {/* Left column - contact info */}
             <div className="space-y-4">
-              <label className="block">
+              <label htmlFor="quote-name" className="block">
                 <span className="text-sm text-[#0a2a52]">Name</span>
-                <input name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" />
+                <input id="quote-name" name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" />
               </label>
 
-              <label className="block">
+              <label htmlFor="quote-email" className="block">
                 <span className="text-sm text-[#0a2a52]">Email</span>
-                <input name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" />
+                <input id="quote-email" name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" />
               </label>
 
-              <label className="block">
+              <label htmlFor="quote-phone" className="block">
                 <span className="text-sm text-[#0a2a52]">Phone</span>
-                <input name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
+                <input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
               </label>
 
-              <label className="block">
+              <label htmlFor="quote-address" className="block">
                 <span className="text-sm text-[#0a2a52]">Delivery Address</span>
-                <input name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" />
+                <input id="quote-address" name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" />
               </label>
             </div>
 
             {/* Right column - service details */}
             <div className="space-y-4">
-              <label className="block">
+              <label htmlFor="quote-service" className="block">
                 <span className="text-sm text-[#0a2a52]">Service</span>
-                <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                <select id="quote-service" name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="rental">Rental</option>
                   <option value="purchase">Purchase</option>
                   <option value="custom">Custom</option>
                 </select>
               </label>
 
-              <label className="block">
+              <label htmlFor="quote-size" className="block">
                 <span className="text-sm text-[#0a2a52]">Unit Size</span>
-                <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                <select id="quote-size" name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="20ft">20ft Container</option>
                   <option value="40ft">40ft Container</option>
                   <option value="trailer">Trailer</option>
@@ -99,9 +110,9 @@ export default function QuoteForm(){
               </label>
 
               <div className="grid grid-cols-2 gap-4">
-                <label>
+                <label htmlFor="quote-quantity">
                   <span className="text-sm text-[#0a2a52]">Quantity</span>
-                  <select name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                  <select id="quote-quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -135,9 +146,9 @@ export default function QuoteForm(){
 
               
 
-              <label className="block">
+              <label htmlFor="quote-notes" className="block">
                 <span className="text-sm text-[#0a2a52]">Additional Notes</span>
-                <textarea name="message" value={formData.message} onChange={handleChange} className="mt-1 p-3 border rounded w-full h-28 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Tell us anything else we should know" />
+                <textarea id="quote-notes" name="message" value={formData.message} onChange={handleChange} className="mt-1 p-3 border rounded w-full h-28 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Tell us anything else we should know" />
               </label>
 
               <div className="flex items-center justify-end gap-4">

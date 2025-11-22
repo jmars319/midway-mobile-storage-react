@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
 import { API_BASE } from '../config'
+import { useCsrfToken } from '../hooks/useCsrfToken'
 
 export default function CareersSection(){
   const [formData, setFormData] = useState({ name:'', email:'', phone:'', position:'', experience:'', message:'', resume: null })
   const [submitted, setSubmitted] = useState(false)
+  const { token: csrfToken } = useCsrfToken()
 
   const handleChange = (e) => {
     const { name, value, files } = e.target
@@ -14,6 +16,12 @@ export default function CareersSection(){
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    if (!csrfToken) {
+      showToast('Security token not available. Please refresh the page.', { type: 'error' })
+      return
+    }
+    
     // send to backend (simple JSON; resume upload is represented by filename)
     const payload = {
       name: formData.name,
@@ -22,11 +30,15 @@ export default function CareersSection(){
       position: formData.position,
       experience: formData.experience,
       message: formData.message,
-      resumeName: formData.resume ? formData.resume.name : null
+      resumeName: formData.resume ? formData.resume.name : null,
+      csrf_token: csrfToken
     }
 
     fetch(`${API_BASE}/applications`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      credentials: 'include',
+      body: JSON.stringify(payload)
     }).then(r => {
       if (r.ok) {
         showToast('Application submitted successfully!', { type: 'success' })
@@ -88,23 +100,23 @@ export default function CareersSection(){
 
         <div>
           <h4 className="text-lg font-semibold text-[#0a2a52]">Apply Now</h4>
-          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3">
+          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3" aria-label="Job application form">
             {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your application was submitted.</div>}
-            <label className="block">
+            <label htmlFor="app-name" className="block">
               <span className="text-sm text-gray-700 font-medium">Full Name *</span>
-              <input name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="app-name" name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
             </label>
-            <label className="block">
+            <label htmlFor="app-email" className="block">
               <span className="text-sm text-gray-700 font-medium">Email *</span>
-              <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="app-email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
             </label>
-            <label className="block">
+            <label htmlFor="app-phone" className="block">
               <span className="text-sm text-gray-700 font-medium">Phone</span>
-              <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
+              <input id="app-phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
             </label>
-            <label className="block">
+            <label htmlFor="app-position" className="block">
               <span className="text-sm text-gray-700 font-medium">Position</span>
-              <select name="position" value={formData.position} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
+              <select id="app-position" name="position" value={formData.position} onChange={handleChange} className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]">
                 <option value="">Select position</option>
               <option value="driver">Delivery Driver / Equipment Operator</option>
               <option value="contractor-driver">Independent Contractor Driver</option>
@@ -114,13 +126,13 @@ export default function CareersSection(){
               <option value="other">Other</option>
               </select>
             </label>
-            <label className="block">
+            <label htmlFor="app-experience" className="block">
               <span className="text-sm text-gray-700 font-medium">Experience Summary</span>
-              <textarea name="experience" value={formData.experience} onChange={handleChange} placeholder="Briefly describe your relevant experience" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
+              <textarea id="app-experience" name="experience" value={formData.experience} onChange={handleChange} placeholder="Briefly describe your relevant experience" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
             </label>
-            <label className="block">
+            <label htmlFor="app-message" className="block">
               <span className="text-sm text-gray-700 font-medium">Additional Message</span>
-              <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Any additional information you'd like to share" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
+              <textarea id="app-message" name="message" value={formData.message} onChange={handleChange} placeholder="Any additional information you'd like to share" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
             </label>
             <button type="submit" className="bg-[#e84424] text-white px-4 py-2 rounded mt-2 hover:bg-[#c93a1f] transition">Submit Application</button>
           </form>

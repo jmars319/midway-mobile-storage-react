@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
 import { API_BASE } from '../config'
+import { useCsrfToken } from '../hooks/useCsrfToken'
 
 export default function ContactModal({ onClose }){
   const [name, setName] = useState('')
@@ -8,16 +9,24 @@ export default function ContactModal({ onClose }){
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const { token: csrfToken } = useCsrfToken()
 
   const submit = async (e) => {
     e.preventDefault()
     if (!name.trim() || !email.trim()) { showToast('Name and email are required', { type: 'error' }); return }
+    
+    if (!csrfToken) {
+      showToast('Security token not available. Please refresh the page.', { type: 'error' })
+      return
+    }
+    
     setLoading(true)
     try {
       const res = await fetch(`${API_BASE}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, subject, message })
+        credentials: 'include',
+        body: JSON.stringify({ name, email, subject, message, csrf_token: csrfToken })
       })
       if (res.ok) {
         showToast('Message sent — thank you', { type: 'success' })
@@ -45,22 +54,22 @@ export default function ContactModal({ onClose }){
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700" disabled={loading} aria-label="Close contact form">✕</button>
         </div>
 
-        <form onSubmit={submit} className="mt-4 grid gap-3">
-          <label className="block">
+        <form onSubmit={submit} className="mt-4 grid gap-3" aria-label="Contact form">
+          <label htmlFor="contact-name" className="block">
             <span className="text-sm text-gray-700 font-medium">Name *</span>
-            <input placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required aria-label="Your name" />
+            <input id="contact-name" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
           </label>
-          <label className="block">
+          <label htmlFor="contact-email" className="block">
             <span className="text-sm text-gray-700 font-medium">Email *</span>
-            <input type="email" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required aria-label="Your email address" />
+            <input id="contact-email" type="email" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
           </label>
-          <label className="block">
+          <label htmlFor="contact-subject" className="block">
             <span className="text-sm text-gray-700 font-medium">Subject</span>
-            <input placeholder="Subject (optional)" value={subject} onChange={e=>setSubject(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" aria-label="Message subject" />
+            <input id="contact-subject" placeholder="Subject (optional)" value={subject} onChange={e=>setSubject(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           </label>
-          <label className="block">
+          <label htmlFor="contact-message" className="block">
             <span className="text-sm text-gray-700 font-medium">Message</span>
-            <textarea placeholder="Your message" value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 p-2 border rounded h-32 w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" aria-label="Your message" />
+            <textarea id="contact-message" placeholder="Your message" value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 p-2 border rounded h-32 w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           </label>
 
           <div className="mt-4 flex justify-end gap-3">

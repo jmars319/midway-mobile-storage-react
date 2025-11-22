@@ -58,6 +58,7 @@ export default function OrdersModule(){
 
         {!loading && !error && orders.length > 0 && (
           <table className="w-full">
+            <caption className="sr-only">PanelSeal orders list</caption>
             <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Customer</th><th className="px-6 py-3 text-left">Product</th><th className="px-6 py-3 text-left">Qty</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
             <tbody>
               {orders.map(o=> (

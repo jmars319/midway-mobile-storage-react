@@ -35,6 +35,12 @@ try {
         
         $data = getRequestBody();
         
+        // Validate CSRF token
+        $csrfToken = $data['csrf_token'] ?? '';
+        if (!validateCsrfToken($csrfToken)) {
+            jsonResponse(['error' => 'Invalid or missing CSRF token'], 403);
+        }
+        
         $name = validateAndSanitize($data['name'] ?? '', 'Name', 255);
         $email = validateAndSanitize($data['email'] ?? '', 'Email', 255);
         

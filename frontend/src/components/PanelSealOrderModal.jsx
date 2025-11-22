@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { showToast } from './Toast'
 import { API_BASE } from '../config'
+import { useCsrfToken } from '../hooks/useCsrfToken'
 
 export default function PanelSealOrderModal({ open, onClose }){
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
   const [submitting, setSubmitting] = useState(false)
+  const { token: csrfToken } = useCsrfToken()
 
   if (!open) return null
 
@@ -15,17 +17,29 @@ export default function PanelSealOrderModal({ open, onClose }){
 
   async function submit(e){
     e.preventDefault()
+    
+    if (!csrfToken) {
+      showToast('Security token not available. Please refresh the page.', { type: 'error' })
+      return
+    }
+    
     setSubmitting(true)
     try{
-      const res = await fetch(`${API_BASE}/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-        customer: form.name,
-        email: form.email,
-        phone: form.phone,
-        address: form.address,
-        product: 'PanelSeal',
-        quantity: form.gallons,
-        notes: form.notes
-      })})
+      const res = await fetch(`${API_BASE}/orders`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        credentials: 'include',
+        body: JSON.stringify({
+          customer: form.name,
+          email: form.email,
+          phone: form.phone,
+          address: form.address,
+          product: 'PanelSeal',
+          quantity: form.gallons,
+          notes: form.notes,
+          csrf_token: csrfToken
+        })
+      })
       if (res.ok){ 
         showToast('Order submitted — we will follow up shortly', { type: 'success' })
         // Reset form
@@ -44,35 +58,35 @@ export default function PanelSealOrderModal({ open, onClose }){
           <h3 className="text-lg font-bold">Order PanelSeal</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close order form" disabled={submitting}>✕</button>
         </div>
-        <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3">
+        <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3" aria-label="PanelSeal order form">
           <div className="grid md:grid-cols-2 gap-3">
-            <label className="block">
+            <label htmlFor="order-name" className="block">
               <span className="text-sm text-gray-700 font-medium">Full Name *</span>
-              <input name="name" value={form.name} onChange={change} placeholder="Full name" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="order-name" name="name" value={form.name} onChange={change} placeholder="Full name" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
             </label>
-            <label className="block">
+            <label htmlFor="order-email" className="block">
               <span className="text-sm text-gray-700 font-medium">Email *</span>
-              <input name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="order-email" name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
             </label>
           </div>
           <div className="grid md:grid-cols-2 gap-3">
-            <label className="block">
+            <label htmlFor="order-phone" className="block">
               <span className="text-sm text-gray-700 font-medium">Phone</span>
-              <input name="phone" value={form.phone} onChange={change} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+              <input id="order-phone" name="phone" value={form.phone} onChange={change} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
             </label>
-            <label className="block">
+            <label htmlFor="order-address" className="block">
               <span className="text-sm text-gray-700 font-medium">Delivery Address</span>
-              <input name="address" value={form.address} onChange={change} placeholder="Street, city, state" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+              <input id="order-address" name="address" value={form.address} onChange={change} placeholder="Street, city, state" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
             </label>
           </div>
           <div className="grid md:grid-cols-2 gap-3 items-end">
-            <label className="text-sm">
+            <label htmlFor="order-gallons" className="text-sm">
               <div className="text-xs text-gray-600">Estimated gallons</div>
-              <input name="gallons" value={form.gallons} onChange={change} placeholder="e.g. 5" type="number" min="0" step="1" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="order-gallons" name="gallons" value={form.gallons} onChange={change} placeholder="e.g. 5" type="number" min="0" step="1" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
             </label>
-            <label>
+            <label htmlFor="order-notes">
               <div className="text-sm text-gray-600">Notes (optional)</div>
-              <input name="notes" value={form.notes} onChange={change} placeholder="Any special instructions" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
+              <input id="order-notes" name="notes" value={form.notes} onChange={change} placeholder="Any special instructions" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
             </label>
           </div>
           <div className="mt-4 text-right flex items-center justify-between">
