@@ -119,10 +119,11 @@ All endpoints are accessed via: `https://yourdomain.com/api/`
 ### Public Endpoints (No Authentication)
 
 - `GET /api/health` - Health check
-- `POST /api/quotes` - Submit quote request
-- `POST /api/messages` - Submit contact message
-- `POST /api/applications` - Submit job application
-- `POST /api/orders` - Submit PanelSeal order
+- `GET /api/csrf-token` - Get CSRF token for form submissions (rate limited)
+- `POST /api/quotes` - Submit quote request (requires CSRF token)
+- `POST /api/messages` - Submit contact message (requires CSRF token)
+- `POST /api/applications` - Submit job application (requires CSRF token)
+- `POST /api/orders` - Submit PanelSeal order (requires CSRF token)
 
 ### Protected Endpoints (Requires Authentication)
 
@@ -137,9 +138,9 @@ All endpoints are accessed via: `https://yourdomain.com/api/`
 - `DELETE /api/applications/{id}` - Delete application
 - `GET /api/orders` - List all orders
 - `DELETE /api/orders/{id}` - Delete order
-- `GET /api/inventory` - List all inventory
-- `POST /api/inventory` - Create inventory item
-- `PUT /api/inventory` - Update inventory item
+- `GET /api/inventory` - List all inventory (returns: id, type, condition, status, quantity, createdAt)
+- `POST /api/inventory` - Create inventory item (requires: type, condition, status, quantity)
+- `PUT /api/inventory/{id}` - Update inventory item (accepts: type, condition, status, quantity)
 - `DELETE /api/inventory/{id}` - Delete inventory item
 
 ## Frontend Configuration
@@ -182,12 +183,14 @@ const API_BASE = 'https://yourdomain.com/api';
 
 ## Security Features
 
-- **Rate Limiting:** 10 requests per 5 minutes per session for public forms
+- **CSRF Protection:** All public POST endpoints require valid CSRF tokens
+- **Rate Limiting:** 10 requests per 5 minutes per IP for public forms
 - **Input Sanitization:** All user input is sanitized to prevent XSS
 - **SQL Injection Protection:** All queries use prepared statements
-- **JWT Authentication:** Secure token-based authentication for admin endpoints
+- **JWT Authentication:** Secure token-based authentication (HS256, 2-hour expiration)
 - **CORS:** Configured to only allow requests from your domain
-- **Security Headers:** X-Content-Type-Options, X-Frame-Options, X-XSS-Protection
+- **Security Headers:** 5 protective headers (X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy)
+- **Secure Sessions:** HttpOnly, SameSite=Lax cookies for session management
 
 ## Troubleshooting
 

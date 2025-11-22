@@ -18,9 +18,9 @@ try {
         requireAuth();
         
         $stmt = $db->query(
-            "SELECT id, type, size, `condition`, location, price, status, notes, createdAt 
+            "SELECT id, type, `condition`, status, quantity, created_at as createdAt 
              FROM inventory 
-             ORDER BY createdAt DESC 
+             ORDER BY created_at DESC 
              LIMIT 100"
         );
         
@@ -35,22 +35,31 @@ try {
         $data = getRequestBody();
         
         $type = validateAndSanitize($data['type'] ?? '', 'Type', 100);
-        $size = isset($data['size']) ? sanitizeInput($data['size']) : null;
         $condition = isset($data['condition']) ? sanitizeInput($data['condition']) : null;
-        $location = isset($data['location']) ? sanitizeInput($data['location']) : null;
-        $price = isset($data['price']) ? floatval($data['price']) : null;
-        $status = isset($data['status']) ? sanitizeInput($data['status']) : 'available';
-        $notes = isset($data['notes']) ? sanitizeInput($data['notes']) : null;
-        $createdAt = getMySQLDateTime();
+        $status = isset($data['status']) ? sanitizeInput($data['status']) : 'Available';
+        $quantity = isset($data['quantity']) ? intval($data['quantity']) : 1;
+        
+        if ($quantity < 0 || $quantity > 10000) {
+            jsonResponse(['error' => 'Quantity must be between 0 and 10000'], 400);
+        }
         
         $db->query(
-            "INSERT INTO inventory (type, size, `condition`, location, price, status, notes, createdAt) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [$type, $size, $condition, $location, $price, $status, $notes, $createdAt]
+            "INSERT INTO inventory (type, `condition`, status, quantity, created_at) 
+             VALUES (?, ?, ?, ?, NOW())",
+            [$type, $condition, $status, $quantity]
         );
         
         $id = $db->lastInsertId();
-        jsonResponse(['ok' => true, 'id' => $id], 201);
+        
+        // Fetch and return the created item
+        $stmt = $db->query(
+            "SELECT id, type, `condition`, status, quantity, created_at as createdAt 
+             FROM inventory WHERE id = ?",
+            [$id]
+        );
+        
+        $item = $stmt->fetch();
+        jsonResponse(['ok' => true, 'item' => $item], 201);
     }
     
     // PUT - Update inventory item (requires auth)
@@ -58,28 +67,59 @@ try {
         requireAuth();
         
         $data = getRequestBody();
-        $id = intval($data['id'] ?? 0);
+        
+        // Handle both PUT with ID in URL or in body
+        $pathParts = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        $urlId = intval(end($pathParts));
+        $id = $urlId > 0 ? $urlId : intval($data['id'] ?? 0);
         
         if ($id <= 0) {
             jsonResponse(['error' => 'Invalid inventory ID'], 400);
         }
         
-        $type = validateAndSanitize($data['type'] ?? '', 'Type', 100);
-        $size = isset($data['size']) ? sanitizeInput($data['size']) : null;
-        $condition = isset($data['condition']) ? sanitizeInput($data['condition']) : null;
-        $location = isset($data['location']) ? sanitizeInput($data['location']) : null;
-        $price = isset($data['price']) ? floatval($data['price']) : null;
-        $status = isset($data['status']) ? sanitizeInput($data['status']) : 'available';
-        $notes = isset($data['notes']) ? sanitizeInput($data['notes']) : null;
+        // Build update query dynamically based on provided fields
+        $fields = [];
+        $params = [];
         
-        $db->query(
-            "UPDATE inventory 
-             SET type = ?, size = ?, `condition` = ?, location = ?, price = ?, status = ?, notes = ? 
-             WHERE id = ?",
-            [$type, $size, $condition, $location, $price, $status, $notes, $id]
+        if (isset($data['type'])) {
+            $fields[] = 'type = ?';
+            $params[] = validateAndSanitize($data['type'], 'Type', 100);
+        }
+        if (isset($data['condition'])) {
+            $fields[] = '`condition` = ?';
+            $params[] = sanitizeInput($data['condition']);
+        }
+        if (isset($data['status'])) {
+            $fields[] = 'status = ?';
+            $params[] = sanitizeInput($data['status']);
+        }
+        if (isset($data['quantity'])) {
+            $quantity = intval($data['quantity']);
+            if ($quantity < 0 || $quantity > 10000) {
+                jsonResponse(['error' => 'Quantity must be between 0 and 10000'], 400);
+            }
+            $fields[] = 'quantity = ?';
+            $params[] = $quantity;
+        }
+        
+        if (empty($fields)) {
+            jsonResponse(['error' => 'No fields to update'], 400);
+        }
+        
+        $params[] = $id;
+        $sql = "UPDATE inventory SET " . implode(', ', $fields) . " WHERE id = ?";
+        
+        $db->query($sql, $params);
+        
+        // Fetch and return the updated item
+        $stmt = $db->query(
+            "SELECT id, type, `condition`, status, quantity, created_at as createdAt 
+             FROM inventory WHERE id = ?",
+            [$id]
         );
         
-        jsonResponse(['ok' => true]);
+        $item = $stmt->fetch();
+        jsonResponse(['ok' => true, 'item' => $item]);
     }
     
     // DELETE - Delete inventory item (requires auth)
