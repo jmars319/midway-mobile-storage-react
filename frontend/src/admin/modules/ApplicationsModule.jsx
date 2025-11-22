@@ -58,20 +58,11 @@ export default function ApplicationsModule(){
               {applications.map(a=> (
                 <tr key={a.id} className="border-b hover:bg-gray-50">
                   <td className="px-6 py-4">{a.name}</td>
-                  <td className="px-6 py-4">{a.position}</td>
-                  <td className="px-6 py-4">{a.date}</td>
-                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${a.status==='new' ? 'bg-blue-100 text-blue-800' : a.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{a.status}</span></td>
+                  <td className="px-6 py-4">{a.position || '—'}</td>
+                  <td className="px-6 py-4">{a.created_at ? new Date(a.created_at).toLocaleDateString() : '—'}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${a.status==='new' ? 'bg-blue-100 text-blue-800' : a.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : a.status==='hired' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{a.status}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(a)} className="text-[#e84424] mr-3">View</button>
-                    <button onClick={() => {
-                      if (a.resume){
-                        // open resume — it may be a full url or a backend uploads path/name
-                        const url = a.resume.startsWith('/') ? `${BACKEND}${a.resume}` : (a.resume.startsWith('http') ? a.resume : `${BACKEND}/uploads/${a.resume}`)
-                        window.open(url, '_blank')
-                      } else {
-                        showToast('No resume available', { type: 'info' })
-                      }
-                    }} className="text-blue-600 mr-3">Resume</button>
                     <button onClick={() => setPendingDelete(a)} className="text-red-600">Delete</button>
                   </td>
                 </tr>
@@ -126,15 +117,17 @@ export default function ApplicationsModule(){
               <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
             </div>
             <div className="mt-4 text-sm text-gray-700 space-y-2">
-              <div><strong>Position:</strong> {selected.position}</div>
+              <div><strong>Position:</strong> {selected.position || '—'}</div>
               <div><strong>Email:</strong> {selected.email}</div>
               <div><strong>Phone:</strong> {selected.phone || '—'}</div>
-              <div><strong>Experience:</strong> {selected.experience || '—'}</div>
+              <div><strong>Experience:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.experience || '—'}</div></div>
+              <div><strong>Message:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.message || '—'}</div></div>
+              <div><strong>Submitted:</strong> {selected.created_at ? new Date(selected.created_at).toLocaleString() : '—'}</div>
               <div>
                 <strong>Status:</strong>
                 <button onClick={async ()=>{
-                  // cycle status: new -> reviewing -> accepted -> rejected
-                  const order = ['new','reviewing','accepted','rejected']
+                  // cycle status: new -> reviewing -> interviewed -> hired -> rejected
+                  const order = ['new','reviewing','interviewed','hired','rejected']
                   const cur = selected.status || 'new'
                   const next = order[(order.indexOf(cur) + 1) % order.length]
                   const token = localStorage.getItem('midway_token')
@@ -143,7 +136,7 @@ export default function ApplicationsModule(){
                     if (res.ok){ const j = await res.json(); setSelected(j.application); setApplications(prev => prev.map(it => it.id === j.application.id ? j.application : it)); showToast('Status updated', { type: 'success' }) }
                     else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
                   }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
-                }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='new' ? 'bg-blue-100 text-blue-800' : selected.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{selected.status}</button>
+                }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='new' ? 'bg-blue-100 text-blue-800' : selected.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : selected.status==='hired' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{selected.status}</button>
               </div>
             </div>
             <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>

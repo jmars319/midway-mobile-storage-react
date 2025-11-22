@@ -119,8 +119,8 @@ export default function CareersSection(){
               <textarea name="experience" value={formData.experience} onChange={handleChange} placeholder="Briefly describe your relevant experience" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
             </label>
             <label className="block">
-              <span className="text-sm text-gray-700 font-medium">Resume</span>
-              <input type="file" name="resume" onChange={handleChange} accept=".pdf,.doc,.docx" className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#e84424] file:text-white hover:file:bg-[#c93a1f]" />
+              <span className="text-sm text-gray-700 font-medium">Additional Message</span>
+              <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Any additional information you'd like to share" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
             </label>
             <button type="submit" className="bg-[#e84424] text-white px-4 py-2 rounded mt-2 hover:bg-[#c93a1f] transition">Submit Application</button>
           </form>

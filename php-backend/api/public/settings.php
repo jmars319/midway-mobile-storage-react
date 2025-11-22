@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 // Default fallback settings
 $defaultSettings = [
     'businessName' => 'Midway Mobile Storage',
-    'email' => 'info@midwaystorage.example',
-    'phone' => '(555) 555-5555',
-    'address' => '123 Storage Ave',
-    'city' => 'Somewhere',
-    'state' => 'State',
-    'zip' => '00000',
+    'email' => 'midwaymobilestorage@gmail.com',
+    'phone' => '(336) 764-4208',
+    'address' => '212 Fred Sink Road',
+    'city' => 'Winston-Salem',
+    'state' => 'NC',
+    'zip' => '27107',
     'country' => 'US',
     'hours' => 'Mon–Fri 8:00–17:00',
     'siteUrl' => 'https://midwaymobilestorage.com'

@@ -84,16 +84,15 @@ export default function QuoteForm(){
                 <select name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="rental">Rental</option>
                   <option value="purchase">Purchase</option>
-                  <option value="trailer">Trailer</option>
                   <option value="custom">Custom</option>
                 </select>
               </label>
 
               <label className="block">
-                <span className="text-sm text-[#0a2a52]">Container Size</span>
+                <span className="text-sm text-[#0a2a52]">Unit Size</span>
                 <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
-                  <option value="20ft">20ft</option>
-                  <option value="40ft">40ft</option>
+                  <option value="20ft">20ft Container</option>
+                  <option value="40ft">40ft Container</option>
                   <option value="trailer">Trailer</option>
                   <option value="custom">Custom</option>
                 </select>

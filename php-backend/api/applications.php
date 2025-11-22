@@ -18,9 +18,10 @@ try {
         requireAuth();
         
         $stmt = $db->query(
-            "SELECT id, name, email, phone, position, resume, status, createdAt 
-             FROM applications 
-             ORDER BY createdAt DESC 
+            "SELECT id, name, email, phone, position, experience, message, 
+                    resume_filename, resume_path, status, created_at, updated_at 
+             FROM job_applications 
+             ORDER BY created_at DESC 
              LIMIT 100"
         );
         
@@ -34,26 +35,57 @@ try {
         
         $data = getRequestBody();
         
-        $name = validateAndSanitize($data['name'] ?? '', 'Name', 255);
-        $email = validateAndSanitize($data['email'] ?? '', 'Email', 255);
+        $name = validateAndSanitize($data['name'] ?? '', 'Name', 100);
+        $email = validateAndSanitize($data['email'] ?? '', 'Email', 100);
+        $phone = validateAndSanitize($data['phone'] ?? '', 'Phone', 20);
         
         if (!validateEmail($email)) {
             jsonResponse(['error' => 'Please enter a valid email address'], 400);
         }
         
-        $phone = isset($data['phone']) ? sanitizeInput($data['phone']) : null;
-        $position = isset($data['position']) ? sanitizeInput($data['position']) : null;
-        $resume = isset($data['resumeName']) ? sanitizeInput($data['resumeName']) : null;
-        $createdAt = getMySQLDateTime();
+        $position = isset($data['position']) ? sanitizeInput($data['position']) : 'other';
+        $experience = isset($data['experience']) ? sanitizeInput($data['experience']) : null;
+        $message = isset($data['message']) ? sanitizeInput($data['message']) : null;
         
         $db->query(
-            "INSERT INTO applications (name, email, phone, position, resume, createdAt, status) 
+            "INSERT INTO job_applications (name, email, phone, position, experience, message, status) 
              VALUES (?, ?, ?, ?, ?, ?, 'new')",
-            [$name, $email, $phone, $position, $resume, $createdAt]
+            [$name, $email, $phone, $position, $experience, $message]
         );
         
         $id = $db->lastInsertId();
         jsonResponse(['ok' => true, 'id' => $id], 201);
+    }
+    
+    // PATCH - Update application status (requires auth)
+    elseif ($method === 'PATCH') {
+        requireAuth();
+        
+        $data = getRequestBody();
+        $pathParts = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        $id = intval($pathParts[count($pathParts) - 2]); // Get ID before /status
+        $status = sanitizeInput($data['status'] ?? '');
+        
+        if ($id <= 0) {
+            jsonResponse(['error' => 'Invalid application ID'], 400);
+        }
+        
+        $db->query(
+            "UPDATE job_applications SET status = ? WHERE id = ?",
+            [$status, $id]
+        );
+        
+        // Return updated application
+        $stmt = $db->query(
+            "SELECT id, name, email, phone, position, experience, message, 
+                    resume_filename, resume_path, status, created_at, updated_at 
+             FROM job_applications 
+             WHERE id = ?",
+            [$id]
+        );
+        
+        $application = $stmt->fetch();
+        jsonResponse(['ok' => true, 'application' => $application]);
     }
     
     // DELETE - Delete application (requires auth)
@@ -67,7 +99,7 @@ try {
             jsonResponse(['error' => 'Invalid application ID'], 400);
         }
         
-        $db->query("DELETE FROM applications WHERE id = ?", [$id]);
+        $db->query("DELETE FROM job_applications WHERE id = ?", [$id]);
         
         jsonResponse(['ok' => true]);
     }

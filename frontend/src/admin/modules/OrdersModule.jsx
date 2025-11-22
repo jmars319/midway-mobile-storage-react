@@ -62,11 +62,11 @@ export default function OrdersModule(){
             <tbody>
               {orders.map(o=> (
                 <tr key={o.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">{o.customer}</td>
+                  <td className="px-6 py-4">{o.customer_name}</td>
                   <td className="px-6 py-4">{o.product}</td>
                   <td className="px-6 py-4">{o.quantity}</td>
-                  <td className="px-6 py-4">{o.date}</td>
-                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${o.status==='shipped' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{o.status}</span></td>
+                  <td className="px-6 py-4">{o.created_at ? new Date(o.created_at).toLocaleDateString() : '—'}</td>
+                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${o.status==='shipped' ? 'bg-green-100 text-green-800' : o.status==='delivered' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{o.status}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(o)} className="text-[#e84424] mr-3">View</button>
                     <button onClick={() => setPendingDelete(o)} className="text-red-600">Delete</button>
@@ -82,7 +82,7 @@ export default function OrdersModule(){
       {pendingDelete && (
         <ConfirmModal
           title="Delete order"
-          message={`Delete order from "${pendingDelete.customer}"? This cannot be undone.`}
+          message={`Delete order from "${pendingDelete.customer_name}"? This cannot be undone.`}
           confirmText="Delete"
           cancelText="Cancel"
           onCancel={() => setPendingDelete(null)}
@@ -119,24 +119,33 @@ export default function OrdersModule(){
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold">Order: {selected.customer}</h3>
+              <h3 className="text-lg font-bold">Order: {selected.customer_name}</h3>
               <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
             </div>
             <div className="mt-4 text-sm text-gray-700 space-y-2">
+              <div><strong>Customer:</strong> {selected.customer_name}</div>
+              <div><strong>Email:</strong> {selected.customer_email}</div>
+              <div><strong>Phone:</strong> {selected.customer_phone || '—'}</div>
               <div><strong>Product:</strong> {selected.product}</div>
               <div><strong>Quantity:</strong> {selected.quantity}</div>
-              <div><strong>Date:</strong> {selected.date}</div>
+              <div><strong>Shipping Address:</strong> <div className="mt-1 text-gray-600">{selected.shipping_address || '—'}</div></div>
+              <div><strong>Order Total:</strong> {selected.order_total ? `$${parseFloat(selected.order_total).toFixed(2)}` : '—'}</div>
+              <div><strong>Tracking Number:</strong> {selected.tracking_number || '—'}</div>
+              <div><strong>Notes:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.notes || '—'}</div></div>
+              <div><strong>Order Date:</strong> {selected.created_at ? new Date(selected.created_at).toLocaleString() : '—'}</div>
               <div>
                 <strong>Status:</strong>
                 <button onClick={async ()=>{
-                  const next = selected.status === 'shipped' ? 'processing' : 'shipped'
+                  const order = ['processing','shipped','delivered','cancelled']
+                  const cur = selected.status || 'processing'
+                  const next = order[(order.indexOf(cur) + 1) % order.length]
                   const token = localStorage.getItem('midway_token')
                   try{
                       const res = await fetch(`${API_BASE}/orders/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
                       if (res.ok){ const j = await res.json(); setSelected(j.order); setOrders(prev => prev.map(it => it.id === j.order.id ? j.order : it)); showToast('Status updated', { type: 'success' }) }
                       else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
                     }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
-                }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='shipped' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{selected.status}</button>
+                }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='shipped' ? 'bg-green-100 text-green-800' : selected.status==='delivered' ? 'bg-blue-100 text-blue-800' : selected.status==='cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>{selected.status}</button>
               </div>
             </div>
             <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>

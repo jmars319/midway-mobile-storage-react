@@ -34,8 +34,16 @@ if (isset($routes[$path])) {
     exit;
 }
 
-// Check for routes with IDs (e.g., quotes/123)
+// Check for routes with IDs (e.g., quotes/123, applications/123/status)
 foreach ($routes as $route => $file) {
+    // Match routes with /id/status pattern
+    if (preg_match('#^' . preg_quote($route, '#') . '/(\d+)/status$#', $path, $matches)) {
+        $_GET['id'] = $matches[1];
+        $_GET['action'] = 'status';
+        require __DIR__ . '/' . $file;
+        exit;
+    }
+    // Match routes with /id pattern
     if (preg_match('#^' . preg_quote($route, '#') . '/(\d+)$#', $path, $matches)) {
         $_GET['id'] = $matches[1];
         require __DIR__ . '/' . $file;

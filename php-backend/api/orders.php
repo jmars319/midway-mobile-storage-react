@@ -18,8 +18,10 @@ try {
         requireAuth();
         
         $stmt = $db->query(
-            "SELECT id, customer, email, phone, address, product, quantity, notes, status, created_at 
-             FROM orders 
+            "SELECT id, customer_name, customer_email, customer_phone, shipping_address, 
+                    product, quantity, notes, status, tracking_number, order_total, 
+                    created_at, updated_at 
+             FROM panelseal_orders 
              ORDER BY created_at DESC 
              LIMIT 100"
         );
@@ -34,28 +36,61 @@ try {
         
         $data = getRequestBody();
         
-        $customer = validateAndSanitize($data['customer'] ?? '', 'Customer name', 255);
-        $email = validateAndSanitize($data['email'] ?? '', 'Email', 255);
+        $customer_name = validateAndSanitize($data['customer'] ?? '', 'Customer name', 100);
+        $customer_email = validateAndSanitize($data['email'] ?? '', 'Email', 100);
+        $customer_phone = validateAndSanitize($data['phone'] ?? '', 'Phone', 20);
+        $shipping_address = validateAndSanitize($data['address'] ?? '', 'Address', 1000);
         
-        if (!validateEmail($email)) {
+        if (!validateEmail($customer_email)) {
             jsonResponse(['error' => 'Please enter a valid email address'], 400);
         }
         
-        $phone = isset($data['phone']) ? sanitizeInput($data['phone']) : null;
-        $address = isset($data['address']) ? sanitizeInput($data['address']) : null;
-        $product = validateAndSanitize($data['product'] ?? '', 'Product', 255);
-        $quantity = isset($data['quantity']) ? sanitizeInput($data['quantity']) : null;
+        $product = validateAndSanitize($data['product'] ?? '', 'Product', 100);
+        $quantity = isset($data['quantity']) ? intval($data['quantity']) : 1;
         $notes = isset($data['notes']) ? sanitizeInput($data['notes']) : null;
-        $createdAt = getMySQLDateTime();
         
         $db->query(
-            "INSERT INTO orders (customer, email, phone, address, product, quantity, notes, created_at, status) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')",
-            [$customer, $email, $phone, $address, $product, $quantity, $notes, $createdAt]
+            "INSERT INTO panelseal_orders (customer_name, customer_email, customer_phone, 
+                                          shipping_address, product, quantity, notes, status) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'processing')",
+            [$customer_name, $customer_email, $customer_phone, $shipping_address, 
+             $product, $quantity, $notes]
         );
         
         $id = $db->lastInsertId();
         jsonResponse(['ok' => true, 'id' => $id], 201);
+    }
+    
+    // PATCH - Update order status (requires auth)
+    elseif ($method === 'PATCH') {
+        requireAuth();
+        
+        $data = getRequestBody();
+        $pathParts = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+        $id = intval($pathParts[count($pathParts) - 2]); // Get ID before /status
+        $status = sanitizeInput($data['status'] ?? '');
+        
+        if ($id <= 0) {
+            jsonResponse(['error' => 'Invalid order ID'], 400);
+        }
+        
+        $db->query(
+            "UPDATE panelseal_orders SET status = ? WHERE id = ?",
+            [$status, $id]
+        );
+        
+        // Return updated order
+        $stmt = $db->query(
+            "SELECT id, customer_name, customer_email, customer_phone, shipping_address, 
+                    product, quantity, notes, status, tracking_number, order_total, 
+                    created_at, updated_at 
+             FROM panelseal_orders 
+             WHERE id = ?",
+            [$id]
+        );
+        
+        $order = $stmt->fetch();
+        jsonResponse(['ok' => true, 'order' => $order]);
     }
     
     // DELETE - Delete order (requires auth)
@@ -69,7 +104,7 @@ try {
             jsonResponse(['error' => 'Invalid order ID'], 400);
         }
         
-        $db->query("DELETE FROM orders WHERE id = ?", [$id]);
+        $db->query("DELETE FROM panelseal_orders WHERE id = ?", [$id]);
         
         jsonResponse(['ok' => true]);
     }

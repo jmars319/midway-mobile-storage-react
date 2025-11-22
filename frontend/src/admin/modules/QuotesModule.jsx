@@ -150,7 +150,7 @@ export default function QuotesModule(){
                 <div className="text-gray-900">{selected.serviceType || '—'}</div>
               </div>
               <div>
-                <div className="font-semibold text-gray-700">Container Size</div>
+                <div className="font-semibold text-gray-700">Unit Size</div>
                 <div className="text-gray-900">{selected.containerSize || '—'}</div>
               </div>
               <div>
