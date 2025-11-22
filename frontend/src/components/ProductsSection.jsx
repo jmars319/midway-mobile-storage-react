@@ -16,7 +16,8 @@ export default function ProductsSection({ scrollTo }){
           <h4 className="text-2xl font-semibold text-[#0a2a52]">Why PanelSeal</h4>
           <ul className="mt-4 space-y-3">
             <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span><span className="text-gray-700">Long-lasting waterproof protection</span></li>
-            <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span><span className="text-gray-700">Easy professional application</span></li>
+            <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span><span className="text-gray-700"><strong>Easy DIY application</strong> — no professional needed!</span></li>
+            <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span><span className="text-gray-700">Professional installation available if preferred</span></li>
             <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span><span className="text-gray-700">Compatible with container and trailer panels</span></li>
           </ul>
         </div>
