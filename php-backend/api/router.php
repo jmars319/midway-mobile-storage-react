@@ -53,8 +53,13 @@ foreach ($routes as $route => $file) {
 
 // Serve static files from uploads directory
 if (preg_match('#^uploads/(.+)$#', $path, $matches)) {
-    $filePath = __DIR__ . '/../uploads/' . $matches[1];
-    if (file_exists($filePath) && is_file($filePath)) {
+    // Prevent path traversal attacks
+    $filename = basename($matches[1]);
+    $filePath = __DIR__ . '/../uploads/' . $filename;
+    $realPath = realpath($filePath);
+    $uploadsDir = realpath(__DIR__ . '/../uploads/');
+    
+    if ($realPath && $uploadsDir && strpos($realPath, $uploadsDir) === 0 && is_file($realPath)) {
         // Determine content type
         $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $mimeTypes = [

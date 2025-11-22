@@ -41,8 +41,9 @@ try {
         jsonResponse(['token' => $token, 'username' => $user['username']]);
         
     } catch (Exception $e) {
-        // Fallback to default credentials if table doesn't exist
-        if ($username === 'admin' && $password === 'admin123') {
+        // Fallback to default credentials only in debug mode
+        if (DEBUG_MODE && $username === 'admin' && $password === 'admin123') {
+            error_log('WARNING: Using fallback admin credentials - DO NOT USE IN PRODUCTION');
             $token = generateToken(['userId' => 1, 'username' => 'admin']);
             jsonResponse(['token' => $token, 'username' => 'admin']);
         }

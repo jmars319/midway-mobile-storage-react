@@ -21,6 +21,13 @@ function setCorsHeaders() {
     header("Access-Control-Allow-Credentials: true");
     header("Access-Control-Max-Age: 3600");
     
+    // Security headers
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+    
     // Handle preflight OPTIONS request
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(204);
@@ -105,7 +112,6 @@ function checkRateLimit($key, $limit = RATE_LIMIT_REQUESTS, $window = RATE_LIMIT
     $rateLimitKey = "rate_limit_{$key}_{$clientIP}";
     
     $now = time();
-    $rateLimitKey = "rate_limit_$key";
     
     if (!isset($_SESSION[$rateLimitKey])) {
         $_SESSION[$rateLimitKey] = ['count' => 0, 'reset' => $now + $window];
@@ -165,6 +171,12 @@ function verifyToken($token) {
     }
     
     list($header, $payload, $signature) = $parts;
+    
+    // Validate algorithm to prevent algorithm confusion attacks
+    $headerData = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $header)), true);
+    if (!$headerData || !isset($headerData['alg']) || $headerData['alg'] !== 'HS256') {
+        return false;
+    }
     
     // Verify signature
     $validSignature = hash_hmac('sha256', "$header.$payload", JWT_SECRET, true);
