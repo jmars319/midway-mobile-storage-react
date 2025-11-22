@@ -12,9 +12,12 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     // GET - Get CSRF token (public)
+    // Note: CSRF token endpoint is not rate limited because:
+    // 1. It only reads/generates a session token (no database or expensive operations)
+    // 2. Multiple forms on a page need tokens simultaneously
+    // 3. Rate limiting here causes UX issues when users navigate between pages
+    // 4. The actual form submissions are rate limited instead
     if ($method === 'GET') {
-        checkRateLimit('csrf_token');
-        
         $token = generateCsrfToken();
         jsonResponse(['csrf_token' => $token]);
     } else {
