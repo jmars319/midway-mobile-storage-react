@@ -90,7 +90,17 @@ try {
             [$status, $id]
         );
         
-        jsonResponse(['ok' => true]);
+        // Return updated quote
+        $stmt = $db->query(
+            "SELECT id, name, email, phone, serviceType, containerSize, quantity, duration, 
+                    deliveryAddress, message, status, createdAt 
+             FROM quotes 
+             WHERE id = ?",
+            [$id]
+        );
+        
+        $quote = $stmt->fetch();
+        jsonResponse(['ok' => true, 'quote' => $quote]);
     }
     
     // DELETE - Delete quote (requires auth)
