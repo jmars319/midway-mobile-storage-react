@@ -28,7 +28,7 @@ try {
     // Check if admin_users table exists, if not use default credentials
     try {
         $stmt = $db->query(
-            "SELECT id, username, password FROM admin_users WHERE username = ? LIMIT 1",
+            "SELECT id, username, password_hash as password FROM admin_users WHERE username = ? LIMIT 1",
             [$username]
         );
         $user = $stmt->fetch();

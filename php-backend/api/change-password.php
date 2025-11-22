@@ -61,7 +61,7 @@ try {
     
     // Get current user data
     $stmt = $db->query(
-        "SELECT id, username, password FROM admin_users WHERE username = ?",
+        "SELECT id, username, password_hash FROM admin_users WHERE username = ?",
         [$username]
     );
     
@@ -72,7 +72,7 @@ try {
     }
     
     // Verify current password
-    if (!password_verify($currentPassword, $user['password'])) {
+    if (!password_verify($currentPassword, $user['password_hash'])) {
         jsonResponse(['error' => 'Current password is incorrect'], 401);
     }
     
@@ -81,7 +81,7 @@ try {
     
     // Update password
     $db->query(
-        "UPDATE admin_users SET password = ?, updated_at = NOW() WHERE id = ?",
+        "UPDATE admin_users SET password_hash = ? WHERE id = ?",
         [$hashedPassword, $user['id']]
     );
     
