@@ -34,8 +34,8 @@ if ($method === 'GET') {
         $meta = getMediaMeta($metaFile);
         $media = [];
         
-        // Get filter tag if provided
-        $filterTag = $_GET['tag'] ?? null;
+        // Get filter tag if provided (sanitize input)
+        $filterTag = isset($_GET['tag']) ? sanitizeInput($_GET['tag']) : null;
         
         foreach ($meta as $filename => $info) {
             $filepath = $uploadsDir . '/' . $filename;
