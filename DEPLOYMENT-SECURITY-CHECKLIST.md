@@ -148,7 +148,7 @@
    
    Open `frontend/src/config.js` in your editor:
    ```javascript
-   export const API_BASE = 'https://yourdomain.com/api'  // ← Change to YOUR domain
+   export const API_BASE = 'https://midwaymobilestorage.com/api'
    ```
 
 3. **Update Backend Config** (Local - Before Uploading)
@@ -163,10 +163,10 @@
    
    define('JWT_SECRET', 'paste_the_64_char_string_from_step_1_here');
    
-   // Update CORS origins to YOUR domain:
+   // Update CORS origins:
    define('ALLOWED_ORIGINS', [
-       'https://yourdomain.com',      // ← Change to YOUR domain
-       'https://www.yourdomain.com'   // ← Change to YOUR domain
+       'https://midwaymobilestorage.com',
+       'https://www.midwaymobilestorage.com'
    ]);
    ```
 
@@ -181,7 +181,7 @@
 
 #### Step 2: Login to cPanel
 
-1. Go to `https://yourdomain.com/cpanel` or use GoDaddy's cPanel login
+1. Go to `https://midwaymobilestorage.com/cpanel` or use GoDaddy's cPanel login
 2. Login with your cPanel credentials
 
 #### Step 3: Create MySQL Database
@@ -244,7 +244,7 @@
 **⚠️ These steps are done IN YOUR CPANEL (web browser)**
 
 1. **Open phpMyAdmin in cPanel**
-   - Login to your cPanel (https://yourdomain.com/cpanel)
+   - Login to your cPanel (https://midwaymobilestorage.com/cpanel)
    - Search for "phpMyAdmin" in the search box
    - Click "phpMyAdmin" to open in new tab
 
@@ -304,7 +304,7 @@ If you prefer to start with empty tables instead:
 **⚠️ These steps are done IN YOUR CPANEL (web browser)**
 
 1. **Open File Manager in cPanel**
-   - Login to your cPanel (https://yourdomain.com/cpanel)
+   - Login to your cPanel (https://midwaymobilestorage.com/cpanel)
    - Click "File Manager"
    - Navigate to `public_html` folder (this is your web root)
 
@@ -478,10 +478,10 @@ If you prefer to start with empty tables instead:
    - Cloudflare will handle most of this, but .htaccess provides backup
 
 6. **Verify SSL is Working (In Your Web Browser)**
-   - Visit `https://yourdomain.com`
+   - Visit `https://midwaymobilestorage.com`
    - ✅ Check for padlock icon in browser address bar
    - Click padlock → should show "Connection is secure"
-   - Test API endpoint: `https://yourdomain.com/api/health`
+   - Test API endpoint: `https://midwaymobilestorage.com/api/health`
    - Should return: `{"status":"ok"}`
 
 #### Step 8: Test Your Deployment
@@ -489,17 +489,17 @@ If you prefer to start with empty tables instead:
 **⚠️ These tests are done IN YOUR WEB BROWSER**
 
 1. **Test Frontend (In Browser)**
-   - Visit `https://yourdomain.com`
+   - Visit `https://midwaymobilestorage.com`
    - ✅ You should see your React app homepage
    - Press F12 → Console tab → Check for errors (should be none)
 
 2. **Test API Health Check (In Browser)**
-   - Visit `https://yourdomain.com/api/health`
+   - Visit `https://midwaymobilestorage.com/api/health`
    - ✅ Should return: `{"status":"ok"}`
    - If you see this, your API is working!
 
 3. **Test Database Connection (In Browser)**
-   - Go to `https://yourdomain.com`
+   - Go to `https://midwaymobilestorage.com`
    - Click "Admin" link in navigation
    - Login with:
      - Username: `admin`
@@ -520,7 +520,7 @@ If you prefer to start with empty tables instead:
 **⚠️ Critical security steps - DO NOT SKIP!**
 
 1. **Change Admin Password (In Your Browser)**
-   - Login to admin panel at `https://yourdomain.com`
+   - Login to admin panel at `https://midwaymobilestorage.com`
    - Click "Account Security" in sidebar
    - Enter current password: `admin123`
    - Enter new strong password (12+ characters)
@@ -563,7 +563,7 @@ If you prefer using FTP client (FileZilla, Cyberduck, etc.):
    - Download FileZilla (free) if you don't have FTP client
    - Open FileZilla
    - Enter:
-     - Host: `ftp.yourdomain.com`
+     - Host: `ftp.midwaymobilestorage.com`
      - Username: Your cPanel username
      - Password: Your cPanel password
      - Port: `21`

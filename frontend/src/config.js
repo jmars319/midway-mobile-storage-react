@@ -1,5 +1,11 @@
 // Centralized configuration for API endpoints
-// Use environment variable in production, fallback to localhost for development
-// PHP backend runs on port 8000, Node.js backend on 5001
+// For production deployment: Update this to your production domain before building
+// For local development: Uses localhost with PHP backend on port 8000
+
+// PRODUCTION: Uncomment this line before running 'npm run build' for deployment
+// export const API_BASE = 'https://midwaymobilestorage.com/api'
+
+// DEVELOPMENT: Comment out this line before building for production
 export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+
 export const BACKEND_ORIGIN = API_BASE.replace(/\/api\/?.*$/, '')
