@@ -38,7 +38,7 @@ try {
                     'name' => $filename,
                     'originalName' => $originalName,
                     'tags' => $tags,
-                    'url' => '/uploads/' . rawurlencode($filename)
+                    'url' => '/api/uploads/' . rawurlencode($filename)
                 ];
             }
         }

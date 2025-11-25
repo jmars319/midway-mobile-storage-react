@@ -19,6 +19,11 @@ $path = parse_url($requestUri, PHP_URL_PATH);
 // Remove leading slash
 $path = ltrim($path, '/');
 
+// Remove /api prefix if present (for production .htaccess routing)
+if (strpos($path, 'api/') === 0) {
+    $path = substr($path, 4); // Remove 'api/'
+}
+
 // Route mapping
 $routes = [
     'health' => 'health.php',
@@ -83,17 +88,24 @@ if (preg_match('#^uploads/(.+)$#', $path, $matches)) {
     $uploadsDir = realpath(__DIR__ . '/../uploads/');
     
     if ($realPath && $uploadsDir && strpos($realPath, $uploadsDir) === 0 && is_file($realPath)) {
-        // Determine content type
-        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-        $mimeTypes = [
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'gif' => 'image/gif',
-            'webp' => 'image/webp',
-            'svg' => 'image/svg+xml',
-        ];
-        $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
+        // Determine content type - use finfo for files without extensions
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $contentType = finfo_file($finfo, $realPath);
+            finfo_close($finfo);
+        } else {
+            // Fallback to extension-based detection
+            $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            $mimeTypes = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml',
+            ];
+            $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
+        }
         
         header('Content-Type: ' . $contentType);
         header('Content-Length: ' . filesize($filePath));

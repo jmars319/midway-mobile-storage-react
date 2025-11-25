@@ -50,7 +50,7 @@ if ($method === 'GET') {
                 $media[] = [
                     'name' => $filename,
                     'originalName' => $info['originalName'] ?? $filename,
-                    'url' => '/uploads/' . $filename,
+                    'url' => '/api/uploads/' . $filename,
                     'tags' => $info['tags'] ?? [],
                     'uploadedAt' => $info['uploadedAt'] ?? null
                 ];
@@ -115,7 +115,7 @@ elseif ($method === 'POST') {
             'file' => [
                 'name' => $filename,
                 'originalName' => $file['name'],
-                'url' => '/uploads/' . $filename,
+                'url' => '/api/uploads/' . $filename,
                 'tags' => $tags
             ]
         ], 201);

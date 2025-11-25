@@ -36,7 +36,7 @@ try {
                 $files[] = [
                     'name' => $filename,
                     'tags' => $tags,
-                    'url' => '/uploads/' . rawurlencode($filename)
+                    'url' => '/api/uploads/' . rawurlencode($filename)
                 ];
             }
         }

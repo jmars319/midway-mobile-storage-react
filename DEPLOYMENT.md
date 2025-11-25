@@ -404,20 +404,20 @@ If you prefer to start fresh without importing existing data:
 **WHERE**: In File Manager
 
 1. **LOOK AT**: Left sidebar folder tree
-2. **DOUBLE-CLICK**: Folder named "public_html"
+2. **DOUBLE-CLICK**: Folder named "public_html/midwaymobilestorage.com"
    - This is your website root folder - everything goes here
 
-✅ **YOU SHOULD SEE**: "public_html" in the breadcrumb path at top
+✅ **YOU SHOULD SEE**: "public_html/midwaymobilestorage.com" in the breadcrumb path at top
 
 ---
 
 ### Step 4.3: Clear Existing Files (OPTIONAL)
 
-**WHERE**: Still in File Manager → public_html
+**WHERE**: Still in File Manager → public_html/midwaymobilestorage.com
 
 ⚠️ **ONLY DO THIS IF** there are old website files you want to remove
 
-1. **SELECT ALL** files/folders in public_html (except .htaccess if it exists)
+1. **SELECT ALL** files/folders in public_html/midwaymobilestorage.com (except .htaccess if it exists)
    - Click first item, then Shift+Click last item
    - Or use checkbox in table header to select all
 
@@ -428,7 +428,7 @@ If you prefer to start fresh without importing existing data:
 
 ### Step 4.4: Upload Frontend Files
 
-**WHERE**: Still in File Manager → public_html
+**WHERE**: Still in File Manager → public_html/midwaymobilestorage.com
 
 1. **CLICK**: "Upload" button in top toolbar
 
@@ -451,7 +451,7 @@ If you prefer to start fresh without importing existing data:
 
 ⏳ **WAIT** for upload to complete - progress bar shows at bottom
 
-✅ **YOU SHOULD SEE**: All files listed in public_html
+✅ **YOU SHOULD SEE**: All files listed in public_html/midwaymobilestorage.com
 
 6. **CLICK**: "Go Back to..." link to return to File Manager
 
@@ -459,7 +459,7 @@ If you prefer to start fresh without importing existing data:
 
 ### Step 4.5: Create API Folder
 
-**WHERE**: In File Manager → public_html
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com
 
 1. **CLICK**: "+ Folder" button in toolbar (or "New Folder")
 
@@ -469,14 +469,14 @@ If you prefer to start fresh without importing existing data:
 
 4. **DOUBLE-CLICK**: The new "api" folder to enter it
 
-✅ **YOU SHOULD SEE**: "public_html/api" in breadcrumb at top
+✅ **YOU SHOULD SEE**: "public_html/midwaymobilestorage.com/api" in breadcrumb at top
 ✅ **YOU SHOULD SEE**: Empty folder (no files yet)
 
 ---
 
 ### Step 4.6: Upload Backend Root Files
 
-**WHERE**: In File Manager → public_html/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api
 
 1. **CLICK**: "Upload" button
 
@@ -491,7 +491,7 @@ If you prefer to start fresh without importing existing data:
 
 ⚠️ **MAKE SURE** you upload the EDITED config.php with your database credentials
 
-✅ **YOU SHOULD SEE**: These 3-4 files now in public_html/api/
+✅ **YOU SHOULD SEE**: These 3-4 files now in public_html/midwaymobilestorage.com/api/
 
 4. **CLICK**: "Go Back to..." to return to File Manager
 
@@ -499,9 +499,9 @@ If you prefer to start fresh without importing existing data:
 
 ### Step 4.7: Create API Endpoints Folder
 
-**WHERE**: In File Manager → public_html/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api
 
-1. **MAKE SURE** you're in: public_html/api (check breadcrumb)
+1. **MAKE SURE** you're in: public_html/midwaymobilestorage.com/api (check breadcrumb)
 
 2. **CLICK**: "+ Folder" button
 
@@ -511,7 +511,7 @@ If you prefer to start fresh without importing existing data:
 
 5. **DOUBLE-CLICK**: The new "api" folder
 
-✅ **YOU SHOULD SEE**: "public_html/api/api" in breadcrumb
+✅ **YOU SHOULD SEE**: "public_html/midwaymobilestorage.com/api/api" in breadcrumb
 
 ⚠️ **YES, THIS IS CORRECT** - you have "api/api/" - this is intentional
 
@@ -519,7 +519,7 @@ If you prefer to start fresh without importing existing data:
 
 ### Step 4.8: Upload API Endpoint Files
 
-**WHERE**: In File Manager → public_html/api/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api/api
 
 1. **CLICK**: "Upload" button
 
@@ -541,7 +541,7 @@ If you prefer to start fresh without importing existing data:
 
 ⏳ **WAIT** for all files to upload
 
-✅ **YOU SHOULD SEE**: About 11 .php files in public_html/api/api/
+✅ **YOU SHOULD SEE**: About 11 .php files in public_html/midwaymobilestorage.com/api/api/
 
 4. **CLICK**: "Go Back to..." to return to File Manager
 
@@ -549,14 +549,14 @@ If you prefer to start fresh without importing existing data:
 
 ### Step 4.9: Upload API Subfolders
 
-**WHERE**: In File Manager → public_html/api/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api/api
 
 Still need to upload the subfolders (auth/, admin/, media/, public/)
 
 **FOR EACH SUBFOLDER**, repeat these steps:
 
 **A. Create auth/ folder:**
-1. **MAKE SURE** you're in: public_html/api/api
+1. **MAKE SURE** you're in: public_html/midwaymobilestorage.com/api/api
 2. **CLICK**: "+ Folder" button
 3. **TYPE**: auth
 4. **CLICK**: "Create New Folder"
@@ -564,10 +564,10 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 6. **CLICK**: "Upload"
 7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/auth/
 8. **UPLOAD**: login.php
-9. **GO BACK**: Click "Up One Level" button (or breadcrumb link to go back to public_html/api/api)
+9. **GO BACK**: Click "Up One Level" button (or breadcrumb link to go back to public_html/midwaymobilestorage.com/api/api)
 
 **B. Create admin/ folder:**
-1. **MAKE SURE** you're in: public_html/api/api
+1. **MAKE SURE** you're in: public_html/midwaymobilestorage.com/api/api
 2. **CLICK**: "+ Folder" button
 3. **TYPE**: admin
 4. **CLICK**: "Create New Folder"
@@ -575,10 +575,10 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 6. **CLICK**: "Upload"
 7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/admin/
 8. **UPLOAD**: stats.php
-9. **GO BACK** to public_html/api/api
+9. **GO BACK** to public_html/midwaymobilestorage.com/api/api
 
 **C. Create media/ folder:**
-1. **MAKE SURE** you're in: public_html/api/api
+1. **MAKE SURE** you're in: public_html/midwaymobilestorage.com/api/api
 2. **CLICK**: "+ Folder" button
 3. **TYPE**: media
 4. **CLICK**: "Create New Folder"
@@ -586,10 +586,10 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 6. **CLICK**: "Upload"
 7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/media/
 8. **UPLOAD**: tags.php
-9. **GO BACK** to public_html/api/api
+9. **GO BACK** to public_html/midwaymobilestorage.com/api/api
 
 **D. Create public/ folder:**
-1. **MAKE SURE** you're in: public_html/api/api
+1. **MAKE SURE** you're in: public_html/midwaymobilestorage.com/api/api
 2. **CLICK**: "+ Folder" button
 3. **TYPE**: public
 4. **CLICK**: "Create New Folder"
@@ -601,15 +601,15 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
    - logo.php
    - services-media.php
    - settings.php
-9. **GO BACK** to public_html/api/api
+9. **GO BACK** to public_html/midwaymobilestorage.com/api/api
 
 ---
 
 ### Step 4.10: Create Uploads Folder
 
-**WHERE**: In File Manager → public_html/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api
 
-1. **NAVIGATE TO**: public_html/api (use breadcrumb to go back)
+1. **NAVIGATE TO**: public_html/midwaymobilestorage.com/api (use breadcrumb to go back)
 
 2. **CLICK**: "+ Folder" button
 
@@ -657,7 +657,7 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 **NAVIGATE** through your folders and verify this structure exists:
 
 ```
-public_html/
+public_html/midwaymobilestorage.com/
 ├── index.html
 ├── assets/
 │   ├── index-[random].js
@@ -695,9 +695,9 @@ public_html/
 
 ### Step 5.1: Create Main .htaccess
 
-**WHERE**: In File Manager → public_html
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com
 
-1. **NAVIGATE TO**: public_html (top level)
+1. **NAVIGATE TO**: public_html/midwaymobilestorage.com (top level)
 
 2. **CLICK**: "+ File" button
 
@@ -744,15 +744,15 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 11. **CLICK**: "Close" button
 
-✅ **SUCCESS**: Main .htaccess created in public_html
+✅ **SUCCESS**: Main .htaccess created in public_html/midwaymobilestorage.com
 
 ---
 
 ### Step 5.2: Create API .htaccess
 
-**WHERE**: In File Manager → public_html/api
+**WHERE**: In File Manager → public_html/midwaymobilestorage.com/api
 
-1. **NAVIGATE TO**: public_html/api
+1. **NAVIGATE TO**: public_html/midwaymobilestorage.com/api
 
 2. **CLICK**: "+ File" button
 
@@ -792,7 +792,7 @@ php_value session.cookie_httponly 1
 
 9. **CLICK**: "Close" button
 
-✅ **SUCCESS**: API .htaccess created in public_html/api
+✅ **SUCCESS**: API .htaccess created in public_html/midwaymobilestorage.com/api
 
 ---
 
@@ -1116,7 +1116,7 @@ OR: "No records found" (if fresh database)
 
 2. **OPEN**: File Manager
 
-3. **NAVIGATE TO**: public_html/api
+3. **NAVIGATE TO**: public_html/midwaymobilestorage.com/api
 
 4. **RIGHT-CLICK**: config.php
 
@@ -1179,7 +1179,7 @@ OR: "No records found" (if fresh database)
 
 5. **IF NOT AVAILABLE**:
    - Manually backup monthly:
-     - Download entire public_html folder
+     - Download entire public_html/midwaymobilestorage.com folder
      - Export database from phpMyAdmin
      - Save both to external drive
 
@@ -1218,7 +1218,7 @@ OR: "No records found" (if fresh database)
 **How to Fix:**
 
 **A. Check .htaccess**
-- Open public_html/api/.htaccess in File Manager
+- Open public_html/midwaymobilestorage.com/api/.htaccess in File Manager
 - Verify it matches exactly what's in Step 5.2
 - Try temporarily renaming it to .htaccess.bak to disable it
 - If site works, there's a syntax error in .htaccess
@@ -1237,7 +1237,7 @@ OR: "No records found" (if fresh database)
 - Username usually has prefix like: cpanelusername_midway_user
 
 **D. Check Permissions**
-- Navigate to public_html/api
+- Navigate to public_html/midwaymobilestorage.com/api
 - Right-click config.php → Permissions → Should be 644
 - Right-click uploads folder → Permissions → Should be 755
 
@@ -1288,12 +1288,12 @@ OR: "No records found" (if fresh database)
 
 **A. Check file locations**:
 ```
-public_html/api/.htaccess  ← MUST exist
-public_html/api/api/router.php  ← MUST exist
+public_html/midwaymobilestorage.com/api/.htaccess  ← MUST exist
+public_html/midwaymobilestorage.com/api/api/router.php  ← MUST exist
 ```
 
 **B. Verify .htaccess content**:
-- Open public_html/api/.htaccess
+- Open public_html/midwaymobilestorage.com/api/.htaccess
 - Must contain "RewriteRule ^(.*)$ api/router.php [QSA,L]"
 - Exactly as shown in Step 5.2
 
@@ -1337,7 +1337,7 @@ public_html/api/api/router.php  ← MUST exist
 - **Fix**:
   - Open php-backend/config.php
   - Verify ALLOWED_ORIGINS includes your domain
-  - Re-upload config.php to public_html/api/
+  - Re-upload config.php to public_html/midwaymobilestorage.com/api/
 
 **Error**: "Unexpected token <"
 - **Cause**: .htaccess routing broken
@@ -1430,7 +1430,7 @@ SELECT * FROM quotes ORDER BY created_at DESC LIMIT 1;
 **How to Fix:**
 
 **A. Check permissions**:
-- File Manager → public_html/api/uploads
+- File Manager → public_html/midwaymobilestorage.com/api/uploads
 - Right-click uploads → Permissions
 - Must be 755
 - Right-click media.json → Permissions
@@ -1524,7 +1524,7 @@ define('RATE_LIMIT_WINDOW', 900);
 ### File Structure Reference
 
 ```
-public_html/
+public_html/midwaymobilestorage.com/
 ├── index.html                    (React app entry)
 ├── .htaccess                     (React routing + HTTPS redirect)
 ├── assets/                       (JS and CSS bundles)
@@ -1587,8 +1587,8 @@ From Step 8.1 (Admin):
 - [ ] php-backend/config.php → DEBUG_MODE = false
 
 ### Files Uploaded
-- [ ] Frontend files in public_html/
-- [ ] Backend files in public_html/api/
+- [ ] Frontend files in public_html/midwaymobilestorage.com/
+- [ ] Backend files in public_html/midwaymobilestorage.com/api/
 - [ ] All subfolders uploaded (auth/, admin/, media/, public/)
 - [ ] uploads/ folder created with media.json
 - [ ] Both .htaccess files created
