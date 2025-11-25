@@ -1,9 +1,21 @@
 copilot-instructions/
 
+# Backend (legacy Express - deprecated)
 backend/.env
 backend/node_modules
+backend.log
+
+# PHP Backend (current)
+php-backend/.env
+php-backend/config.php
+php-backend/uploads/*
+!php-backend/uploads/.gitkeep
+
+# Frontend
 frontend/node_modules
 frontend/.env
+frontend/dist
 
-# Local backend runtime log
-backend.log
+# OS files
+.DS_Store
+Thumbs.db
