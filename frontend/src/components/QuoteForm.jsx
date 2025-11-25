@@ -92,7 +92,7 @@ export default function QuoteForm(){
             <div className="space-y-4">
               <label htmlFor="quote-service" className="block">
                 <span className="text-sm text-[#0a2a52]">Service</span>
-                <select id="quote-service" name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                <select id="quote-service" name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full bg-white text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="rental">Rental</option>
                   <option value="purchase">Purchase</option>
                   <option value="custom">Custom</option>
@@ -101,7 +101,7 @@ export default function QuoteForm(){
 
               <label htmlFor="quote-size" className="block">
                 <span className="text-sm text-[#0a2a52]">Unit Size</span>
-                <select id="quote-size" name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                <select id="quote-size" name="containerSize" value={formData.containerSize} onChange={handleChange} className="mt-1 p-3 border rounded w-full bg-white text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                   <option value="20ft">20ft Container</option>
                   <option value="40ft">40ft Container</option>
                   <option value="trailer">Trailer</option>
@@ -112,7 +112,7 @@ export default function QuoteForm(){
               <div className="grid grid-cols-2 gap-4">
                 <label htmlFor="quote-quantity">
                   <span className="text-sm text-[#0a2a52]">Quantity</span>
-                  <select id="quote-quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424]">
+                  <select id="quote-quantity" name="quantity" value={formData.quantity} onChange={handleChange} className="mt-1 p-3 border rounded w-full bg-white text-gray-900 focus:ring-2 focus:ring-[#e84424]">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -129,7 +129,7 @@ export default function QuoteForm(){
                     onChange={handleChange}
                     aria-describedby="duration-help"
                     aria-disabled={formData.serviceType === 'purchase'}
-                    className={`mt-1 p-3 border rounded w-full text-gray-900 focus:ring-2 focus:ring-[#e84424] ${formData.serviceType === 'purchase' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
+                    className={`mt-1 p-3 border rounded w-full bg-white focus:ring-2 focus:ring-[#e84424] ${formData.serviceType === 'purchase' ? 'text-gray-500 cursor-not-allowed' : 'text-gray-900'}`}
                     disabled={formData.serviceType === 'purchase'}
                   >
                     <option value="short-term">Short-term (1–6 months)</option>

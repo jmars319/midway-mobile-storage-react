@@ -40,8 +40,8 @@ export default function Footer({ onLoginClick, onNavigate }){
 
   const quickLinks = [
     {label:'Services', href:'#services'},
-    {label:'Products', href:'#products'},
     {label:'Get Quote', href:'#quote'},
+    {label:'Products', href:'#products'},
     {label:'Careers', href:'#careers'}
   ]
 

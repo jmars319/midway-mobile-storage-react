@@ -15,8 +15,8 @@ export default function NavBar({ onLoginClick, scrollTo }){
 
   const links = [
     { id: 'services', label: 'Services' },
-    { id: 'products', label: 'Products' },
     { id: 'quote', label: 'Get Quote' },
+    { id: 'products', label: 'Products' },
     { id: 'about', label: 'About' },
     { id: 'careers', label: 'Careers' },
     // Contact link moved to footer
