@@ -61,11 +61,7 @@ export default function LoginPage({ onLogin, onBack }){
           </div>
         </form>
 
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 text-sm text-gray-600">
-            Demo credentials: <div className="mt-1 font-mono text-sm">admin / admin123</div>
-          </div>
-        )}
+        {/* Demo credentials removed: do not display login hints in the UI */}
       </div>
     </div>
   )
