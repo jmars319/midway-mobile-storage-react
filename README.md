@@ -80,7 +80,7 @@ npm run dev
 
 ## Deployment
 
-See [DEPLOYMENT-SECURITY-CHECKLIST.md](./DEPLOYMENT-SECURITY-CHECKLIST.md) for complete GoDaddy cPanel + Cloudflare SSL deployment instructions.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete GoDaddy cPanel + Cloudflare SSL deployment instructions.
 
 **Pre-deployment checklist**:
 1. Set `DEBUG_MODE = false` in `php-backend/config.php`
@@ -93,7 +93,7 @@ See [DEPLOYMENT-SECURITY-CHECKLIST.md](./DEPLOYMENT-SECURITY-CHECKLIST.md) for c
 ## Documentation
 
 - **[Production Review](./PRODUCTION-REVIEW-2024-11-24.md)** - Latest comprehensive audit (Grade A+)
-- **[Deployment Guide](./DEPLOYMENT-SECURITY-CHECKLIST.md)** - Step-by-step GoDaddy + Cloudflare setup
+- **[Deployment Guide](./DEPLOYMENT.md)** - Step-by-step GoDaddy + Cloudflare setup
 - **[Contributing](./CONTRIBUTING.md)** - Development guidelines
 
 ## Key Files
