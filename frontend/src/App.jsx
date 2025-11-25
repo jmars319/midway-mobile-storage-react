@@ -7,6 +7,7 @@ import QuoteForm from './components/QuoteForm'
 import AboutSection from './components/AboutSection'
 import CareersSection from './components/CareersSection'
 import Footer from './components/Footer'
+import BackToTop from './components/BackToTop'
 import ToastContainer from './components/Toast'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import TermsOfService from './components/TermsOfService'
@@ -173,8 +174,8 @@ export default function App(){
             <>
               <HeroSection />
               <ServicesSection />
-              <ProductsSection />
               <QuoteForm />
+              <ProductsSection />
               <AboutSection />
               <CareersSection />
             </>
@@ -185,6 +186,7 @@ export default function App(){
             else if (page === 'terms') window.history.pushState({}, '', '/terms')
           }} />
         </main>
+        <BackToTop />
         <ToastContainer />
       </div>
     </ErrorBoundary>

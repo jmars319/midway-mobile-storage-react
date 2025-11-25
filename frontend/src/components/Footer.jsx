@@ -15,6 +15,7 @@ export default function Footer({ onLoginClick, onNavigate }){
     { 
       size: "20ft Standard", 
       dimensions: "20' L × 8' W × 8'6\" H", 
+      squareFootage: "160 sq ft",
       capacity: "1,172 cu ft",
       doorWidth: "7'8\"",
       doorHeight: "7'5\""
@@ -22,6 +23,7 @@ export default function Footer({ onLoginClick, onNavigate }){
     { 
       size: "40ft Standard", 
       dimensions: "40' L × 8' W × 8'6\" H", 
+      squareFootage: "320 sq ft",
       capacity: "2,390 cu ft",
       doorWidth: "7'8\"",
       doorHeight: "7'5\""
@@ -29,6 +31,7 @@ export default function Footer({ onLoginClick, onNavigate }){
     { 
       size: "40ft High Cube", 
       dimensions: "40' L × 8' W × 9'6\" H", 
+      squareFootage: "320 sq ft",
       capacity: "2,694 cu ft",
       doorWidth: "7'8\"",
       doorHeight: "8'5\""
@@ -118,6 +121,7 @@ export default function Footer({ onLoginClick, onNavigate }){
                     <div className="font-semibold text-[#e84424] mb-1">Specifications</div>
                     <div className="space-y-0.5">
                       <div><span className="text-gray-400">Exterior:</span> {c.dimensions}</div>
+                      <div><span className="text-gray-400">Floor Space:</span> {c.squareFootage}</div>
                       <div><span className="text-gray-400">Capacity:</span> {c.capacity}</div>
                       <div><span className="text-gray-400">Door:</span> {c.doorWidth} W × {c.doorHeight} H</div>
                     </div>
