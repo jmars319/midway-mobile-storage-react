@@ -53,7 +53,7 @@ export default function Footer({ onLoginClick, onNavigate }){
           <p className="mt-2 text-sm text-gray-200">Based in Winston-Salem, NC — serving customers across the eastern United States.</p>
           {onLoginClick && (
             <div className="mt-4">
-              <button onClick={onLoginClick} className="text-xs text-gray-200 hover:text-white underline focus:outline-none">Admin Login</button>
+              <button type="button" onClick={(e) => { e.preventDefault(); onLoginClick(); }} className="text-xs text-gray-200 hover:text-white underline focus:outline-none">Admin Login</button>
             </div>
           )}
         </div>

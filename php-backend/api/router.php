@@ -4,6 +4,12 @@
  * Routes requests to appropriate API endpoints
  */
 
+// Load utilities and config for CORS
+require_once __DIR__ . '/../utils.php';
+
+// Set CORS headers for all requests
+setCorsHeaders();
+
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 

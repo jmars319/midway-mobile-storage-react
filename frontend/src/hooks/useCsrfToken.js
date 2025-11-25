@@ -33,7 +33,7 @@ export function useCsrfToken() {
       } catch (err) {
         if (isMounted) {
           setError(err.message)
-          console.error('CSRF token fetch error:', err)
+          if (import.meta.env.DEV) console.error('CSRF token fetch error:', err)
         }
       } finally {
         if (isMounted) {

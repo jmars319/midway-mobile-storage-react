@@ -52,11 +52,11 @@ export default function CareersSection(){
         const errorData = await r.json().catch(() => ({}))
         const errorMessage = errorData.error || 'Failed to submit application'
         showToast(errorMessage, { type: 'error' })
-        console.error('Application submission error:', errorData)
+        if (import.meta.env.DEV) console.error('Application submission error:', errorData)
       }
     }).catch(err => {
       showToast('Failed to submit application', { type: 'error' })
-      console.error('Network error:', err)
+      if (import.meta.env.DEV) console.error('Network error:', err)
     })
   }
 
