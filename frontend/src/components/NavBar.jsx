@@ -45,11 +45,11 @@ export default function NavBar({ onLoginClick, scrollTo }){
           <div className="flex items-center gap-3">
             {logoUrl ? (
               <>
-                <img src={logoUrl} alt="Midway Mobile Storage company logo" className="h-12 object-contain" />
+                <img src={logoUrl} alt="Midway Mobile Storage company logo - Winston-Salem NC portable storage containers" className="h-12 object-contain" loading="eager" />
                 <span className="text-2xl font-bold text-[#e84424] hidden sm:inline">Midway Mobile Storage</span>
               </>
             ) : (
-              <h1 className="text-2xl font-bold text-[#e84424]">Midway Mobile Storage</h1>
+              <span className="text-2xl font-bold text-[#e84424]">Midway Mobile Storage</span>
             )}
           </div>
 

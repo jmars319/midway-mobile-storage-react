@@ -60,7 +60,30 @@ export function generateStructuredData(settings) {
         "telephone": settings.phone || "",
         "url": siteUrl,
         "openingHours": settings.hours ? [settings.hours] : [],
-        "priceRange": "$$"
+        "priceRange": "$$",
+        "areaServed": [
+          {
+            "@type": "City",
+            "name": "Winston-Salem",
+            "containedInPlace": {
+              "@type": "State",
+              "name": "North Carolina"
+            }
+          },
+          {
+            "@type": "City",
+            "name": "Greensboro"
+          },
+          {
+            "@type": "City",
+            "name": "High Point"
+          },
+          {
+            "@type": "City",
+            "name": "Lexington"
+          }
+        ],
+        "description": "Portable storage containers, rentals, and delivery services in Winston-Salem, NC and surrounding areas."
       },
       {
         "@type": "WebSite",
@@ -72,6 +95,43 @@ export function generateStructuredData(settings) {
           "target": `${siteUrl}/?s={search_term_string}`,
           "query-input": "required name=search_term_string"
         }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What sizes of storage containers do you offer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We offer 20ft and 40ft storage containers for rent and sale, including standard and high-cube options. All containers are weather-resistant and secure."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you deliver containers in Winston-Salem?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, we provide delivery and pickup services throughout Winston-Salem, Greensboro, High Point, Lexington, and surrounding areas in North Carolina."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is PanelSeal?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PanelSeal is our premium waterproofing and sealing product designed for shipping containers, trailers, and other structures. It provides superior protection against water damage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I rent containers for short-term use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, we offer both short-term and long-term rental options for portable storage containers. Contact us for flexible rental terms that fit your needs."
+            }
+          }
+        ]
       }
     ]
   }

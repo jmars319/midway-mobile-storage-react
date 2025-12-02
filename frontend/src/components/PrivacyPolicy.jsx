@@ -6,11 +6,44 @@ export default function PrivacyPolicy({ onBack }){
   
   useEffect(() => {
     fetchSiteSettings().then(setSettings)
+    
+    // Add breadcrumb structured data
+    const script = document.createElement('script')
+    script.type = 'application/ld+json'
+    script.id = 'breadcrumb-privacy'
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://midwaymobilestorage.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Privacy Policy",
+          "item": "https://midwaymobilestorage.com/privacy"
+        }
+      ]
+    })
+    document.head.appendChild(script)
+    
+    return () => {
+      const existing = document.getElementById('breadcrumb-privacy')
+      if (existing) existing.remove()
+    }
   }, [])
   
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
-      <button onClick={onBack} className="text-sm text-[#0a2a52] underline mb-4">← Back to site</button>
+      <nav aria-label="Breadcrumb" className="text-sm text-gray-600 mb-4">
+        <button onClick={onBack} className="text-[#0a2a52] hover:underline">Home</button>
+        <span className="mx-2">/</span>
+        <span>Privacy Policy</span>
+      </nav>
       <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
       <p className="text-gray-700 mb-4">Effective Date: November 8, 2025</p>
 

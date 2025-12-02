@@ -115,19 +115,19 @@ export default function App(){
     if (currentPage === 'privacy') {
       updateMeta(
         'Privacy Policy — Midway Mobile Storage',
-        'Our privacy policy explains how Midway Mobile Storage collects, uses, and protects your personal information.',
+        'Privacy policy for Midway Mobile Storage in Winston-Salem, NC. Learn how we protect your personal information.',
         'https://midwaymobilestorage.com/privacy'
       )
     } else if (currentPage === 'terms') {
       updateMeta(
         'Terms of Service — Midway Mobile Storage',
-        'Terms of Service for Midway Mobile Storage. Review our terms governing use of our website and services.',
+        'Terms of Service for Midway Mobile Storage. Review our terms for portable storage container rentals and services.',
         'https://midwaymobilestorage.com/terms'
       )
     } else {
       updateMeta(
         'Midway Mobile Storage — Portable Storage & Container Rentals',
-        'Midway Mobile Storage provides portable storage containers, rentals, and delivery across the region. Secure, weather-resistant containers for residential and commercial needs.',
+        'Winston-Salem, NC portable storage containers, rentals & delivery. Secure, weather-resistant solutions for residential and commercial needs.',
         'https://midwaymobilestorage.com/'
       )
     }

@@ -49,7 +49,7 @@ export default function ServicesSection(){
             const bgUrl = bgMap[slug] || null
             const style = bgUrl ? { backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
             return (
-              <div key={s.title} style={style} className="relative bg-gray-50 p-6 rounded-lg border-t-4 border-[#e84424] hover:shadow-xl transition overflow-hidden">
+              <div key={s.title} style={style} className="relative bg-gray-50 p-6 rounded-lg border-t-4 border-[#e84424] hover:shadow-xl transition overflow-hidden" role="article" aria-label={`${s.title} service details`}>
                 {bgUrl && <div className="absolute inset-0 bg-black/40 pointer-events-none" aria-hidden="true"></div>}
                 <div className="relative z-10">
                   <div className={bgUrl ? 'bg-[rgba(0,0,0,0.15)] p-2 rounded-md backdrop-blur-sm block md:inline-block w-full md:w-auto' : ''}>

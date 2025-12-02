@@ -31,7 +31,7 @@ export default function HeroSection(){
 
         <div className="relative">
           <div className="bg-black/50 p-6 rounded-lg backdrop-blur-sm">
-            <h3 className="text-xl font-semibold text-white">Why customers choose us</h3>
+            <h2 className="text-xl font-semibold text-white">Why customers choose us</h2>
             <ul className="mt-4 space-y-3 text-gray-200">
               <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span> Secure, weatherproof containers</li>
               <li className="flex items-start gap-3"><span className="text-[#e84424] font-bold">✓</span> Fast local delivery</li>
