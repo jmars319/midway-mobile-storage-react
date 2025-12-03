@@ -13,7 +13,7 @@ Adds editable About section content to the admin panel's Site Settings module.
 1. **Login to phpMyAdmin** in cPanel
 2. **Select your database** (e.g., `wzeno_midway_storage`)
 3. **Click "SQL" tab**
-4. **Run this migration:**
+4. **Copy and paste the SQL below** (from ALTER to the last semicolon - don't copy the ```sql markers):
 
 ```sql
 ALTER TABLE site_settings 
