@@ -12,11 +12,6 @@ AddType text/css .css
   # Don't rewrite API directory
   RewriteRule ^api - [L]
   
-  # If an assets request does not match a real file, return 404 instead of rewriting to index.html
-  RewriteCond %{REQUEST_URI} ^/assets/
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^ - [R=404,L]
-
   # Everything else goes to index.html
   RewriteRule . index.html [L]
 </IfModule>
