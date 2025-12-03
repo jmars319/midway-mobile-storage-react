@@ -13,7 +13,13 @@ export default function SiteSettingsModule() {
     zip: '',
     country: 'US',
     hours: '',
-    siteUrl: ''
+    siteUrl: '',
+    aboutTitle: 'About Midway Mobile Storage',
+    aboutSubtitle: 'Serving Winston-Salem and the Triad Area',
+    aboutSinceYear: '1989',
+    aboutText1: '',
+    aboutText2: '',
+    aboutCommitments: 'Quality Products,Professional Service,Flexible Solutions,Competitive Pricing'
   })
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(true)
@@ -43,7 +49,13 @@ export default function SiteSettingsModule() {
             zip: data.settings.zip || '',
             country: data.settings.country || 'US',
             hours: data.settings.hours || '',
-            siteUrl: data.settings.siteUrl || ''
+            siteUrl: data.settings.siteUrl || '',
+            aboutTitle: data.settings.aboutTitle || 'About Midway Mobile Storage',
+            aboutSubtitle: data.settings.aboutSubtitle || 'Serving Winston-Salem and the Triad Area',
+            aboutSinceYear: data.settings.aboutSinceYear || '1989',
+            aboutText1: data.settings.aboutText1 || '',
+            aboutText2: data.settings.aboutText2 || '',
+            aboutCommitments: data.settings.aboutCommitments || 'Quality Products,Professional Service,Flexible Solutions,Competitive Pricing'
           })
         }
       }
@@ -197,6 +209,78 @@ export default function SiteSettingsModule() {
             className="w-full px-3 py-2 border rounded-md"
             placeholder="https://midwaymobilestorage.com"
           />
+        </div>
+
+        <div className="border-t pt-6 mt-6">
+          <h3 className="text-xl font-semibold text-[#0a2a52] mb-4">About Section Content</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">About Title</label>
+              <input
+                type="text"
+                value={settings.aboutTitle}
+                onChange={(e) => handleChange('aboutTitle', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="About Midway Mobile Storage"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">About Subtitle</label>
+              <input
+                type="text"
+                value={settings.aboutSubtitle}
+                onChange={(e) => handleChange('aboutSubtitle', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="Serving Winston-Salem and the Triad Area"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Since Year</label>
+            <input
+              type="text"
+              value={settings.aboutSinceYear}
+              onChange={(e) => handleChange('aboutSinceYear', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="1989"
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">About Text - Paragraph 1</label>
+            <textarea
+              value={settings.aboutText1}
+              onChange={(e) => handleChange('aboutText1', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              rows="4"
+              placeholder="First paragraph of about section..."
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">About Text - Paragraph 2</label>
+            <textarea
+              value={settings.aboutText2}
+              onChange={(e) => handleChange('aboutText2', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              rows="4"
+              placeholder="Second paragraph of about section..."
+            />
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Commitments (comma-separated)</label>
+            <input
+              type="text"
+              value={settings.aboutCommitments}
+              onChange={(e) => handleChange('aboutCommitments', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="Quality Products,Professional Service,Flexible Solutions,Competitive Pricing"
+            />
+            <p className="text-xs text-gray-500 mt-1">Separate each commitment with a comma</p>
+          </div>
         </div>
 
         <button

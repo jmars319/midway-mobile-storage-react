@@ -56,6 +56,16 @@ function sanitizeInput($input) {
 }
 
 /**
+ * Decode HTML entities for output
+ */
+function decodeOutput($data) {
+    if (is_array($data)) {
+        return array_map('decodeOutput', $data);
+    }
+    return is_string($data) ? html_entity_decode($data, ENT_QUOTES, 'UTF-8') : $data;
+}
+
+/**
  * Validate email address
  */
 function validateEmail($email) {

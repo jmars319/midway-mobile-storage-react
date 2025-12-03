@@ -17,6 +17,12 @@ CREATE TABLE IF NOT EXISTS site_settings (
     country VARCHAR(10) NOT NULL DEFAULT 'US',
     hours VARCHAR(255) NOT NULL DEFAULT 'Mon–Fri 8:00–17:00',
     siteUrl VARCHAR(255) NOT NULL DEFAULT 'https://midwaymobilestorage.com',
+    aboutTitle VARCHAR(255) NOT NULL DEFAULT 'About Midway Mobile Storage',
+    aboutSubtitle VARCHAR(255) NOT NULL DEFAULT 'Serving Winston-Salem and the Triad Area',
+    aboutSinceYear VARCHAR(10) NOT NULL DEFAULT '1989',
+    aboutText1 TEXT,
+    aboutText2 TEXT,
+    aboutCommitments TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

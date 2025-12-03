@@ -54,7 +54,7 @@ openssl rand -hex 32
 
 1. Navigate to frontend folder:
 ```bash
-cd /Users/jason_marshall/Documents/Website\ Projects/Current/midway-mobile-storage-react/frontend
+cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/frontend
 ```
 
 2. Update API configuration:
@@ -171,7 +171,7 @@ define('DEBUG_MODE', false);
 **WHAT**: Save all your current data (quotes, settings, admin account, etc.)
 
 ```bash
-cd /Users/jason_marshall/Documents/Website\ Projects/Current/midway-mobile-storage-react/php-backend
+cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/php-backend
 mysqldump -u midway -p midway_storage > production-export.sql
 ```
 
@@ -329,7 +329,7 @@ mysqldump -u midway -p midway_storage > production-export.sql
 ❌ **IF YOU SEE** red error about file size:
 ```bash
 # On YOUR COMPUTER terminal, compress the file:
-cd /Users/jason_marshall/Documents/Website\ Projects/Current/midway-mobile-storage-react/php-backend
+cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/php-backend
 gzip production-export.sql
 ```
 - This creates: production-export.sql.gz

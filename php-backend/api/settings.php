@@ -32,10 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'zip' => '',
                 'country' => 'US',
                 'hours' => '',
-                'siteUrl' => ''
+                'siteUrl' => '',
+                'aboutTitle' => 'About Midway Mobile Storage',
+                'aboutSubtitle' => 'Serving Winston-Salem and the Triad Area',
+                'aboutSinceYear' => '1989',
+                'aboutText1' => '',
+                'aboutText2' => '',
+                'aboutCommitments' => 'Quality Products,Professional Service,Flexible Solutions,Competitive Pricing'
             ]]);
         } else {
-            jsonResponse(['settings' => $settings]);
+            jsonResponse(['settings' => decodeOutput($settings)]);
         }
     } catch (Exception $e) {
         error_log('Settings fetch error: ' . $e->getMessage());
@@ -58,6 +64,12 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $country = sanitizeInput($data['country'] ?? 'US');
         $hours = sanitizeInput($data['hours'] ?? '');
         $siteUrl = sanitizeInput($data['siteUrl'] ?? '');
+        $aboutTitle = sanitizeInput($data['aboutTitle'] ?? 'About Midway Mobile Storage');
+        $aboutSubtitle = sanitizeInput($data['aboutSubtitle'] ?? 'Serving Winston-Salem and the Triad Area');
+        $aboutSinceYear = sanitizeInput($data['aboutSinceYear'] ?? '1989');
+        $aboutText1 = sanitizeInput($data['aboutText1'] ?? '');
+        $aboutText2 = sanitizeInput($data['aboutText2'] ?? '');
+        $aboutCommitments = sanitizeInput($data['aboutCommitments'] ?? '');
         
         // Check if settings exist
         $stmt = $db->query("SELECT id FROM site_settings LIMIT 1");
@@ -68,17 +80,21 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $db->query(
                 "UPDATE site_settings SET 
                     businessName = ?, email = ?, phone = ?, address = ?, 
-                    city = ?, state = ?, zip = ?, country = ?, hours = ?, siteUrl = ?
+                    city = ?, state = ?, zip = ?, country = ?, hours = ?, siteUrl = ?,
+                    aboutTitle = ?, aboutSubtitle = ?, aboutSinceYear = ?, aboutText1 = ?, aboutText2 = ?, aboutCommitments = ?
                 WHERE id = ?",
-                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl, $existing['id']]
+                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl, 
+                 $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2, $aboutCommitments, $existing['id']]
             );
         } else {
             // Insert new
             $db->query(
                 "INSERT INTO site_settings 
-                    (businessName, email, phone, address, city, state, zip, country, hours, siteUrl) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl]
+                    (businessName, email, phone, address, city, state, zip, country, hours, siteUrl, 
+                     aboutTitle, aboutSubtitle, aboutSinceYear, aboutText1, aboutText2, aboutCommitments) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl,
+                 $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2, $aboutCommitments]
             );
         }
         
