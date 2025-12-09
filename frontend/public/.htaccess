@@ -5,6 +5,10 @@ AddType text/css .css
 <IfModule mod_rewrite.c>
   RewriteEngine On
   
+  # Redirect www to non-www
+  RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+  
   # Don't rewrite existing files
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule . - [L]
