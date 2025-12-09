@@ -140,7 +140,7 @@ export default function Footer({ onLoginClick, onNavigate }){
           © {new Date().getFullYear()} Midway Mobile Storage. All rights reserved.
         </p>
         <p className="text-xs text-gray-500 mt-2">
-          Powered by <a href="https://jamarq.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#e84424] underline">JAMARQ</a>
+          Powered by <a href="https://jamarq.digital" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#e84424] underline">JAMARQ</a>
         </p>
       </div>
     </footer>
