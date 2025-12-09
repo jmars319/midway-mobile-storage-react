@@ -61,10 +61,10 @@ export default function Footer({ onLoginClick, onNavigate }){
         <div>
           <h4 className="text-sm font-semibold">Contact</h4>
           <ul className="mt-2 space-y-1.5 text-xs text-gray-200">
-            <li className="flex items-start gap-2"><Phone size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.phone || '(555) 555-5555'}</span></li>
-            <li className="flex items-start gap-2"><Mail size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.email || 'info@midwaystorage.example'}</span></li>
-            <li className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.address ? `${settings.address}, ${settings.city}` : '123 Storage Ave, Somewhere'}</span></li>
-            <li className="flex items-start gap-2"><Clock size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.hours || 'Mon–Fri 8:00–17:00'}</span></li>
+            <li className="flex items-start gap-2"><Phone size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.phone || '(336) 764-4208'}</span></li>
+            <li className="flex items-start gap-2"><Mail size={14} className="mt-0.5 flex-shrink-0" /> <a href={`mailto:${settings?.email || 'midwaymobilestorage@gmail.com'}`} className="break-all hover:text-[#e84424]">{settings?.email || 'midwaymobilestorage@gmail.com'}</a></li>
+            <li className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.address ? `${settings.address}, ${settings.city}` : '212 Fred Sink Road, Winston-Salem'}</span></li>
+            <li className="flex items-start gap-2"><Clock size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.hours || 'Mon–Fri 10:00 AM - 03:00 PM'}</span></li>
           </ul>
         </div>
 
@@ -132,6 +132,16 @@ export default function Footer({ onLoginClick, onNavigate }){
             <div className="text-[10px] text-gray-400 italic mt-2">Hover for details</div>
           </div>
         </div>
+      </div>
+      
+      {/* Copyright and Credits */}
+      <div className="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-[#1a4d7a] text-center">
+        <p className="text-xs text-gray-400">
+          © {new Date().getFullYear()} Midway Mobile Storage. All rights reserved.
+        </p>
+        <p className="text-xs text-gray-500 mt-2">
+          Powered by <a href="https://jamarq.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#e84424] underline">JAMARQ</a>
+        </p>
       </div>
     </footer>
   )
