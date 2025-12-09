@@ -33,6 +33,120 @@
   <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#0a2a52">
   <meta name="msapplication-TileColor" content="#0a2a52">
   <meta name="msapplication-config" content="/favicons/browserconfig.xml">
+  
+  <!-- Inline styles for static HTML fallback -->
+  <style>
+    .no-js-fallback {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+    }
+    .no-js-fallback header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 3px solid #e84424;
+    }
+    .no-js-fallback h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #0a2a52;
+      font-weight: 700;
+    }
+    .no-js-fallback .tagline {
+      font-size: 1.25rem;
+      color: #4b5563;
+      margin-bottom: 0;
+    }
+    .no-js-fallback h2 {
+      font-size: 1.75rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      color: #0a2a52;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+    .no-js-fallback section {
+      margin-bottom: 2rem;
+    }
+    .no-js-fallback p {
+      margin-bottom: 1rem;
+    }
+    .no-js-fallback ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+    .no-js-fallback li {
+      margin-bottom: 0.5rem;
+    }
+    .no-js-fallback a {
+      color: #e84424;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .no-js-fallback a:hover {
+      text-decoration: underline;
+    }
+    .no-js-fallback .contact-info {
+      background: #f0f9ff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #0a2a52;
+      margin: 1.5rem 0;
+    }
+    .no-js-fallback .contact-info p {
+      margin-bottom: 0.5rem;
+    }
+    .no-js-fallback .phone-link {
+      font-size: 1.25rem;
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: #e84424;
+    }
+    .no-js-fallback .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .no-js-fallback .service-card {
+      background: #f9fafb;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .no-js-fallback .service-card h3 {
+      color: #0a2a52;
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+    }
+    .no-js-fallback noscript {
+      display: block;
+      background: #fef3c7;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+      border-left: 4px solid #f59e0b;
+    }
+    .no-js-fallback footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    .no-js-fallback footer p {
+      margin-bottom: 0.5rem;
+    }
+    .no-js-fallback footer a {
+      color: #6b7280;
+      font-weight: 500;
+    }
+  </style>
   </head>
   <body>
     <noscript>
@@ -53,7 +167,89 @@
         </p>
       </div>
     </noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="no-js-fallback">
+        <header>
+          <h1>Midway Mobile Storage</h1>
+          <p class="tagline">Portable Storage & Container Rentals in Winston-Salem, NC</p>
+        </header>
+
+        <main>
+          <section>
+            <h2>Your Storage Solution</h2>
+            <p>Midway Mobile Storage provides secure, weather-resistant portable storage containers for residential and commercial needs in Winston-Salem and the Triad area. Whether you need temporary storage during a move, long-term inventory space, or job site equipment storage, we deliver the container to you.</p>
+          </section>
+
+          <section>
+            <h2>Our Services</h2>
+            <div class="services-grid">
+              <div class="service-card">
+                <h3>Container Rentals</h3>
+                <p>Secure portable storage units available for short-term or long-term rental. We bring the container to your location.</p>
+              </div>
+              <div class="service-card">
+                <h3>Delivery & Pickup</h3>
+                <p>Fast, reliable delivery and pickup service throughout Winston-Salem and surrounding areas.</p>
+              </div>
+              <div class="service-card">
+                <h3>Residential Storage</h3>
+                <p>Perfect for moving, renovations, decluttering, or seasonal storage needs at your home.</p>
+              </div>
+              <div class="service-card">
+                <h3>Commercial Storage</h3>
+                <p>Ideal for contractors, businesses, and job sites needing secure equipment and inventory storage.</p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Why Choose Midway Mobile Storage?</h2>
+            <ul>
+              <li><strong>Weather-Resistant:</strong> All containers are built to protect your belongings from the elements</li>
+              <li><strong>Secure:</strong> Lock and key security to keep your items safe</li>
+              <li><strong>Convenient:</strong> We deliver to your location - no driving to a storage facility</li>
+              <li><strong>Flexible:</strong> Rent for as long as you need, from weeks to months</li>
+              <li><strong>Local:</strong> Family-owned business serving the Winston-Salem area</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Contact Us</h2>
+            <div class="contact-info">
+              <p><strong>Get a Quote Today</strong></p>
+              
+              <p><strong>Phone:</strong><br>
+              <a href="tel:+13367644208" class="phone-link">(336) 764-4208</a></p>
+              
+              <p><strong>Email:</strong><br>
+              <a href="mailto:midwaymobilestorage@gmail.com">midwaymobilestorage@gmail.com</a></p>
+              
+              <p><strong>Office Address:</strong><br>
+              212 Fred Sink Road<br>
+              Winston-Salem, NC</p>
+              
+              <p><strong>Office Hours:</strong><br>
+              Monday – Friday: 10:00 AM – 3:00 PM<br>
+              <em>Delivery and pickup available by appointment</em></p>
+            </div>
+          </section>
+
+          <section>
+            <h2>Service Area</h2>
+            <p>We proudly serve Winston-Salem, Clemmons, Kernersville, Lewisville, and surrounding Forsyth County communities. Contact us to confirm delivery to your location.</p>
+          </section>
+
+          <noscript>
+            <p><strong>Note:</strong> This is a basic version of our website. For the full interactive experience including our inventory catalog, online quote requests, and booking system, please enable JavaScript in your browser or call us directly at <a href="tel:+13367644208">(336) 764-4208</a>.</p>
+          </noscript>
+        </main>
+
+        <footer>
+          <p>&copy; <script>document.write(new Date().getFullYear())</script><noscript>2025</noscript> Midway Mobile Storage. All rights reserved.</p>
+          <p>Powered by <a href="https://jamarq.digital" target="_blank" rel="noopener noreferrer">JAMARQ</a></p>
+        </footer>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
