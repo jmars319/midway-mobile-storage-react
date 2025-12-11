@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { API_BASE } from '../config'
 import { showToast } from './Toast'
 import { useCsrfToken } from '../hooks/useCsrfToken'
+import { normalizeTextInput } from '../utils/htmlEntities'
 
 export default function QuoteForm(){
   const [formData, setFormData] = useState({
@@ -37,11 +38,15 @@ export default function QuoteForm(){
     }
     
     try {
+      const normalizedFormData = Object.entries(formData).reduce((acc, [key, value]) => {
+        acc[key] = typeof value === 'string' ? normalizeTextInput(value) : value
+        return acc
+      }, {})
       const res = await fetch(`${API_BASE}/quotes`, {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         credentials: 'include',
-        body: JSON.stringify({ ...formData, csrf_token: csrfToken })
+        body: JSON.stringify({ ...normalizedFormData, csrf_token: csrfToken })
       })
       if (res.ok){
         showToast('Quote request submitted successfully!', { type: 'success' })

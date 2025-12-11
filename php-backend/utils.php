@@ -52,7 +52,8 @@ function sanitizeInput($input) {
     if (is_array($input)) {
         return array_map('sanitizeInput', $input);
     }
-    return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
+    // Encode only characters that can break HTML while allowing quotes to remain literal
+    return htmlspecialchars(strip_tags(trim($input)), ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 /**

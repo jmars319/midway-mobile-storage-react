@@ -2,6 +2,31 @@ import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
 import { API_BASE } from '../../config'
+import { decodeHtmlEntities } from '../../utils/htmlEntities'
+
+const QUOTE_FIELDS_TO_DECODE = [
+  'name',
+  'email',
+  'phone',
+  'serviceType',
+  'containerSize',
+  'quantity',
+  'duration',
+  'deliveryAddress',
+  'message',
+  'status'
+]
+
+const decodeQuoteFields = (quote) => {
+  if (!quote) return quote
+  const decoded = { ...quote }
+  QUOTE_FIELDS_TO_DECODE.forEach((field) => {
+    if (typeof decoded[field] === 'string') {
+      decoded[field] = decodeHtmlEntities(decoded[field])
+    }
+  })
+  return decoded
+}
 
 export default function QuotesModule(){
   const [quotes, setQuotes] = useState([])
@@ -26,7 +51,8 @@ export default function QuotesModule(){
       }
       if (res.ok) {
         const j = await res.json()
-        setQuotes(j.quotes || [])
+        const decodedQuotes = (j.quotes || []).map(decodeQuoteFields)
+        setQuotes(decodedQuotes)
       } else {
         setError('Failed to load quotes')
       }
@@ -186,8 +212,9 @@ export default function QuotesModule(){
                       })
                       if (res.ok) {
                         const j = await res.json()
-                        setSelected(j.quote)
-                        setQuotes(prev => prev.map(q => q.id === j.quote.id ? j.quote : q))
+                        const updatedQuote = decodeQuoteFields(j.quote)
+                        setSelected(updatedQuote)
+                        setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? updatedQuote : q))
                         showToast('Status updated', { type: 'success' })
                       } else {
                         showToast('Status update failed', { type: 'error' })
