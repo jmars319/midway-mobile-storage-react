@@ -106,7 +106,7 @@ export default function SettingsModule(){
               {activeLogo ? (
                 <div>
                   {!brokenImages.includes(activeLogo.name) ? (
-                    <img src={BACKEND_ORIGIN + activeLogo.url} alt={activeLogo.originalName || 'logo'} className="mx-auto h-28 object-contain mb-2" onError={() => setBrokenImages(prev => prev.includes(activeLogo.name) ? prev : [...prev, activeLogo.name])} />
+                    <img src={BACKEND_ORIGIN + activeLogo.url} alt={activeLogo.originalName || 'logo'} loading="lazy" className="mx-auto h-28 object-contain mb-2" onError={() => setBrokenImages(prev => prev.includes(activeLogo.name) ? prev : [...prev, activeLogo.name])} />
                   ) : (
                     <div className="h-28 flex items-center justify-center text-sm text-gray-600 mb-2">{activeLogo.originalName || activeLogo.name}</div>
                   )}
@@ -125,7 +125,7 @@ export default function SettingsModule(){
               {activeHero ? (
                 <div>
                   {!brokenImages.includes(activeHero.name) ? (
-                    <img src={BACKEND_ORIGIN + activeHero.url} alt={activeHero.originalName || 'hero'} className="mx-auto h-40 object-cover mb-2 w-full" onError={() => setBrokenImages(prev => prev.includes(activeHero.name) ? prev : [...prev, activeHero.name])} />
+                    <img src={BACKEND_ORIGIN + activeHero.url} alt={activeHero.originalName || 'hero'} loading="lazy" className="mx-auto h-40 object-cover mb-2 w-full" onError={() => setBrokenImages(prev => prev.includes(activeHero.name) ? prev : [...prev, activeHero.name])} />
                   ) : (
                     <div className="h-40 flex items-center justify-center text-sm text-gray-600 mb-2">{activeHero.originalName || activeHero.name}</div>
                   )}
@@ -156,7 +156,7 @@ export default function SettingsModule(){
                     <div className="text-xs text-gray-600">slug: <code className="text-xs">{slug}</code></div>
                     {assigned ? (
                       <div className="mt-2 flex items-center gap-3">
-                        <img src={(BACKEND_ORIGIN + assigned.url)} alt={assigned.originalName || assigned.name} className="h-16 w-24 object-cover rounded" />
+                        <img src={(BACKEND_ORIGIN + assigned.url)} alt={assigned.originalName || assigned.name} loading="lazy" className="h-16 w-24 object-cover rounded" />
                         <div className="text-sm text-gray-700">{assigned.originalName || assigned.name}</div>
                         <div className="ml-auto flex items-center gap-2">
                           <button onClick={()=> navigator.clipboard.writeText(BACKEND_ORIGIN + assigned.url)} className="text-xs px-2 py-1 bg-gray-200 rounded">Copy URL</button>
@@ -175,7 +175,7 @@ export default function SettingsModule(){
                       )}
                       {(media || []).filter(m => Array.isArray(m.tags) && m.tags.includes('gallery')).map(m => (
                         <button key={m.name} onClick={async ()=>{ await setTags(m.name, Array.from(new Set([...(m.tags||[]), `service:${slug}`]))); await loadMedia(); }} className="border rounded overflow-hidden">
-                          <img src={BACKEND_ORIGIN + m.url} alt={m.originalName || m.name} className="h-20 w-full object-cover" />
+                          <img src={BACKEND_ORIGIN + m.url} alt={m.originalName || m.name} loading="lazy" className="h-20 w-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -228,6 +228,7 @@ export default function SettingsModule(){
                     <img
                       src={BACKEND_ORIGIN + m.url}
                       alt={m.originalName || m.name}
+                      loading="lazy"
                       className="mx-auto h-24 object-contain"
                       onError={() => setBrokenImages(prev => prev.includes(m.name) ? prev : [...prev, m.name])}
                     />

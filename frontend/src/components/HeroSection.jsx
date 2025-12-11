@@ -10,12 +10,31 @@ export default function HeroSection(){
     return ()=>{ mounted = false }
   },[])
 
-  const sectionStyle = heroUrl ? { backgroundImage: `url(${heroUrl})` } : undefined
+  // Use an actual <img> element for the hero so browsers treat it as an image
+  // LCP candidate (allows width/height, loading attributes and modern formats).
+  // We keep a gradient fallback when no hero is available.
+  const hasHero = Boolean(heroUrl)
 
   return (
-    <section id="hero" style={sectionStyle} className={`relative pt-32 pb-20 text-white bg-center bg-cover ${heroUrl ? '' : 'bg-gradient-to-br from-[#0a2a52] via-[#0d3464] to-[#0a2a52]'}`}>
+    <section id="hero" className={`relative pt-32 pb-20 text-white bg-center ${hasHero ? '' : 'bg-gradient-to-br from-[#0a2a52] via-[#0d3464] to-[#0a2a52]'}`}>
+      {/* hero image as an absolutely-positioned <img> so it's counted as an LCP element */}
+      {heroUrl && (
+        <img
+          src={heroUrl}
+          alt="Row of storage containers at Midway Mobile Storage"
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+          decoding="sync"
+          width="1200"
+          height="630"
+          sizes="100vw"
+          aria-hidden="true"
+        />
+      )}
+
       {/* overlay to keep text readable when using a photo (lighter since blocks have backdrops) */}
-      {heroUrl && <div className="absolute inset-0 bg-black/30 pointer-events-none" aria-hidden="true"></div>}
+      {hasHero && <div className="absolute inset-0 bg-black/30 pointer-events-none" aria-hidden="true"></div>}
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-6">
         <div className="space-y-6">
           <div className="bg-black/50 p-6 rounded-md backdrop-blur-sm">

@@ -45,6 +45,8 @@ export default function Footer({ onLoginClick, onNavigate }){
     {label:'Careers', href:'#careers'}
   ]
 
+  const contactModalId = 'contact-modal'
+
   return (
     <footer id="contact" className="py-10 bg-[#0a2a52] text-white mt-12 border-t border-[#1a4d7a]">
   <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
@@ -99,37 +101,52 @@ export default function Footer({ onLoginClick, onNavigate }){
           <div className="mt-3 pt-3 border-t border-[#1a4d7a]">
             <button
               onClick={(e)=>{ e.preventDefault(); setContactOpen(true); }}
-              className="text-xs text-gray-200 hover:text-[#e84424] block text-left"
+              className="text-xs text-gray-200 hover:text-[#e84424] block text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a2a52] rounded"
+              aria-haspopup="dialog"
+              aria-controls={contactModalId}
+              aria-expanded={contactOpen}
             >Contact Us</button>
           </div>
-          {contactOpen && <ContactModal onClose={()=>setContactOpen(false)} />}
+          {contactOpen && <ContactModal id={contactModalId} onClose={()=>setContactOpen(false)} />}
         </div>
 
         <div>
           <h4 className="text-sm font-semibold">Container Dimensions</h4>
           <div className="mt-2 space-y-1.5">
-            {containerDimensions.map(c => (
-              <div 
-                key={c.size} 
-                className="relative group cursor-help py-1.5 px-2 rounded hover:bg-[#1a4d7a] transition-colors"
-                onMouseEnter={() => setHoveredContainer(c.size)}
-                onMouseLeave={() => setHoveredContainer(null)}
-              >
-                <div className="text-xs font-medium text-gray-100">{c.size}</div>
-                {hoveredContainer === c.size && (
-                  <div className="absolute left-0 bottom-full mb-2 bg-[#0a2a52] border border-[#1a4d7a] rounded p-2 shadow-lg z-10 w-56 text-xs text-gray-200">
-                    <div className="font-semibold text-[#e84424] mb-1">Specifications</div>
-                    <div className="space-y-0.5">
-                      <div><span className="text-gray-400">Exterior:</span> {c.dimensions}</div>
-                      <div><span className="text-gray-400">Floor Space:</span> {c.squareFootage}</div>
-                      <div><span className="text-gray-400">Capacity:</span> {c.capacity}</div>
-                      <div><span className="text-gray-400">Door:</span> {c.doorWidth} W × {c.doorHeight} H</div>
+            {containerDimensions.map((c, idx) => {
+              const tooltipId = `container-tooltip-${idx}`
+              const isActive = hoveredContainer === c.size
+              return (
+                <div 
+                  key={c.size} 
+                  className="relative group cursor-help py-1.5 px-2 rounded hover:bg-[#1a4d7a] transition-colors"
+                >
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-gray-100 w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a2a52] rounded"
+                    onMouseEnter={() => setHoveredContainer(c.size)}
+                    onMouseLeave={() => setHoveredContainer(null)}
+                    onFocus={() => setHoveredContainer(c.size)}
+                    onBlur={() => setHoveredContainer(null)}
+                    aria-describedby={tooltipId}
+                  >
+                    {c.size}
+                  </button>
+                  {isActive && (
+                    <div id={tooltipId} role="tooltip" className="absolute left-0 bottom-full mb-2 bg-[#0a2a52] border border-[#1a4d7a] rounded p-2 shadow-lg z-10 w-56 text-xs text-gray-200">
+                      <div className="font-semibold text-[#e84424] mb-1">Specifications</div>
+                      <div className="space-y-0.5">
+                        <div><span className="text-gray-400">Exterior:</span> {c.dimensions}</div>
+                        <div><span className="text-gray-400">Floor Space:</span> {c.squareFootage}</div>
+                        <div><span className="text-gray-400">Capacity:</span> {c.capacity}</div>
+                        <div><span className="text-gray-400">Door:</span> {c.doorWidth} W × {c.doorHeight} H</div>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-            <div className="text-[10px] text-gray-400 italic mt-2">Hover for details</div>
+                  )}
+                </div>
+              )
+            })}
+            <div className="text-[10px] text-gray-400 italic mt-2">Hover or focus for details</div>
           </div>
         </div>
       </div>

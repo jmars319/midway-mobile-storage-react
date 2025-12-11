@@ -22,6 +22,8 @@ export async function getActiveHeroUrl(){
     if (!res.ok) return null
     const j = await res.json()
     if (!j || !j.url) return null
+    // Backend now automatically optimizes all uploads to WebP
+    // No frontend mapping needed - just use the URL directly
     return BACKEND_ORIGIN + j.url
   }catch(e){
     if (import.meta.env.DEV) console.error('getActiveHeroUrl error', e)
