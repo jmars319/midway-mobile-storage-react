@@ -62,11 +62,11 @@ export default function PanelSealOrderModal({ open, onClose }){
           <div className="grid md:grid-cols-2 gap-3">
             <label htmlFor="order-name" className="block">
               <span className="text-sm text-gray-700 font-medium">Full Name *</span>
-              <input id="order-name" name="name" value={form.name} onChange={change} placeholder="Full name" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="order-name" name="name" value={form.name} onChange={change} placeholder="Name" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" />
             </label>
             <label htmlFor="order-email" className="block">
-              <span className="text-sm text-gray-700 font-medium">Email *</span>
-              <input id="order-email" name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+              <span className="text-sm text-gray-700 font-medium">Email</span>
+              <input id="order-email" name="email" value={form.email} onChange={change} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required autoComplete="email" />
             </label>
           </div>
           <div className="grid md:grid-cols-2 gap-3">

@@ -23,8 +23,8 @@ export default function HeroSection(){
             <p className="text-gray-200 max-w-xl">Reliable container rentals, sales, and custom solutions — fast delivery and professional installation. Get a quote or explore our services.</p>
 
             <div className="flex flex-wrap gap-3 mt-4">
-              <a href="#quote" className="inline-block bg-[#e84424] text-white px-5 py-3 rounded-md font-semibold">Get Free Quote</a>
-              <a href="#services" className="inline-block border border-white text-white px-5 py-3 rounded-md">View Services</a>
+              <a href="#quote" className="inline-block bg-[#e84424] text-white px-5 py-3 rounded-md font-semibold" aria-label="Navigate to quote request form">Get Free Quote</a>
+              <a href="#services" className="inline-block border border-white text-white px-5 py-3 rounded-md" aria-label="Navigate to services section">View Services</a>
             </div>
           </div>
         </div>

@@ -57,11 +57,11 @@ export default function ContactModal({ onClose }){
         <form onSubmit={submit} className="mt-4 grid gap-3" aria-label="Contact form">
           <label htmlFor="contact-name" className="block">
             <span className="text-sm text-gray-700 font-medium">Name *</span>
-            <input id="contact-name" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+            <input id="contact-name" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" />
           </label>
           <label htmlFor="contact-email" className="block">
             <span className="text-sm text-gray-700 font-medium">Email *</span>
-            <input id="contact-email" type="email" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required />
+            <input id="contact-email" type="email" placeholder="Your email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required autoComplete="email" />
           </label>
           <label htmlFor="contact-subject" className="block">
             <span className="text-sm text-gray-700 font-medium">Subject</span>

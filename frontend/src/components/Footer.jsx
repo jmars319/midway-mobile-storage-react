@@ -61,7 +61,7 @@ export default function Footer({ onLoginClick, onNavigate }){
         <div>
           <h4 className="text-sm font-semibold">Contact</h4>
           <ul className="mt-2 space-y-1.5 text-xs text-gray-200">
-            <li className="flex items-start gap-2"><Phone size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.phone || '(336) 764-4208'}</span></li>
+            <li className="flex items-start gap-2"><Phone size={14} className="mt-0.5 flex-shrink-0" /> <a href={`tel:${(settings?.phone || '(336) 764-4208').replace(/[^\d+]/g, '')}`} className="break-words hover:text-[#e84424]">{settings?.phone || '(336) 764-4208'}</a></li>
             <li className="flex items-start gap-2"><Mail size={14} className="mt-0.5 flex-shrink-0" /> <a href={`mailto:${settings?.email || 'midwaymobilestorage@gmail.com'}`} className="break-all hover:text-[#e84424]">{settings?.email || 'midwaymobilestorage@gmail.com'}</a></li>
             <li className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.address ? `${settings.address}, ${settings.city}` : '212 Fred Sink Road, Winston-Salem'}</span></li>
             <li className="flex items-start gap-2"><Clock size={14} className="mt-0.5 flex-shrink-0" /> <span className="break-words">{settings?.hours || 'Mon–Fri 10:00 AM - 03:00 PM'}</span></li>

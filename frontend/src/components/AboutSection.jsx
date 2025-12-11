@@ -52,10 +52,10 @@ export default function AboutSection(){
   }
 
   return (
-    <section id="about" className="py-12 bg-gray-100">
+    <section id="about" className="py-12 bg-gray-100" aria-labelledby="about-heading">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div>
-          <h2 className="text-3xl font-bold text-[#0a2a52]">{aboutData.title}</h2>
+          <h2 id="about-heading" className="text-3xl font-bold text-[#0a2a52]">{aboutData.title}</h2>
           <h3 className="text-xl font-semibold text-[#e84424] mt-2">{aboutData.subtitle}</h3>
           <p className="mt-3 text-gray-700 leading-relaxed">
             Since <strong>{aboutData.sinceYear}</strong>, {aboutData.text1.replace(`Since ${aboutData.sinceYear}, `, '')}

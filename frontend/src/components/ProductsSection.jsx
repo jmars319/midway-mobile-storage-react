@@ -4,12 +4,12 @@ import PanelSealOrderModal from './PanelSealOrderModal'
 export default function ProductsSection({ scrollTo }){
   const [orderOpen, setOrderOpen] = useState(false)
   return (
-    <section id="products" className="py-16 bg-gray-100">
+    <section id="products" className="py-16 bg-gray-100" aria-labelledby="products-heading">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
         <div className="p-8 rounded-lg text-white bg-gradient-to-br from-[#e84424] to-[#d13918]">
-          <h3 className="text-3xl font-bold">PanelSeal</h3>
+          <h3 id="products-heading" className="text-3xl font-bold">PanelSeal</h3>
           <p className="mt-3 opacity-90">Premium waterproofing and sealing for shipping containers, trailers, and other structures.</p>
-          <button onClick={() => setOrderOpen(true)} className="mt-6 bg-white text-[#e84424] px-4 py-2 rounded font-semibold">Order PanelSeal</button>
+          <button onClick={() => setOrderOpen(true)} className="mt-6 bg-white text-[#e84424] px-4 py-2 rounded font-semibold" aria-label="Open PanelSeal order form">Order PanelSeal</button>
         </div>
 
         <div className="p-6">

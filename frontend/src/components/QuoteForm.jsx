@@ -58,10 +58,10 @@ export default function QuoteForm(){
   }
 
   return (
-    <section id="quote" className="py-12 bg-white">
+    <section id="quote" className="py-12 bg-white" aria-labelledby="quote-heading">
       <div className="max-w-6xl mx-auto px-6">
         <div className="bg-gray-50 border-t-4 border-[#e84424] p-6 rounded-lg">
-          <h4 className="text-xl font-semibold text-[#0a2a52]">Request a Quote</h4>
+          <h4 id="quote-heading" className="text-xl font-semibold text-[#0a2a52]">Request a Quote</h4>
           {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your request was submitted.</div>}
 
           <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Request a quote form">
@@ -69,22 +69,22 @@ export default function QuoteForm(){
             <div className="space-y-4">
               <label htmlFor="quote-name" className="block">
                 <span className="text-sm text-[#0a2a52]">Name</span>
-                <input id="quote-name" name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" />
+                <input id="quote-name" name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" autoComplete="name" />
               </label>
 
               <label htmlFor="quote-email" className="block">
                 <span className="text-sm text-[#0a2a52]">Email</span>
-                <input id="quote-email" name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" />
+                <input id="quote-email" name="email" type="email" value={formData.email} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="you@example.com" autoComplete="email" />
               </label>
 
               <label htmlFor="quote-phone" className="block">
                 <span className="text-sm text-[#0a2a52]">Phone</span>
-                <input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" />
+                <input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" autoComplete="tel" />
               </label>
 
               <label htmlFor="quote-address" className="block">
                 <span className="text-sm text-[#0a2a52]">Delivery Address</span>
-                <input id="quote-address" name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" />
+                <input id="quote-address" name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Street, city, state" autoComplete="street-address" />
               </label>
             </div>
 

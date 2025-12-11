@@ -39,9 +39,9 @@ export default function ServicesSection(){
   },[])
 
   return (
-    <section id="services" className="py-20 bg-white text-black">
+    <section id="services" className="py-20 bg-white text-black" aria-labelledby="services-heading">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-3xl font-bold text-center text-[#0a2a52]">Our Services</h2>
+        <h2 id="services-heading" className="text-3xl font-bold text-center text-[#0a2a52]">Our Services</h2>
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           {SERVICES_DATA.map(s => {
             // compute slug (should match admin usage)

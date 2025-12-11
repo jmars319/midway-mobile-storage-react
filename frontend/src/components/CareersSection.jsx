@@ -69,10 +69,10 @@ export default function CareersSection(){
   ]
 
   return (
-    <section id="careers" className="py-12 bg-white">
+    <section id="careers" className="py-12 bg-white" aria-labelledby="careers-heading">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h3 className="text-2xl font-semibold text-[#0a2a52]">Careers</h3>
+          <h3 id="careers-heading" className="text-2xl font-semibold text-[#0a2a52]">Careers</h3>
           <p className="mt-2 text-gray-700">Join our team — we value safety, craftsmanship, and service.</p>
 
           <h4 className="mt-6 font-semibold">Benefits</h4>
@@ -108,15 +108,15 @@ export default function CareersSection(){
             {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your application was submitted.</div>}
             <label htmlFor="app-name" className="block">
               <span className="text-sm text-gray-700 font-medium">Full Name *</span>
-              <input id="app-name" name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="app-name" name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" />
             </label>
             <label htmlFor="app-email" className="block">
               <span className="text-sm text-gray-700 font-medium">Email *</span>
-              <input id="app-email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required />
+              <input id="app-email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="email" />
             </label>
             <label htmlFor="app-phone" className="block">
               <span className="text-sm text-gray-700 font-medium">Phone</span>
-              <input id="app-phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" />
+              <input id="app-phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" autoComplete="tel" />
             </label>
             <label htmlFor="app-position" className="block">
               <span className="text-sm text-gray-700 font-medium">Position</span>
