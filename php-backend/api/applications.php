@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../notifications.php';
 
 setCorsHeaders();
 
@@ -26,6 +27,16 @@ try {
         );
         
         $applications = $stmt->fetchAll();
+        $applications = array_map(function ($row) {
+            $extras = loadSubmissionPayload('applications', $row['id']) ?? [];
+            $merged = array_merge($extras, $row);
+            $row['display'] = buildSubmissionDisplay('job_application', $merged, [
+                'formLabel' => 'Job Application',
+                'timestampKey' => 'created_at',
+                'primaryKeys' => ['name', 'position', 'email']
+            ]);
+            return $row;
+        }, $applications);
         jsonResponse(['applications' => $applications]);
     }
     
@@ -34,6 +45,9 @@ try {
         checkRateLimit('applications_form');
         
         $data = getRequestBody();
+        if (honeypotTripped($data)) {
+            jsonResponse(['error' => 'Invalid submission'], 400);
+        }
         
         // Validate CSRF token
         $csrfToken = $data['csrf_token'] ?? '';
@@ -52,14 +66,40 @@ try {
         $position = isset($data['position']) ? sanitizeInput($data['position']) : 'other';
         $experience = isset($data['experience']) ? sanitizeInput($data['experience']) : null;
         $message = isset($data['message']) ? sanitizeInput($data['message']) : null;
+        $resumeFilename = isset($data['resumeName']) ? sanitizeInput($data['resumeName']) : null;
+        $resumePath = isset($data['resumePath']) ? sanitizeInput($data['resumePath']) : null;
+        $sourcePage = detectSourcePage($data);
+        $createdAt = getMySQLDateTime();
         
         $db->query(
-            "INSERT INTO job_applications (name, email, phone, position, experience, message, status) 
-             VALUES (?, ?, ?, ?, ?, ?, 'new')",
-            [$name, $email, $phone, $position, $experience, $message]
+            "INSERT INTO job_applications (name, email, phone, position, experience, message, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, 'new', ?)",
+            [$name, $email, $phone, $position, $experience, $message, $createdAt]
         );
         
         $id = $db->lastInsertId();
+
+        $rawPayload = [
+            'id' => $id,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'position' => $position,
+            'experience' => $experience,
+            'message' => $message,
+            'resume_filename' => $resumeFilename,
+            'resume_path' => $resumePath,
+            'status' => 'new',
+            'source_page' => $sourcePage,
+            'created_at' => $createdAt
+        ];
+        persistSubmissionPayload('applications', $id, $rawPayload);
+        notifyFormSubmission('job_application', $rawPayload, [
+            'formLabel' => 'Job Application',
+            'timestampKey' => 'created_at',
+            'primaryKeys' => ['name', 'position', 'email']
+        ]);
+
         jsonResponse(['ok' => true, 'id' => $id], 201);
     }
     
@@ -91,6 +131,15 @@ try {
         );
         
         $application = $stmt->fetch();
+        if ($application) {
+            $extras = loadSubmissionPayload('applications', $application['id']) ?? [];
+            $merged = array_merge($extras, $application);
+            $application['display'] = buildSubmissionDisplay('job_application', $merged, [
+                'formLabel' => 'Job Application',
+                'timestampKey' => 'created_at',
+                'primaryKeys' => ['name', 'position', 'email']
+            ]);
+        }
         jsonResponse(['ok' => true, 'application' => $application]);
     }
     
@@ -106,6 +155,7 @@ try {
         }
         
         $db->query("DELETE FROM job_applications WHERE id = ?", [$id]);
+        deleteSubmissionPayload('applications', $id);
         
         jsonResponse(['ok' => true]);
     }
@@ -115,13 +165,12 @@ try {
     }
     
 } catch (Exception $e) {
-    // Always log errors for debugging
     error_log('Applications API Error: ' . $e->getMessage());
-    error_log('Stack trace: ' . $e->getTraceAsString());
+    if (!isValidationError($e)) {
+        notifyException('Applications API Error', $e, ['path' => '/api/applications', 'method' => $method, 'form' => 'applications']);
+    }
     
-    $message = (strpos($e->getMessage(), 'required') !== false || 
-                strpos($e->getMessage(), 'Invalid') !== false ||
-                strpos($e->getMessage(), 'must be') !== false)
+    $message = isValidationError($e)
         ? $e->getMessage()
         : 'An error occurred processing your request';
     

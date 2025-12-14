@@ -10,6 +10,11 @@ php-backend/.env
 php-backend/config.php
 php-backend/uploads/*
 !php-backend/uploads/.gitkeep
+php-backend/storage/*
+!php-backend/storage/.gitkeep
+!php-backend/storage/submissions/
+php-backend/storage/submissions/*
+!php-backend/storage/submissions/.gitkeep
 
 # Frontend
 frontend/node_modules

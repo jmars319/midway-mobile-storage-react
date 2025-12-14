@@ -3,6 +3,7 @@ import { BACKEND } from '../../lib/media'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
 import { API_BASE } from '../../config'
+import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
 
 export default function ApplicationsModule(){
   const [applications, setApplications] = useState([])
@@ -39,6 +40,7 @@ export default function ApplicationsModule(){
         <h1 className="text-3xl font-bold text-[#0a2a52]">Job Applications</h1>
         <div><button onClick={load} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Refresh</button></div>
       </div>
+      <p className="text-sm text-gray-600 mb-4">Each application lists the applicant summary. “View” opens the human-friendly view and raw JSON backup.</p>
 
       <div className="bg-white rounded-lg shadow overflow-hidden p-4">
         {loading && <div className="text-gray-600">Loading…</div>}
@@ -54,13 +56,16 @@ export default function ApplicationsModule(){
         {!loading && !error && applications.length > 0 && (
           <table className="w-full">
             <caption className="sr-only">Job applications list</caption>
-            <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Name</th><th className="px-6 py-3 text-left">Position</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
+            <thead className="bg-[#0a2a52] text-white"><tr><th className="px-6 py-3 text-left">Candidate</th><th className="px-6 py-3 text-left">Position</th><th className="px-6 py-3 text-left">Date</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Actions</th></tr></thead>
             <tbody>
               {applications.map(a=> (
                 <tr key={a.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">{a.name}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900">{a.display?.summary?.primary || a.name}</div>
+                    <div className="text-xs text-gray-500">{[a.display?.summary?.secondary || a.email, a.display?.summary?.tertiary || a.phone].filter(Boolean).join(' • ') || '—'}</div>
+                  </td>
                   <td className="px-6 py-4">{a.position || '—'}</td>
-                  <td className="px-6 py-4">{a.created_at ? new Date(a.created_at).toLocaleDateString() : '—'}</td>
+                  <td className="px-6 py-4">{a.display?.meta?.submittedAt ? new Date(a.display.meta.submittedAt).toLocaleDateString() : (a.created_at ? new Date(a.created_at).toLocaleDateString() : '—')}</td>
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${a.status==='new' ? 'bg-blue-100 text-blue-800' : a.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : a.status==='hired' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{a.status}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(a)} className="text-[#e84424] mr-3">View</button>
@@ -117,29 +122,32 @@ export default function ApplicationsModule(){
               <h3 className="text-lg font-bold">Application: {selected.name}</h3>
               <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
             </div>
-            <div className="mt-4 text-sm text-gray-700 space-y-2">
-              <div><strong>Position:</strong> {selected.position || '—'}</div>
-              <div><strong>Email:</strong> {selected.email}</div>
-              <div><strong>Phone:</strong> {selected.phone || '—'}</div>
-              <div><strong>Experience:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.experience || '—'}</div></div>
-              <div><strong>Message:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.message || '—'}</div></div>
-              <div><strong>Submitted:</strong> {selected.created_at ? new Date(selected.created_at).toLocaleString() : '—'}</div>
-              <div>
-                <strong>Status:</strong>
-                <button onClick={async ()=>{
+            {(() => {
+              const display = ensureSubmissionDisplay(selected, { formLabel: 'Job Application', submittedAtKey: 'created_at' })
+              return (
+                <>
+                  <SubmissionMeta display={display} />
+                  <p className="mt-3 text-sm text-gray-600">Key details are highlighted first, with the full submission below.</p>
+                  <SubmissionFieldList display={display} />
+                  <div className="mt-6">
+                    <div className="font-semibold text-gray-700">Status</div>
+                    <button onClick={async ()=>{
                   // cycle status: new -> reviewing -> interviewed -> hired -> rejected
                   const order = ['new','reviewing','interviewed','hired','rejected']
                   const cur = selected.status || 'new'
                   const next = order[(order.indexOf(cur) + 1) % order.length]
-                  const token = localStorage.getItem('midway_token')
                   try{
                     const res = await fetch(`${API_BASE}/applications/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
                     if (res.ok){ const j = await res.json(); setSelected(j.application); setApplications(prev => prev.map(it => it.id === j.application.id ? j.application : it)); showToast('Status updated', { type: 'success' }) }
                     else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
                   }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
                 }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='new' ? 'bg-blue-100 text-blue-800' : selected.status==='reviewing' ? 'bg-yellow-100 text-yellow-800' : selected.status==='hired' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{selected.status}</button>
-              </div>
-            </div>
+                  </div>
+                  <SubmissionAttachments display={display} />
+                  <SubmissionRawPayload payload={display?.raw || selected} />
+                </>
+              )
+            })()}
             <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>
           </div>
         </div>

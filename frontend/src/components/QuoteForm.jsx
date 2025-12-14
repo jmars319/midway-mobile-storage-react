@@ -17,6 +17,7 @@ export default function QuoteForm(){
     message: ''
   })
   const [submitted, setSubmitted] = useState(false)
+  const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
 
   const handleChange = (e) => {
@@ -42,11 +43,12 @@ export default function QuoteForm(){
         acc[key] = typeof value === 'string' ? normalizeTextInput(value) : value
         return acc
       }, {})
+      const sourcePage = typeof window !== 'undefined' ? window.location.href : ''
       const res = await fetch(`${API_BASE}/quotes`, {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         credentials: 'include',
-        body: JSON.stringify({ ...normalizedFormData, csrf_token: csrfToken })
+        body: JSON.stringify({ ...normalizedFormData, csrf_token: csrfToken, companyWebsite: spamGuard, sourcePage })
       })
       if (res.ok){
         showToast('Quote request submitted successfully!', { type: 'success' })
@@ -66,12 +68,30 @@ export default function QuoteForm(){
     <section id="quote" className="py-12 bg-white" aria-labelledby="quote-heading">
       <div className="max-w-6xl mx-auto px-6">
         <div className="bg-gray-50 border-t-4 border-[#e84424] p-6 rounded-lg">
-          <h4 id="quote-heading" className="text-xl font-semibold text-[#0a2a52]">Request a Quote</h4>
-          {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your request was submitted.</div>}
+          <div className="flex flex-col gap-2">
+            <h4 id="quote-heading" className="text-2xl font-semibold text-[#0a2a52]">Request a Quote</h4>
+            <p className="text-sm text-gray-600" id="quote-description">Answer a few quick questions and our team will confirm pricing within one business day.</p>
+          </div>
+          {submitted && <div className="mt-4 p-3 bg-green-100 text-green-800 rounded" role="status" aria-live="polite">Thanks — your request was submitted.</div>}
 
-          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Request a quote form">
+          <form onSubmit={handleSubmit} aria-labelledby="quote-heading" aria-describedby="quote-description" className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="sr-only" aria-hidden="true">
+              <label>
+                Website
+                <input
+                  type="text"
+                  tabIndex="-1"
+                  autoComplete="off"
+                  name="companyWebsite"
+                  value={spamGuard}
+                  onChange={(e) => setSpamGuard(e.target.value)}
+                  className="opacity-0 absolute -z-10"
+                />
+              </label>
+            </div>
             {/* Left column - contact info */}
-            <div className="space-y-4">
+            <div className="space-y-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <h5 className="text-lg font-semibold text-[#0a2a52]">How can we reach you?</h5>
               <label htmlFor="quote-name" className="block">
                 <span className="text-sm text-[#0a2a52]">Name</span>
                 <input id="quote-name" name="name" value={formData.name} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required placeholder="Full name" autoComplete="name" />
@@ -84,7 +104,8 @@ export default function QuoteForm(){
 
               <label htmlFor="quote-phone" className="block">
                 <span className="text-sm text-[#0a2a52]">Phone</span>
-                <input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" autoComplete="tel" />
+                <input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1 p-3 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Optional" autoComplete="tel" aria-describedby="quote-phone-help" />
+                <p id="quote-phone-help" className="text-xs text-gray-500 mt-1">Phone helps us coordinate delivery questions faster.</p>
               </label>
 
               <label htmlFor="quote-address" className="block">
@@ -94,7 +115,8 @@ export default function QuoteForm(){
             </div>
 
             {/* Right column - service details */}
-            <div className="space-y-4">
+            <div className="space-y-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <h5 className="text-lg font-semibold text-[#0a2a52]">What do you need?</h5>
               <label htmlFor="quote-service" className="block">
                 <span className="text-sm text-[#0a2a52]">Service</span>
                 <select id="quote-service" name="serviceType" value={formData.serviceType} onChange={handleChange} className="mt-1 p-3 border rounded w-full bg-white text-gray-900 focus:ring-2 focus:ring-[#e84424]">
@@ -156,8 +178,9 @@ export default function QuoteForm(){
                 <textarea id="quote-notes" name="message" value={formData.message} onChange={handleChange} className="mt-1 p-3 border rounded w-full h-28 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" placeholder="Tell us anything else we should know" />
               </label>
 
-              <div className="flex items-center justify-end gap-4">
-                <button type="submit" className="ml-auto bg-[#e84424] text-white px-5 py-2 rounded font-semibold hover:bg-[#c93a1f] transition">Submit Quote</button>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-end gap-3 md:gap-4">
+                <p className="text-xs text-gray-500">We respond within one business day.</p>
+                <button type="submit" className="ml-auto bg-[#e84424] text-white px-5 py-2 rounded font-semibold hover:bg-[#c93a1f] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e84424]">Submit Quote Request</button>
               </div>
             </div>
           </form>

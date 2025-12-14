@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../notifications.php';
 
 setCorsHeaders();
 
@@ -25,6 +26,16 @@ try {
         );
         
         $messages = $stmt->fetchAll();
+        $messages = array_map(function ($row) {
+            $extras = loadSubmissionPayload('messages', $row['id']) ?? [];
+            $merged = array_merge($extras, $row);
+            $row['display'] = buildSubmissionDisplay('contact_message', $merged, [
+                'formLabel' => 'Contact Message',
+                'timestampKey' => 'createdAt',
+                'primaryKeys' => ['name', 'email', 'subject']
+            ]);
+            return $row;
+        }, $messages);
         jsonResponse(['messages' => $messages]);
     }
     
@@ -33,6 +44,9 @@ try {
         checkRateLimit('messages_form');
         
         $data = getRequestBody();
+        if (honeypotTripped($data)) {
+            jsonResponse(['error' => 'Invalid submission'], 400);
+        }
         
         // Validate CSRF token
         $csrfToken = $data['csrf_token'] ?? '';
@@ -50,6 +64,7 @@ try {
         $subject = isset($data['subject']) ? sanitizeInput($data['subject']) : null;
         $message = isset($data['message']) ? sanitizeInput($data['message']) : null;
         $createdAt = getMySQLDateTime();
+        $sourcePage = detectSourcePage($data);
         
         $db->query(
             "INSERT INTO messages (name, email, subject, message, createdAt, status) 
@@ -58,6 +73,24 @@ try {
         );
         
         $id = $db->lastInsertId();
+
+        $rawPayload = [
+            'id' => $id,
+            'name' => $name,
+            'email' => $email,
+            'subject' => $subject,
+            'message' => $message,
+            'status' => 'new',
+            'createdAt' => $createdAt,
+            'source_page' => $sourcePage
+        ];
+        persistSubmissionPayload('messages', $id, $rawPayload);
+        notifyFormSubmission('contact_message', $rawPayload, [
+            'formLabel' => 'Contact Message',
+            'timestampKey' => 'createdAt',
+            'primaryKeys' => ['name', 'email', 'subject']
+        ]);
+
         jsonResponse(['ok' => true, 'id' => $id], 201);
     }
     
@@ -77,8 +110,25 @@ try {
             "UPDATE messages SET status = ? WHERE id = ?",
             [$status, $id]
         );
+
+        $stmt = $db->query(
+            "SELECT id, name, email, subject, message, status, createdAt 
+             FROM messages 
+             WHERE id = ?",
+            [$id]
+        );
+        $messageRow = $stmt->fetch();
+        if ($messageRow) {
+            $extras = loadSubmissionPayload('messages', $messageRow['id']) ?? [];
+            $merged = array_merge($extras, $messageRow);
+            $messageRow['display'] = buildSubmissionDisplay('contact_message', $merged, [
+                'formLabel' => 'Contact Message',
+                'timestampKey' => 'createdAt',
+                'primaryKeys' => ['name', 'email', 'subject']
+            ]);
+        }
         
-        jsonResponse(['ok' => true]);
+        jsonResponse(['ok' => true, 'message' => $messageRow]);
     }
     
     // DELETE - Delete message (requires auth)
@@ -93,6 +143,7 @@ try {
         }
         
         $db->query("DELETE FROM messages WHERE id = ?", [$id]);
+        deleteSubmissionPayload('messages', $id);
         
         jsonResponse(['ok' => true]);
     }
@@ -105,10 +156,11 @@ try {
     if (DEBUG_MODE) {
         error_log('Messages API Error: ' . $e->getMessage());
     }
+    if (!isValidationError($e)) {
+        notifyException('Messages API Error', $e, ['path' => '/api/messages', 'method' => $method, 'form' => 'messages']);
+    }
     
-    $message = (strpos($e->getMessage(), 'required') !== false || 
-                strpos($e->getMessage(), 'Invalid') !== false ||
-                strpos($e->getMessage(), 'must be') !== false)
+    $message = isValidationError($e)
         ? $e->getMessage()
         : 'An error occurred processing your request';
     

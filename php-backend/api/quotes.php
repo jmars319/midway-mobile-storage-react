@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../notifications.php';
 
 setCorsHeaders();
 
@@ -26,6 +27,16 @@ try {
         );
         
         $quotes = $stmt->fetchAll();
+        $quotes = array_map(function ($row) {
+            $extras = loadSubmissionPayload('quotes', $row['id']) ?? [];
+            $merged = array_merge($extras, $row);
+            $row['display'] = buildSubmissionDisplay('quote_request', $merged, [
+                'formLabel' => 'Quote Request',
+                'timestampKey' => 'createdAt',
+                'primaryKeys' => ['name', 'serviceType', 'email']
+            ]);
+            return $row;
+        }, $quotes);
         jsonResponse(['quotes' => $quotes]);
     }
     
@@ -34,6 +45,9 @@ try {
         checkRateLimit('quotes_form');
         
         $data = getRequestBody();
+        if (honeypotTripped($data)) {
+            jsonResponse(['error' => 'Invalid submission'], 400);
+        }
         
         // Validate CSRF token
         $csrfToken = $data['csrf_token'] ?? '';
@@ -58,6 +72,7 @@ try {
         $duration = isset($data['duration']) ? sanitizeInput($data['duration']) : null;
         $deliveryAddress = isset($data['deliveryAddress']) ? sanitizeInput($data['deliveryAddress']) : null;
         $message = isset($data['message']) ? sanitizeInput($data['message']) : null;
+        $sourcePage = detectSourcePage($data);
         
         $createdAt = getMySQLDateTime();
         
@@ -70,6 +85,29 @@ try {
         );
         
         $id = $db->lastInsertId();
+
+        $rawPayload = [
+            'id' => $id,
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'serviceType' => $serviceType,
+            'containerSize' => $containerSize,
+            'quantity' => $quantity,
+            'duration' => $duration,
+            'deliveryAddress' => $deliveryAddress,
+            'message' => $message,
+            'status' => 'new',
+            'createdAt' => $createdAt,
+            'source_page' => $sourcePage
+        ];
+        persistSubmissionPayload('quotes', $id, $rawPayload);
+        notifyFormSubmission('quote_request', $rawPayload, [
+            'formLabel' => 'Quote Request',
+            'timestampKey' => 'createdAt',
+            'primaryKeys' => ['name', 'serviceType', 'email']
+        ]);
+
         jsonResponse(['ok' => true, 'id' => $id], 201);
     }
     
@@ -100,6 +138,15 @@ try {
         );
         
         $quote = $stmt->fetch();
+        if ($quote) {
+            $extras = loadSubmissionPayload('quotes', $quote['id']) ?? [];
+            $merged = array_merge($extras, $quote);
+            $quote['display'] = buildSubmissionDisplay('quote_request', $merged, [
+                'formLabel' => 'Quote Request',
+                'timestampKey' => 'createdAt',
+                'primaryKeys' => ['name', 'serviceType', 'email']
+            ]);
+        }
         jsonResponse(['ok' => true, 'quote' => $quote]);
     }
     
@@ -115,6 +162,7 @@ try {
         }
         
         $db->query("DELETE FROM quotes WHERE id = ?", [$id]);
+        deleteSubmissionPayload('quotes', $id);
         
         jsonResponse(['ok' => true]);
     }
@@ -124,15 +172,14 @@ try {
     }
     
 } catch (Exception $e) {
-    // Log error if debug mode
     if (DEBUG_MODE) {
         error_log('Quotes API Error: ' . $e->getMessage());
     }
+    if (!isValidationError($e)) {
+        notifyException('Quotes API Error', $e, ['path' => '/api/quotes', 'method' => $method, 'form' => 'quotes']);
+    }
     
-    // Return generic error to client unless it's a validation error
-    $message = (strpos($e->getMessage(), 'required') !== false || 
-                strpos($e->getMessage(), 'Invalid') !== false ||
-                strpos($e->getMessage(), 'must be') !== false)
+    $message = isValidationError($e)
         ? $e->getMessage()
         : 'An error occurred processing your request';
     

@@ -10,6 +10,7 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
   const dialogRef = useRef(null)
   const labelId = useId()
@@ -37,11 +38,12 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
     
     setLoading(true)
     try {
+      const sourcePage = typeof window !== 'undefined' ? window.location.href : ''
       const res = await fetch(`${API_BASE}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, email, subject, message, csrf_token: csrfToken })
+        body: JSON.stringify({ name, email, subject, message, csrf_token: csrfToken, companyWebsite: spamGuard, sourcePage })
       })
       if (res.ok) {
         showToast('Message sent — thank you', { type: 'success' })
@@ -50,6 +52,7 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
         setEmail('')
         setSubject('')
         setMessage('')
+        setSpamGuard('')
         handleClose(true)
       } else {
         const j = await res.json().catch(()=>null)
@@ -74,12 +77,29 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
         className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 focus:outline-none"
       >
         <div className="flex items-start justify-between">
-          <h3 id={labelId} className="text-lg font-bold">Contact Us</h3>
+          <div>
+            <h3 id={labelId} className="text-lg font-bold">Contact Us</h3>
+            <p className="text-sm text-gray-500 mt-1">We typically respond within one business day.</p>
+          </div>
           <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 rounded" disabled={loading} aria-label="Close contact form">✕</button>
         </div>
         <p id={descriptionId} className="sr-only">Use this form to contact Midway Mobile Storage. Required fields are marked with an asterisk.</p>
 
         <form onSubmit={submit} className="mt-4 grid gap-3" aria-label="Contact form">
+          <div className="sr-only" aria-hidden="true">
+            <label>
+              Website
+              <input
+                type="text"
+                name="companyWebsite"
+                value={spamGuard}
+                onChange={(e) => setSpamGuard(e.target.value)}
+                tabIndex="-1"
+                autoComplete="off"
+                className="opacity-0 absolute -z-10"
+              />
+            </label>
+          </div>
           <label htmlFor="contact-name" className="block">
             <span className="text-sm text-gray-700 font-medium">Name *</span>
             <input id="contact-name" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} className="mt-1 p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" data-autofocus="true" />
@@ -97,9 +117,12 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
             <textarea id="contact-message" placeholder="Your message" value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 p-2 border rounded h-32 w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           </label>
 
-          <div className="mt-4 flex justify-end gap-3">
-            <button type="button" onClick={() => handleClose()} className="px-3 py-1 bg-gray-200 rounded" disabled={loading}>Cancel</button>
-            <button type="submit" className="px-3 py-1 bg-[#e84424] text-white rounded" disabled={loading}>{loading ? 'Sending…' : 'Send Message'}</button>
+          <div className="mt-4 flex flex-col md:flex-row justify-between gap-3 text-sm text-gray-600">
+            <span>Prefer a phone call? Dial <a className="font-semibold underline" href="tel:13367644208">(336) 764-4208</a>.</span>
+            <div className="flex gap-3 justify-end">
+              <button type="button" onClick={() => handleClose()} className="px-3 py-1 bg-gray-200 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e84424]" disabled={loading}>Cancel</button>
+              <button type="submit" className="px-3 py-1 bg-[#e84424] text-white rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e84424]" disabled={loading}>{loading ? 'Sending…' : 'Send Message'}</button>
+            </div>
           </div>
         </form>
       </div>

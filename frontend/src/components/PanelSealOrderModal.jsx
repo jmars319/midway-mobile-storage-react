@@ -7,6 +7,7 @@ import { useFocusTrap } from '../hooks/useFocusTrap'
 export default function PanelSealOrderModal({ open, onClose }){
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
   const [submitting, setSubmitting] = useState(false)
+  const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
   const dialogRef = useRef(null)
   const labelId = useId()
@@ -40,6 +41,7 @@ export default function PanelSealOrderModal({ open, onClose }){
     
     setSubmitting(true)
     try{
+      const sourcePage = typeof window !== 'undefined' ? window.location.href : ''
       const res = await fetch(`${API_BASE}/orders`, { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
@@ -52,13 +54,16 @@ export default function PanelSealOrderModal({ open, onClose }){
           product: 'PanelSeal',
           quantity: form.gallons,
           notes: form.notes,
-          csrf_token: csrfToken
+          csrf_token: csrfToken,
+          companyWebsite: spamGuard,
+          sourcePage
         })
       })
       if (res.ok){ 
         showToast('Order submitted — we will follow up shortly', { type: 'success' })
         // Reset form
         setForm({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
+        setSpamGuard('')
         handleClose(true) 
       }
       else { const txt = await res.text(); showToast('Order failed: ' + txt, { type: 'error' }) }
@@ -83,6 +88,20 @@ export default function PanelSealOrderModal({ open, onClose }){
         </div>
         <p id={descriptionId} className="sr-only">Place a PanelSeal order request. Required fields are marked with an asterisk.</p>
         <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3" aria-label="PanelSeal order form">
+          <div className="sr-only" aria-hidden="true">
+            <label>
+              Website
+              <input
+                type="text"
+                name="companyWebsite"
+                value={spamGuard}
+                onChange={(e) => setSpamGuard(e.target.value)}
+                tabIndex="-1"
+                autoComplete="off"
+                className="opacity-0 absolute -z-10"
+              />
+            </label>
+          </div>
           <div className="grid md:grid-cols-2 gap-3">
             <label htmlFor="order-name" className="block">
               <span className="text-sm text-gray-700 font-medium">Full Name *</span>

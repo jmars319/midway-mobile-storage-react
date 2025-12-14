@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getActiveHeroUrl } from '../lib/media'
+import { REVIEW_URL, PRIVATE_FEEDBACK_LINK } from '../config'
 
 export default function HeroSection(){
   const [heroUrl, setHeroUrl] = useState(null)
@@ -42,9 +43,20 @@ export default function HeroSection(){
             <p className="text-gray-200 max-w-xl">Reliable container rentals, sales, and custom solutions — fast delivery and professional installation. Get a quote or explore our services.</p>
 
             <div className="flex flex-wrap gap-3 mt-4">
-              <a href="#quote" className="inline-block bg-[#e84424] text-white px-5 py-3 rounded-md font-semibold" aria-label="Navigate to quote request form">Get Free Quote</a>
-              <a href="#services" className="inline-block border border-white text-white px-5 py-3 rounded-md" aria-label="Navigate to services section">View Services</a>
+              <a href="#quote" className="inline-block bg-[#e84424] text-white px-5 py-3 rounded-md font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" aria-label="Navigate to quote request form">Get Free Quote</a>
+              <a href="#services" className="inline-block border border-white text-white px-5 py-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" aria-label="Navigate to services section">View Services</a>
+              <a
+                href={REVIEW_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-white/90 text-[#0a2a52] px-5 py-3 rounded-md font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                aria-label="Leave an honest review for Midway Mobile Storage (opens in new tab)"
+              >
+                Leave a Review
+                <span aria-hidden="true" className="text-xs font-normal text-[#0a2a52]/70">(opens new tab)</span>
+              </a>
             </div>
+            <p className="text-sm text-gray-200 mt-2">Reviews help a local business. Prefer to chat? <a href={PRIVATE_FEEDBACK_LINK} className="underline font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" aria-label="Open the contact form to send private feedback">Send private feedback</a>.</p>
           </div>
         </div>
 

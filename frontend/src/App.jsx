@@ -5,6 +5,7 @@ import ServicesSection from './components/ServicesSection'
 import ProductsSection from './components/ProductsSection'
 import QuoteForm from './components/QuoteForm'
 import AboutSection from './components/AboutSection'
+import LocationMap from './components/LocationMap'
 import CareersSection from './components/CareersSection'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
@@ -177,6 +178,7 @@ export default function App(){
               <QuoteForm />
               <ProductsSection />
               <AboutSection />
+              <LocationMap />
               <CareersSection />
             </>
           )}

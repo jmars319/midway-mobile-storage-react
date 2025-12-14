@@ -3,6 +3,7 @@ import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
 import { API_BASE } from '../../config'
 import { decodeHtmlEntities } from '../../utils/htmlEntities'
+import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
 
 const QUOTE_FIELDS_TO_DECODE = [
   'name',
@@ -70,6 +71,7 @@ export default function QuotesModule(){
           <button onClick={load} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Refresh</button>
         </div>
       </div>
+      <p className="text-sm text-gray-600 mb-4">Each entry shows the customer summary. Open a record to review every field and attachments.</p>
 
       <div className="bg-white rounded-lg shadow overflow-hidden p-4">
         {loading && <div className="text-gray-600">Loading…</div>}
@@ -87,10 +89,9 @@ export default function QuotesModule(){
             <caption className="sr-only">Quote requests list</caption>
             <thead className="bg-[#0a2a52] text-white">
               <tr>
-                <th className="px-6 py-3 text-left">Customer</th>
+                <th className="px-6 py-3 text-left">Submission</th>
                 <th className="px-6 py-3 text-left">Service</th>
-                <th className="px-6 py-3 text-left">Size</th>
-                <th className="px-6 py-3 text-left">Date</th>
+                <th className="px-6 py-3 text-left">Submitted</th>
                 <th className="px-6 py-3 text-left">Status</th>
                 <th className="px-6 py-3 text-left">Actions</th>
               </tr>
@@ -98,10 +99,16 @@ export default function QuotesModule(){
             <tbody>
               {quotes.map(q => (
                 <tr key={q.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">{q.name}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900">{q.display?.summary?.primary || q.name}</div>
+                    <div className="text-xs text-gray-500">
+                      {[q.display?.summary?.secondary || q.email, q.display?.summary?.tertiary || q.phone]
+                        .filter(Boolean)
+                        .join(' • ') || '—'}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{q.serviceType || '—'}</td>
-                  <td className="px-6 py-4">{q.containerSize || '—'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{new Date(q.createdAt).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{q.display?.meta?.submittedAt ? new Date(q.display.meta.submittedAt).toLocaleString() : (q.createdAt ? new Date(q.createdAt).toLocaleString() : '—')}</td>
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${q.status==='responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{q.status||'pending'}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(q)} className="text-[#e84424] hover:text-[#d13918] font-semibold mr-3">View</button>
@@ -159,46 +166,16 @@ export default function QuotesModule(){
               <h3 className="text-lg font-bold">Quote Request Details</h3>
               <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="font-semibold text-gray-700">Customer</div>
-                <div className="text-gray-900">{selected.name}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Email</div>
-                <div className="text-gray-900">{selected.email}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Phone</div>
-                <div className="text-gray-900">{selected.phone || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Service Type</div>
-                <div className="text-gray-900">{selected.serviceType || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Unit Size</div>
-                <div className="text-gray-900">{selected.containerSize || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Quantity</div>
-                <div className="text-gray-900">{selected.quantity || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Duration</div>
-                <div className="text-gray-900">{selected.duration || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Delivery Address</div>
-                <div className="text-gray-900">{selected.deliveryAddress || '—'}</div>
-              </div>
-              <div className="col-span-2">
-                <div className="font-semibold text-gray-700">Message</div>
-                <div className="text-gray-900 whitespace-pre-wrap">{selected.message || '—'}</div>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Status</div>
-                <button
+            {(() => {
+              const display = ensureSubmissionDisplay(selected, { formLabel: 'Quote Request', submittedAtKey: 'createdAt' })
+              return (
+                <>
+                  <SubmissionMeta display={display} />
+                  <p className="mt-3 text-sm text-gray-600">Details below are fully decoded for easy reading.</p>
+                  <SubmissionFieldList display={display} />
+                  <div className="mt-6">
+                    <div className="font-semibold text-gray-700">Status</div>
+                    <button
                   onClick={async () => {
                     const newStatus = selected.status === 'responded' ? 'pending' : 'responded'
                     try {
@@ -228,12 +205,12 @@ export default function QuotesModule(){
                 >
                   {selected.status || 'pending'}
                 </button>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-700">Submitted</div>
-                <div className="text-gray-900">{new Date(selected.createdAt).toLocaleString()}</div>
-              </div>
-            </div>
+                  </div>
+                  <SubmissionAttachments display={display} />
+                  <SubmissionRawPayload payload={display?.raw || selected} />
+                </>
+              )
+            })()}
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => navigator.clipboard.writeText(JSON.stringify(selected, null, 2))}

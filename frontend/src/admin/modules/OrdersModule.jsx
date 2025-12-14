@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
 import { API_BASE } from '../../config'
+import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
 
 // OrdersModule loads protected orders from the backend. It expects a JWT to
 // be stored in localStorage under `midway_token`; the module reads that token
@@ -44,6 +45,7 @@ export default function OrdersModule(){
         <h1 className="text-3xl font-bold text-[#0a2a52]">PanelSeal Orders</h1>
         <div><button onClick={load} className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Refresh</button></div>
       </div>
+      <p className="text-sm text-gray-600 mb-4">Staff tip: “View” surfaces the customer, contact info, and all submitted fields. Raw data is available for auditing.</p>
 
       <div className="bg-white rounded-lg shadow overflow-hidden p-4">
         {loading && <div className="text-gray-600">Loading…</div>}
@@ -63,10 +65,13 @@ export default function OrdersModule(){
             <tbody>
               {orders.map(o=> (
                 <tr key={o.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">{o.customer_name}</td>
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900">{o.display?.summary?.primary || o.customer_name}</div>
+                    <div className="text-xs text-gray-500">{[o.display?.summary?.secondary || o.customer_email, o.display?.summary?.tertiary || o.customer_phone].filter(Boolean).join(' • ') || '—'}</div>
+                  </td>
                   <td className="px-6 py-4">{o.product}</td>
                   <td className="px-6 py-4">{o.quantity}</td>
-                  <td className="px-6 py-4">{o.created_at ? new Date(o.created_at).toLocaleDateString() : '—'}</td>
+                  <td className="px-6 py-4">{o.display?.meta?.submittedAt ? new Date(o.display.meta.submittedAt).toLocaleDateString() : (o.created_at ? new Date(o.created_at).toLocaleDateString() : '—')}</td>
                   <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${o.status==='shipped' ? 'bg-green-100 text-green-800' : o.status==='delivered' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>{o.status}</span></td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(o)} className="text-[#e84424] mr-3">View</button>
@@ -123,32 +128,31 @@ export default function OrdersModule(){
               <h3 className="text-lg font-bold">Order: {selected.customer_name}</h3>
               <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
             </div>
-            <div className="mt-4 text-sm text-gray-700 space-y-2">
-              <div><strong>Customer:</strong> {selected.customer_name}</div>
-              <div><strong>Email:</strong> {selected.customer_email}</div>
-              <div><strong>Phone:</strong> {selected.customer_phone || '—'}</div>
-              <div><strong>Product:</strong> {selected.product}</div>
-              <div><strong>Quantity:</strong> {selected.quantity}</div>
-              <div><strong>Shipping Address:</strong> <div className="mt-1 text-gray-600">{selected.shipping_address || '—'}</div></div>
-              <div><strong>Order Total:</strong> {selected.order_total ? `$${parseFloat(selected.order_total).toFixed(2)}` : '—'}</div>
-              <div><strong>Tracking Number:</strong> {selected.tracking_number || '—'}</div>
-              <div><strong>Notes:</strong> <div className="mt-1 whitespace-pre-wrap text-gray-600">{selected.notes || '—'}</div></div>
-              <div><strong>Order Date:</strong> {selected.created_at ? new Date(selected.created_at).toLocaleString() : '—'}</div>
-              <div>
-                <strong>Status:</strong>
-                <button onClick={async ()=>{
+            {(() => {
+              const display = ensureSubmissionDisplay(selected, { formLabel: 'PanelSeal Order', submittedAtKey: 'created_at' })
+              return (
+                <>
+                  <SubmissionMeta display={display} />
+                  <p className="mt-3 text-sm text-gray-600">Important contact and product information appears first.</p>
+                  <SubmissionFieldList display={display} />
+                  <div className="mt-6">
+                    <div className="font-semibold text-gray-700">Status</div>
+                    <button onClick={async ()=>{
                   const order = ['processing','shipped','delivered','cancelled']
                   const cur = selected.status || 'processing'
                   const next = order[(order.indexOf(cur) + 1) % order.length]
-                  const token = localStorage.getItem('midway_token')
                   try{
                       const res = await fetch(`${API_BASE}/orders/${selected.id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: next }) })
                       if (res.ok){ const j = await res.json(); setSelected(j.order); setOrders(prev => prev.map(it => it.id === j.order.id ? j.order : it)); showToast('Status updated', { type: 'success' }) }
                       else { const txt = await res.text(); showToast('Status update failed: ' + txt, { type: 'error' }) }
                     }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Status update error', { type: 'error' }) }
                 }} className={`ml-2 px-3 py-1 rounded-full text-sm ${selected.status==='shipped' ? 'bg-green-100 text-green-800' : selected.status==='delivered' ? 'bg-blue-100 text-blue-800' : selected.status==='cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>{selected.status}</button>
-              </div>
-            </div>
+                  </div>
+                  <SubmissionAttachments display={display} />
+                  <SubmissionRawPayload payload={display?.raw || selected} />
+                </>
+              )
+            })()}
             <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>
           </div>
         </div>

@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../utils.php';
 require_once __DIR__ . '/../database.php';
+require_once __DIR__ . '/../notifications.php';
 
 setCorsHeaders();
 
@@ -27,6 +28,16 @@ try {
         );
         
         $orders = $stmt->fetchAll();
+        $orders = array_map(function ($row) {
+            $extras = loadSubmissionPayload('orders', $row['id']) ?? [];
+            $merged = array_merge($extras, $row);
+            $row['display'] = buildSubmissionDisplay('panelseal_order', $merged, [
+                'formLabel' => 'PanelSeal Order',
+                'timestampKey' => 'created_at',
+                'primaryKeys' => ['customer_name', 'product', 'customer_email']
+            ]);
+            return $row;
+        }, $orders);
         jsonResponse(['orders' => $orders]);
     }
     
@@ -35,6 +46,9 @@ try {
         checkRateLimit('orders_form');
         
         $data = getRequestBody();
+        if (honeypotTripped($data)) {
+            jsonResponse(['error' => 'Invalid submission'], 400);
+        }
         
         // Validate CSRF token
         $csrfToken = $data['csrf_token'] ?? '';
@@ -54,16 +68,39 @@ try {
         $product = validateAndSanitize($data['product'] ?? '', 'Product', 100);
         $quantity = isset($data['quantity']) ? intval($data['quantity']) : 1;
         $notes = isset($data['notes']) ? sanitizeInput($data['notes']) : null;
+        $sourcePage = detectSourcePage($data);
+        $createdAt = getMySQLDateTime();
         
         $db->query(
             "INSERT INTO panelseal_orders (customer_name, customer_email, customer_phone, 
-                                          shipping_address, product, quantity, notes, status) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'processing')",
+                                          shipping_address, product, quantity, notes, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'processing', ?)",
             [$customer_name, $customer_email, $customer_phone, $shipping_address, 
-             $product, $quantity, $notes]
+             $product, $quantity, $notes, $createdAt]
         );
         
         $id = $db->lastInsertId();
+
+        $rawPayload = [
+            'id' => $id,
+            'customer_name' => $customer_name,
+            'customer_email' => $customer_email,
+            'customer_phone' => $customer_phone,
+            'shipping_address' => $shipping_address,
+            'product' => $product,
+            'quantity' => $quantity,
+            'notes' => $notes,
+            'status' => 'processing',
+            'created_at' => $createdAt,
+            'source_page' => $sourcePage
+        ];
+        persistSubmissionPayload('orders', $id, $rawPayload);
+        notifyFormSubmission('panelseal_order', $rawPayload, [
+            'formLabel' => 'PanelSeal Order',
+            'timestampKey' => 'created_at',
+            'primaryKeys' => ['customer_name', 'product', 'customer_email']
+        ]);
+
         jsonResponse(['ok' => true, 'id' => $id], 201);
     }
     
@@ -96,6 +133,15 @@ try {
         );
         
         $order = $stmt->fetch();
+        if ($order) {
+            $extras = loadSubmissionPayload('orders', $order['id']) ?? [];
+            $merged = array_merge($extras, $order);
+            $order['display'] = buildSubmissionDisplay('panelseal_order', $merged, [
+                'formLabel' => 'PanelSeal Order',
+                'timestampKey' => 'created_at',
+                'primaryKeys' => ['customer_name', 'product', 'customer_email']
+            ]);
+        }
         jsonResponse(['ok' => true, 'order' => $order]);
     }
     
@@ -111,6 +157,7 @@ try {
         }
         
         $db->query("DELETE FROM panelseal_orders WHERE id = ?", [$id]);
+        deleteSubmissionPayload('orders', $id);
         
         jsonResponse(['ok' => true]);
     }
@@ -123,10 +170,11 @@ try {
     if (DEBUG_MODE) {
         error_log('Orders API Error: ' . $e->getMessage());
     }
+    if (!isValidationError($e)) {
+        notifyException('Orders API Error', $e, ['path' => '/api/orders', 'method' => $method, 'form' => 'orders']);
+    }
     
-    $message = (strpos($e->getMessage(), 'required') !== false || 
-                strpos($e->getMessage(), 'Invalid') !== false ||
-                strpos($e->getMessage(), 'must be') !== false)
+    $message = isValidationError($e)
         ? $e->getMessage()
         : 'An error occurred processing your request';
     

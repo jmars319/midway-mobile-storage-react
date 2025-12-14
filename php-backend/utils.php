@@ -308,3 +308,22 @@ function validateCsrfToken($token) {
     
     return hash_equals($_SESSION['csrf_token'], $token);
 }
+
+/**
+ * Shared honeypot detector — if the hidden field is populated, reject the request.
+ */
+function honeypotTripped(array $payload) {
+    $field = $payload['companyWebsite'] ?? $payload['company_website'] ?? null;
+    if (!is_string($field)) {
+        return false;
+    }
+    return trim($field) !== '';
+}
+
+/**
+ * Determine if an exception looks like a validation issue (vs. server fault).
+ */
+function isValidationError(Throwable $exception) {
+    $message = $exception->getMessage();
+    return (bool)preg_match('/(required|Invalid|token|Too many|must be)/i', $message);
+}

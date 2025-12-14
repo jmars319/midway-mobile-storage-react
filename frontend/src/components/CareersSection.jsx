@@ -6,6 +6,7 @@ import { useCsrfToken } from '../hooks/useCsrfToken'
 export default function CareersSection(){
   const [formData, setFormData] = useState({ name:'', email:'', phone:'', position:'', experience:'', message:'', resume: null })
   const [submitted, setSubmitted] = useState(false)
+  const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
 
   const handleChange = (e) => {
@@ -23,6 +24,7 @@ export default function CareersSection(){
     }
     
     // send to backend (simple JSON; resume upload is represented by filename)
+    const sourcePage = typeof window !== 'undefined' ? window.location.href : ''
     const payload = {
       name: formData.name,
       email: formData.email,
@@ -31,7 +33,9 @@ export default function CareersSection(){
       experience: formData.experience,
       message: formData.message,
       resumeName: formData.resume ? formData.resume.name : null,
-      csrf_token: csrfToken
+      csrf_token: csrfToken,
+      companyWebsite: spamGuard,
+      sourcePage
     }
 
     fetch(`${API_BASE}/applications`, {
@@ -47,6 +51,7 @@ export default function CareersSection(){
         // Reset file input
         const fileInput = document.querySelector('input[type="file"]')
         if (fileInput) fileInput.value = ''
+        setSpamGuard('')
         setTimeout(()=>setSubmitted(false), 5000)
       } else {
         const errorData = await r.json().catch(() => ({}))
@@ -104,19 +109,37 @@ export default function CareersSection(){
 
         <div>
           <h4 className="text-lg font-semibold text-[#0a2a52]">Apply Now</h4>
-          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3" aria-label="Job application form">
-            {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded" role="alert">Thanks — your application was submitted.</div>}
-            <label htmlFor="app-name" className="block">
-              <span className="text-sm text-gray-700 font-medium">Full Name *</span>
-              <input id="app-name" name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" />
-            </label>
-            <label htmlFor="app-email" className="block">
-              <span className="text-sm text-gray-700 font-medium">Email *</span>
-              <input id="app-email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="email" />
-            </label>
+          <p className="text-sm text-gray-600 mt-1" id="careers-form-description">Share a few details and our hiring team will reach out if it’s a match.</p>
+          <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 bg-white border border-gray-200 rounded-lg p-4 shadow-sm" aria-label="Job application form" aria-describedby="careers-form-description">
+            {submitted && <div className="mt-2 p-3 bg-green-100 text-green-800 rounded" role="status" aria-live="polite">Thanks — your application was submitted.</div>}
+            <div className="sr-only" aria-hidden="true">
+              <label>
+                Website
+                <input
+                  type="text"
+                  name="companyWebsite"
+                  value={spamGuard}
+                  onChange={(e) => setSpamGuard(e.target.value)}
+                  tabIndex="-1"
+                  autoComplete="off"
+                  className="opacity-0 absolute -z-10"
+                />
+              </label>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <label htmlFor="app-name" className="block">
+                <span className="text-sm text-gray-700 font-medium">Full Name *</span>
+                <input id="app-name" name="name" value={formData.name} onChange={handleChange} placeholder="Full name" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="name" />
+              </label>
+              <label htmlFor="app-email" className="block">
+                <span className="text-sm text-gray-700 font-medium">Email *</span>
+                <input id="app-email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" type="email" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" required autoComplete="email" />
+              </label>
+            </div>
             <label htmlFor="app-phone" className="block">
               <span className="text-sm text-gray-700 font-medium">Phone</span>
-              <input id="app-phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" autoComplete="tel" />
+              <input id="app-phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" type="tel" className="mt-1 p-2 border rounded w-full focus:ring-2 focus:ring-[#e84424]" autoComplete="tel" aria-describedby="phone-helper" />
+              <p id="phone-helper" className="text-xs text-gray-500 mt-1">Optional, but helps us follow up faster.</p>
             </label>
             <label htmlFor="app-position" className="block">
               <span className="text-sm text-gray-700 font-medium">Position</span>
@@ -138,7 +161,10 @@ export default function CareersSection(){
               <span className="text-sm text-gray-700 font-medium">Additional Message</span>
               <textarea id="app-message" name="message" value={formData.message} onChange={handleChange} placeholder="Any additional information you'd like to share" className="mt-1 p-2 border rounded w-full h-24 focus:ring-2 focus:ring-[#e84424]" />
             </label>
-            <button type="submit" className="bg-[#e84424] text-white px-4 py-2 rounded mt-2 hover:bg-[#c93a1f] transition">Submit Application</button>
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <span>Submitting allows us to contact you about this opportunity.</span>
+              <button type="submit" className="bg-[#e84424] text-white px-4 py-2 rounded hover:bg-[#c93a1f] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e84424]">Submit Application</button>
+            </div>
           </form>
         </div>
       </div>
