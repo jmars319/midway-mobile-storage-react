@@ -199,6 +199,31 @@ mysqldump -u midway -p midway_storage > production-export.sql
 2. Enter your cPanel username and password
 3. Click "Log in"
 
+---
+
+## Post-deploy security sanity checks (Required)
+
+Complete these steps every time you deploy. They only take a few minutes and ensure customer data stays private.
+
+1. **Confirm submission JSON files are NOT publicly accessible**
+   - Try opening URLs like:
+     - `https://midwaymobilestorage.com/php-backend/storage/submissions/demo/test.json`
+     - `https://midwaymobilestorage.com/storage/submissions/demo/test.json`
+     - `https://midwaymobilestorage.com/api/storage/submissions/demo/test.json`
+   - ✅ Expected: each returns 403 or 404 (never download a JSON file).
+   - ❌ If a file downloads, stop deployment and verify the `.htaccess` file inside `php-backend/storage/` exists and denies access.
+
+2. **Keep outgoing email disabled until ready**
+   - Leave `SEND_EMAILS=false` until you intentionally test live notifications.
+   - When ready, set `SEND_EMAILS=true` (with `APP_ENV=production`) and run a single test submission to confirm behavior.
+
+3. **Know who receives alerts**
+   - Submission notifications go to `midwaymobilestorage@gmail.com`.
+   - Error/exception alerts go only to `support@jamarq.digital` when emails are enabled.
+
+4. **Document the check**
+   - Note in your deployment log that the security sanity checks were completed and passed. This helps future troubleshooting and compliance.
+
 ✅ **YOU SHOULD SEE**: cPanel dashboard with lots of icons
 
 ---
