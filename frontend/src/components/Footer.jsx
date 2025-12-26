@@ -159,6 +159,9 @@ export default function Footer({ onLoginClick, onNavigate }){
         <p className="text-xs text-gray-500 mt-2">
           Powered by <a href="https://jamarq.digital" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#e84424] underline">JAMARQ</a>
         </p>
+        <p className="text-xs text-gray-400 mt-2">
+          Subsidiary of ZM Motors LLC
+        </p>
       </div>
     </footer>
   )
