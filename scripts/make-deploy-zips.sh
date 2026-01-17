@@ -18,11 +18,10 @@ require_cmd npm
 require_cmd zip
 require_cmd rsync
 
-VERSION_TAG="${VERSION_TAG:-$(date +%Y%m%d-%H%M%S)}"
 DEPLOY_DIR="$ROOT_DIR/deploy"
 STAGING_DIR="$DEPLOY_DIR/.staging"
-FRONTEND_ZIP="$DEPLOY_DIR/deploy-frontend-$VERSION_TAG.zip"
-BACKEND_ZIP="$DEPLOY_DIR/deploy-backend-$VERSION_TAG.zip"
+FRONTEND_ZIP="${FRONTEND_ZIP:-$DEPLOY_DIR/deploy-frontend.zip}"
+BACKEND_ZIP="${BACKEND_ZIP:-$DEPLOY_DIR/deploy-backend.zip}"
 
 FRONTEND_DIR="$ROOT_DIR/frontend"
 BACKEND_DIR="$ROOT_DIR/backend"

@@ -23,10 +23,10 @@ frontend_zip="${FRONTEND_ZIP:-}"
 backend_zip="${BACKEND_ZIP:-}"
 
 if [ -z "$frontend_zip" ]; then
-  frontend_zip=$(ls -t "$DEPLOY_DIR"/deploy-frontend-*.zip 2>/dev/null | head -1 || true)
+  frontend_zip="$DEPLOY_DIR/deploy-frontend.zip"
 fi
 if [ -z "$backend_zip" ]; then
-  backend_zip=$(ls -t "$DEPLOY_DIR"/deploy-backend-*.zip 2>/dev/null | head -1 || true)
+  backend_zip="$DEPLOY_DIR/deploy-backend.zip"
 fi
 
 if [ -z "$frontend_zip" ] || [ ! -f "$frontend_zip" ]; then

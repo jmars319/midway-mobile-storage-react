@@ -27,7 +27,7 @@ Use Vercel for the React/Vite frontend. The PHP API must be hosted on a PHP-capa
 - Validate zips:
   - scripts/check-deploy-zips.sh
 
-Outputs go to deploy/ as deploy-frontend-<timestamp>.zip and deploy-backend-<timestamp>.zip.
+Outputs go to deploy/ as deploy-frontend.zip and deploy-backend.zip.
 
 ## Legacy Appendix
 Historical cPanel deployment steps are no longer bundled in this repository.
