@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId, useCallback } from 'react'
 import ConfirmModal from '../../components/ConfirmModal'
+import StandardModal from '../../components/StandardModal'
 import { showToast } from '../../components/Toast'
 import { API_BASE } from '../../config'
 
@@ -14,7 +15,7 @@ export default function InventoryModule(){
   const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
-  async function load(){
+  const load = useCallback(async () => {
     setLoading(true); setError(null)
     try{
       const res = await fetch(`${API_BASE}/inventory`, { headers: { Authorization: `Bearer ${token}` }})
@@ -30,9 +31,9 @@ export default function InventoryModule(){
       } else setError('Failed to load inventory')
     }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
-  }
+  }, [token])
 
-  useEffect(()=>{ load() },[])
+  useEffect(()=>{ load() },[load])
 
   return (
     <div className="p-6">
@@ -51,7 +52,7 @@ export default function InventoryModule(){
         {!loading && !error && inventory.length === 0 && (
           <div className="p-8 text-center text-gray-600">
             <div className="text-xl font-semibold mb-2">No inventory items</div>
-            <div>No containers in inventory. Click "Add Item" to create one.</div>
+            <div>No containers in inventory. Click &quot;Add Item&quot; to create one.</div>
           </div>
         )}
 
@@ -127,6 +128,8 @@ export default function InventoryModule(){
 function EditInventoryModal({ item, onClose, onSaved }){
   const [form, setForm] = useState({ type: item.type, condition: item.condition, status: item.status, quantity: item.quantity })
   const token = localStorage.getItem('midway_token')
+  const titleId = useId()
+  const descriptionId = useId()
   async function save(){
     try{
       const res = await fetch(`${API_BASE}/inventory/${item.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
@@ -135,13 +138,19 @@ function EditInventoryModal({ item, onClose, onSaved }){
     }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Save error', { type: 'error' }) }
   }
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-bold">Edit Inventory</h3>
-          <button onClick={onClose} className="text-gray-500">Close</button>
-        </div>
-        <div className="mt-4 grid gap-3">
+    <StandardModal
+      panelClassName="max-w-lg w-full"
+      onClose={onClose}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+    >
+      <div className="flex items-start justify-between px-6 py-4 border-b">
+        <h3 id={titleId} className="text-lg font-bold">Edit Inventory</h3>
+        <button onClick={onClose} className="text-gray-500">Close</button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
+        <div className="grid gap-3">
+          <p id={descriptionId} className="text-sm text-gray-600">Update container details and quantity.</p>
           <label className="text-sm">Type</label>
           <input value={form.type} onChange={e=>setForm({...form, type: e.target.value})} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           <label className="text-sm">Condition</label>
@@ -154,15 +163,19 @@ function EditInventoryModal({ item, onClose, onSaved }){
           <label className="text-sm">Quantity</label>
           <input type="number" value={form.quantity} onChange={e=>setForm({...form, quantity: Number(e.target.value)})} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
         </div>
-        <div className="mt-4 text-right"><button onClick={save} className="px-3 py-1 bg-[#e84424] text-white rounded">Save</button></div>
       </div>
-    </div>
+      <div className="px-6 py-4 border-t text-right">
+        <button onClick={save} className="px-3 py-1 bg-[#e84424] text-white rounded">Save</button>
+      </div>
+    </StandardModal>
   )
 }
 
 function CreateInventoryModal({ onClose, onCreated }){
   const [form, setForm] = useState({ type: '', condition: '', status: 'Available', quantity: 1 })
   const token = localStorage.getItem('midway_token')
+  const titleId = useId()
+  const descriptionId = useId()
   async function create(){
     try{
       const res = await fetch(`${API_BASE}/inventory`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(form) })
@@ -171,13 +184,19 @@ function CreateInventoryModal({ onClose, onCreated }){
     }catch(e){ if (import.meta.env.DEV) console.error(e); showToast('Create error', { type: 'error' }) }
   }
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-bold">Add Inventory Item</h3>
-          <button onClick={onClose} className="text-gray-500">Close</button>
-        </div>
-        <div className="mt-4 grid gap-3">
+    <StandardModal
+      panelClassName="max-w-lg w-full"
+      onClose={onClose}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+    >
+      <div className="flex items-start justify-between px-6 py-4 border-b">
+        <h3 id={titleId} className="text-lg font-bold">Add Inventory Item</h3>
+        <button onClick={onClose} className="text-gray-500">Close</button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
+        <div className="grid gap-3">
+          <p id={descriptionId} className="text-sm text-gray-600">Create a new inventory entry for containers.</p>
           <label className="text-sm">Type</label>
           <input value={form.type} onChange={e=>setForm({...form, type: e.target.value})} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
           <label className="text-sm">Condition</label>
@@ -190,15 +209,19 @@ function CreateInventoryModal({ onClose, onCreated }){
           <label className="text-sm">Quantity</label>
           <input type="number" value={form.quantity} onChange={e=>setForm({...form, quantity: Number(e.target.value)})} className="p-2 border rounded w-full text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#e84424]" />
         </div>
-        <div className="mt-4 text-right"><button onClick={create} className="px-3 py-1 bg-[#e84424] text-white rounded">Create</button></div>
       </div>
-    </div>
+      <div className="px-6 py-4 border-t text-right">
+        <button onClick={create} className="px-3 py-1 bg-[#e84424] text-white rounded">Create</button>
+      </div>
+    </StandardModal>
   )
 }
 
 function UnitManagementModal({ item, onClose, onUpdate }){
   const [unitCount, setUnitCount] = useState({ toRent: 1, toReturn: 1, toSell: 1 })
   const token = localStorage.getItem('midway_token')
+  const titleId = useId()
+  const descriptionId = useId()
   
   const availableUnits = item.status === 'Available' ? item.quantity : 0
   const rentedUnits = item.status === 'Rented' ? item.quantity : 0
@@ -285,16 +308,22 @@ function UnitManagementModal({ item, onClose, onUpdate }){
   }
   
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h3 className="text-xl font-bold text-[#0a2a52]">Manage Units</h3>
-            <p className="text-sm text-gray-600">{item.type} - {item.condition}</p>
-          </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <StandardModal
+      panelClassName="max-w-2xl w-full"
+      onClose={onClose}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+    >
+      <div className="flex items-start justify-between px-6 py-4 border-b">
+        <div>
+          <h3 id={titleId} className="text-xl font-bold text-[#0a2a52]">Manage Units</h3>
+          <p className="text-sm text-gray-600">{item.type} - {item.condition}</p>
         </div>
-        
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      
+      <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
+        <p id={descriptionId} className="text-sm text-gray-600 mb-4">Adjust unit availability by renting, returning, or removing units.</p>
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-gray-50 p-4 rounded border">
             <div className="text-sm text-gray-600">Total Units</div>
@@ -372,11 +401,10 @@ function UnitManagementModal({ item, onClose, onUpdate }){
             </div>
           </div>
         </div>
-        
-        <div className="mt-6 pt-4 border-t flex justify-end">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Close</button>
-        </div>
       </div>
-    </div>
+      <div className="px-6 py-4 border-t flex justify-end">
+        <button onClick={onClose} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Close</button>
+      </div>
+    </StandardModal>
   )
 }

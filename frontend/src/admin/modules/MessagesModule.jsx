@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId, useCallback } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
+import StandardModal from '../../components/StandardModal'
 import { API_BASE } from '../../config'
 import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
 
@@ -12,8 +13,10 @@ export default function MessagesModule(){
   const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const [selected, setSelected] = useState(null)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
+  const detailTitleId = useId()
+  const detailDescriptionId = useId()
 
-  async function load(){
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try{
@@ -33,9 +36,9 @@ export default function MessagesModule(){
       }
     }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
-  }
+  }, [token])
 
-  useEffect(()=>{ load() },[])
+  useEffect(()=>{ load() },[load])
 
   return (
     <div className="p-6">
@@ -143,18 +146,23 @@ export default function MessagesModule(){
       )}
 
       {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold">Message Details</h3>
-              <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
-            </div>
+        <StandardModal
+          panelClassName="max-w-2xl w-full"
+          onClose={() => setSelected(null)}
+          labelledBy={detailTitleId}
+          describedBy={detailDescriptionId}
+        >
+          <div className="flex items-start justify-between px-6 py-4 border-b">
+            <h3 id={detailTitleId} className="text-lg font-bold">Message Details</h3>
+            <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
             {(() => {
               const display = ensureSubmissionDisplay(selected, { formLabel: 'Contact Message', submittedAtKey: 'createdAt' })
               return (
                 <>
                   <SubmissionMeta display={display} />
-                  <p className="mt-3 text-sm text-gray-600">All fields submitted by the customer are listed below.</p>
+                  <p id={detailDescriptionId} className="mt-3 text-sm text-gray-600">All fields submitted by the customer are listed below.</p>
                   <SubmissionFieldList display={display} />
                   <div className="mt-6">
                     <div className="font-semibold text-gray-700">Status</div>
@@ -167,11 +175,11 @@ export default function MessagesModule(){
                 </>
               )
             })()}
-            <div className="mt-6 flex justify-end">
-              <button onClick={() => setSelected(null)} className="px-4 py-2 bg-[#e84424] text-white rounded">Close</button>
-            </div>
           </div>
-        </div>
+          <div className="px-6 py-4 border-t flex justify-end">
+            <button onClick={() => setSelected(null)} className="px-4 py-2 bg-[#e84424] text-white rounded">Close</button>
+          </div>
+        </StandardModal>
       )}
     </div>
   )

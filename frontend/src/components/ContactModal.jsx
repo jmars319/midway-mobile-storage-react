@@ -1,8 +1,8 @@
-import React, { useState, useRef, useId, useCallback } from 'react'
+import React, { useState, useId, useCallback } from 'react'
 import { showToast } from './Toast'
 import { API_BASE } from '../config'
 import { useCsrfToken } from '../hooks/useCsrfToken'
-import { useFocusTrap } from '../hooks/useFocusTrap'
+import StandardModal from './StandardModal'
 
 export default function ContactModal({ onClose, id = 'contact-modal' }){
   const [name, setName] = useState('')
@@ -12,7 +12,6 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
   const [loading, setLoading] = useState(false)
   const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
-  const dialogRef = useRef(null)
   const labelId = useId()
   const descriptionId = useId()
 
@@ -20,12 +19,6 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
     if (!force && loading) return
     onClose && onClose()
   }, [loading, onClose])
-
-  useFocusTrap({ isActive: true, containerRef: dialogRef, onClose: handleClose })
-
-  const handleOverlayClick = (event) => {
-    if (event.target === event.currentTarget) handleClose()
-  }
 
   const submit = async (e) => {
     e.preventDefault()
@@ -65,27 +58,23 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onMouseDown={handleOverlayClick} role="presentation">
-      <div
-        ref={dialogRef}
-        id={id}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={labelId}
-        aria-describedby={descriptionId}
-        tabIndex="-1"
-        className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 focus:outline-none"
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 id={labelId} className="text-lg font-bold">Contact Us</h3>
-            <p className="text-sm text-gray-500 mt-1">We typically respond within one business day.</p>
-          </div>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 rounded" disabled={loading} aria-label="Close contact form">✕</button>
+    <StandardModal
+      onClose={handleClose}
+      labelledBy={labelId}
+      describedBy={descriptionId}
+      panelProps={{ id }}
+      panelClassName="max-w-lg w-full focus:outline-none"
+    >
+      <div className="flex items-start justify-between px-6 py-4 border-b">
+        <div>
+          <h3 id={labelId} className="text-lg font-bold">Contact Us</h3>
+          <p className="text-sm text-gray-500 mt-1">We typically respond within one business day.</p>
         </div>
+        <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 rounded" disabled={loading} aria-label="Close contact form">✕</button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
         <p id={descriptionId} className="sr-only">Use this form to contact Midway Mobile Storage. Required fields are marked with an asterisk.</p>
-
-        <form onSubmit={submit} className="mt-4 grid gap-3" aria-label="Contact form">
+        <form onSubmit={submit} className="grid gap-3" aria-label="Contact form">
           <div className="sr-only" aria-hidden="true">
             <label>
               Website
@@ -126,6 +115,6 @@ export default function ContactModal({ onClose, id = 'contact-modal' }){
           </div>
         </form>
       </div>
-    </div>
+    </StandardModal>
   )
 }

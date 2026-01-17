@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId, useCallback } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
+import StandardModal from '../../components/StandardModal'
 import { API_BASE } from '../../config'
 import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
 
@@ -18,8 +19,10 @@ export default function OrdersModule(){
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
+  const detailTitleId = useId()
+  const detailDescriptionId = useId()
 
-  async function load(){
+  const load = useCallback(async () => {
     setLoading(true); setError(null)
     try{
       const res = await fetch(`${API_BASE}/orders`, { headers: { Authorization: `Bearer ${token}` }})
@@ -35,9 +38,9 @@ export default function OrdersModule(){
       } else setError('Failed to load orders')
     }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
-  }
+  }, [token])
 
-  useEffect(()=>{ load() },[])
+  useEffect(()=>{ load() },[load])
 
   return (
     <div className="p-6">
@@ -122,18 +125,23 @@ export default function OrdersModule(){
       )}
 
       {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold">Order: {selected.customer_name}</h3>
-              <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
-            </div>
+        <StandardModal
+          panelClassName="max-w-md w-full"
+          onClose={()=>setSelected(null)}
+          labelledBy={detailTitleId}
+          describedBy={detailDescriptionId}
+        >
+          <div className="flex items-start justify-between px-6 py-4 border-b">
+            <h3 id={detailTitleId} className="text-lg font-bold">Order: {selected.customer_name}</h3>
+            <button onClick={()=>setSelected(null)} className="text-gray-500">Close</button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
             {(() => {
               const display = ensureSubmissionDisplay(selected, { formLabel: 'PanelSeal Order', submittedAtKey: 'created_at' })
               return (
                 <>
                   <SubmissionMeta display={display} />
-                  <p className="mt-3 text-sm text-gray-600">Important contact and product information appears first.</p>
+                  <p id={detailDescriptionId} className="mt-3 text-sm text-gray-600">Important contact and product information appears first.</p>
                   <SubmissionFieldList display={display} />
                   <div className="mt-6">
                     <div className="font-semibold text-gray-700">Status</div>
@@ -153,9 +161,11 @@ export default function OrdersModule(){
                 </>
               )
             })()}
-            <div className="mt-4 text-right"><button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button></div>
           </div>
-        </div>
+          <div className="px-6 py-4 border-t flex justify-end">
+            <button onClick={()=>setSelected(null)} className="px-3 py-1 bg-[#e84424] text-white rounded">Close</button>
+          </div>
+        </StandardModal>
       )}
     </div>
   )

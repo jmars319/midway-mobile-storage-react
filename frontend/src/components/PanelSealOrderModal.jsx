@@ -1,15 +1,14 @@
-import React, { useState, useRef, useId, useCallback } from 'react'
+import React, { useState, useId, useCallback } from 'react'
 import { showToast } from './Toast'
 import { API_BASE } from '../config'
 import { useCsrfToken } from '../hooks/useCsrfToken'
-import { useFocusTrap } from '../hooks/useFocusTrap'
+import StandardModal from './StandardModal'
 
 export default function PanelSealOrderModal({ open, onClose }){
   const [form, setForm] = useState({ name:'', email:'', phone:'', address:'', gallons: '', notes: '' })
   const [submitting, setSubmitting] = useState(false)
   const [spamGuard, setSpamGuard] = useState('')
   const { token: csrfToken } = useCsrfToken()
-  const dialogRef = useRef(null)
   const labelId = useId()
   const descriptionId = useId()
 
@@ -17,12 +16,6 @@ export default function PanelSealOrderModal({ open, onClose }){
     if (!force && submitting) return
     onClose && onClose()
   }, [submitting, onClose])
-
-  useFocusTrap({ isActive: Boolean(open), containerRef: dialogRef, onClose: handleClose })
-
-  const handleOverlayClick = (event) => {
-    if (event.target === event.currentTarget) handleClose()
-  }
 
   if (!open) return null
 
@@ -72,22 +65,19 @@ export default function PanelSealOrderModal({ open, onClose }){
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onMouseDown={handleOverlayClick} role="presentation">
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={labelId}
-        aria-describedby={descriptionId}
-        tabIndex="-1"
-        className="bg-white rounded-lg shadow-lg max-w-xl w-full p-6 focus:outline-none"
-      >
-        <div className="flex items-start justify-between">
-          <h3 id={labelId} className="text-lg font-bold">Order PanelSeal</h3>
-          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 rounded" aria-label="Close order form" disabled={submitting}>✕</button>
-        </div>
+    <StandardModal
+      onClose={handleClose}
+      labelledBy={labelId}
+      describedBy={descriptionId}
+      panelClassName="max-w-xl w-full focus:outline-none"
+    >
+      <div className="flex items-start justify-between px-6 py-4 border-b">
+        <h3 id={labelId} className="text-lg font-bold">Order PanelSeal</h3>
+        <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 rounded" aria-label="Close order form" disabled={submitting}>✕</button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
         <p id={descriptionId} className="sr-only">Place a PanelSeal order request. Required fields are marked with an asterisk.</p>
-        <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3" aria-label="PanelSeal order form">
+        <form onSubmit={submit} className="grid grid-cols-1 gap-3" aria-label="PanelSeal order form">
           <div className="sr-only" aria-hidden="true">
             <label>
               Website
@@ -141,6 +131,6 @@ export default function PanelSealOrderModal({ open, onClose }){
           </div>
         </form>
       </div>
-    </div>
+    </StandardModal>
   )
 }

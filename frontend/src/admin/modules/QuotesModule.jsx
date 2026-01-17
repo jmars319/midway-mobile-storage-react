@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useId, useCallback } from 'react'
 import { showToast } from '../../components/Toast'
 import ConfirmModal from '../../components/ConfirmModal'
+import StandardModal from '../../components/StandardModal'
 import { API_BASE } from '../../config'
 import { decodeHtmlEntities } from '../../utils/htmlEntities'
 import { SubmissionMeta, SubmissionFieldList, SubmissionAttachments, SubmissionRawPayload, ensureSubmissionDisplay } from '../components/SubmissionDisplay'
@@ -37,8 +38,10 @@ export default function QuotesModule(){
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
+  const detailTitleId = useId()
+  const detailDescriptionId = useId()
 
-  async function load(){
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try{
@@ -59,9 +62,9 @@ export default function QuotesModule(){
       }
     }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
     setLoading(false)
-  }
+  }, [token])
 
-  useEffect(()=>{ load() },[])
+  useEffect(()=>{ load() },[load])
 
   return (
     <div className="p-6">
@@ -160,73 +163,78 @@ export default function QuotesModule(){
 
       {/* Detail view modal */}
       {selected && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold">Quote Request Details</h3>
-              <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
-            </div>
+        <StandardModal
+          panelClassName="max-w-2xl w-full"
+          onClose={() => setSelected(null)}
+          labelledBy={detailTitleId}
+          describedBy={detailDescriptionId}
+        >
+          <div className="flex items-start justify-between px-6 py-4 border-b">
+            <h3 id={detailTitleId} className="text-lg font-bold">Quote Request Details</h3>
+            <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
             {(() => {
               const display = ensureSubmissionDisplay(selected, { formLabel: 'Quote Request', submittedAtKey: 'createdAt' })
               return (
                 <>
                   <SubmissionMeta display={display} />
-                  <p className="mt-3 text-sm text-gray-600">Details below are fully decoded for easy reading.</p>
+                  <p id={detailDescriptionId} className="mt-3 text-sm text-gray-600">Details below are fully decoded for easy reading.</p>
                   <SubmissionFieldList display={display} />
                   <div className="mt-6">
                     <div className="font-semibold text-gray-700">Status</div>
                     <button
-                  onClick={async () => {
-                    const newStatus = selected.status === 'responded' ? 'pending' : 'responded'
-                    try {
-                      const res = await fetch(`${API_BASE}/quotes`, {
-                        method: 'PUT',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ id: selected.id, status: newStatus })
-                      })
-                      if (res.ok) {
-                        const j = await res.json()
-                        const updatedQuote = decodeQuoteFields(j.quote)
-                        setSelected(updatedQuote)
-                        setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? updatedQuote : q))
-                        showToast('Status updated', { type: 'success' })
-                      } else {
-                        showToast('Status update failed', { type: 'error' })
-                      }
-                    } catch (e) {
-                      if (import.meta.env.DEV) console.error(e)
-                      showToast('Status update error', { type: 'error' })
-                    }
-                  }}
-                  className={`px-3 py-1 rounded-full text-sm ${selected.status === 'responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-                >
-                  {selected.status || 'pending'}
-                </button>
+                      onClick={async () => {
+                        const newStatus = selected.status === 'responded' ? 'pending' : 'responded'
+                        try {
+                          const res = await fetch(`${API_BASE}/quotes`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ id: selected.id, status: newStatus })
+                          })
+                          if (res.ok) {
+                            const j = await res.json()
+                            const updatedQuote = decodeQuoteFields(j.quote)
+                            setSelected(updatedQuote)
+                            setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? updatedQuote : q))
+                            showToast('Status updated', { type: 'success' })
+                          } else {
+                            showToast('Status update failed', { type: 'error' })
+                          }
+                        } catch (e) {
+                          if (import.meta.env.DEV) console.error(e)
+                          showToast('Status update error', { type: 'error' })
+                        }
+                      }}
+                      className={`px-3 py-1 rounded-full text-sm ${selected.status === 'responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                    >
+                      {selected.status || 'pending'}
+                    </button>
                   </div>
                   <SubmissionAttachments display={display} />
                   <SubmissionRawPayload payload={display?.raw || selected} />
                 </>
               )
             })()}
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => navigator.clipboard.writeText(JSON.stringify(selected, null, 2))}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
-              >
-                Copy JSON
-              </button>
-              <button
-                onClick={() => setSelected(null)}
-                className="px-4 py-2 bg-[#e84424] text-white rounded"
-              >
-                Close
-              </button>
-            </div>
           </div>
-        </div>
+          <div className="px-6 py-4 border-t flex justify-end gap-3">
+            <button
+              onClick={() => navigator.clipboard.writeText(JSON.stringify(selected, null, 2))}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+            >
+              Copy JSON
+            </button>
+            <button
+              onClick={() => setSelected(null)}
+              className="px-4 py-2 bg-[#e84424] text-white rounded"
+            >
+              Close
+            </button>
+          </div>
+        </StandardModal>
       )}
     </div>
   )
