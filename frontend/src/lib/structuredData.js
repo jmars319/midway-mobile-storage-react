@@ -90,11 +90,15 @@ export function generateStructuredData(settings) {
         "@id": `${siteUrl}/#website`,
         "url": siteUrl,
         "name": settings.businessName || "Midway Mobile Storage",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${siteUrl}/?s={search_term_string}`,
-          "query-input": "required name=search_term_string"
-        }
+        "publisher": { "@id": `${siteUrl}/#org` }
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${siteUrl}/#homepage`,
+        "url": siteUrl,
+        "name": "Midway Mobile Storage — Portable Storage & Container Rentals",
+        "description": "Winston-Salem, NC portable storage containers, rentals & delivery. Secure, weather-resistant solutions for residential and commercial needs.",
+        "isPartOf": { "@id": `${siteUrl}/#website` }
       },
       {
         "@type": "FAQPage",

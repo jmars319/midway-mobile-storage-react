@@ -1,4 +1,7 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /login
+Disallow: /api
+Disallow: /cdn-cgi/
 
 Sitemap: https://midwaymobilestorage.com/sitemap.xml
