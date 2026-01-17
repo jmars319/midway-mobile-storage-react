@@ -97,7 +97,7 @@ select:-webkit-autofill {
 | **Session Security** | ✅ | HttpOnly, Secure (HTTPS), SameSite=Lax |
 | **Token Validation** | ✅ | Signature + expiration checks |
 
-**Code Evidence** (`php-backend/utils.php` lines 206-230):
+**Code Evidence** (`backend/utils.php` lines 206-230):
 ```php
 function verifyToken($token) {
     // Validate algorithm to prevent algorithm confusion attacks
@@ -121,14 +121,14 @@ function verifyToken($token) {
 | **Email Validation** | ✅ | `filter_var()` with FILTER_VALIDATE_EMAIL |
 | **Input Length Limits** | ✅ | `validateAndSanitize()` enforces max lengths |
 
-**Code Evidence** (`php-backend/utils.php` line 46):
+**Code Evidence** (`backend/utils.php` line 46):
 ```php
 function sanitizeInput($input) {
     return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
 }
 ```
 
-**CSRF Token Validation** (`php-backend/api/quotes.php` example):
+**CSRF Token Validation** (`backend/api/quotes.php` example):
 ```php
 if (!validateCsrfToken($data['csrf_token'] ?? '')) {
     jsonResponse(['error' => 'Invalid CSRF token'], 403);
@@ -144,7 +144,7 @@ if (!validateCsrfToken($data['csrf_token'] ?? '')) {
 | **Response Code** | 429 (Too Many Requests) | ✅ |
 | **Retry-After Header** | Yes | ✅ |
 
-**Code Evidence** (`php-backend/utils.php` lines 113-143):
+**Code Evidence** (`backend/utils.php` lines 113-143):
 ```php
 function checkRateLimit($key, $limit = 50, $window = 900) {
     $clientIP = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
@@ -166,7 +166,7 @@ function checkRateLimit($key, $limit = 50, $window = 900) {
 | **Permissions-Policy** | Restricts geolocation, mic, camera | ✅ |
 | **CORS** | Whitelisted origins only | ✅ |
 
-**Code Evidence** (`php-backend/utils.php` lines 18-23):
+**Code Evidence** (`backend/utils.php` lines 18-23):
 ```php
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
@@ -208,7 +208,7 @@ header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 | `site_settings` | (none needed) | Single-row table |
 | `admin_users` | username | Login lookups |
 
-**Query Analysis** (sampled from `php-backend/api/`):
+**Query Analysis** (sampled from `backend/api/`):
 ```php
 // ✅ GOOD: Uses indexed status column
 "SELECT COUNT(*) FROM quotes WHERE status = 'new'"
@@ -468,8 +468,8 @@ try {
 
 ### Configuration for Production
 - [ ] Uncomment production API_BASE in `frontend/src/config.js`
-- [ ] Update `ALLOWED_ORIGINS` in `php-backend/config.php` (remove localhost)
-- [ ] Set `DEBUG_MODE = false` in `php-backend/config.php`
+- [ ] Update `ALLOWED_ORIGINS` in `backend/config.php` (remove localhost)
+- [ ] Set `DEBUG_MODE = false` in `backend/config.php`
 - [ ] Generate new `JWT_SECRET` (use environment variable)
 - [ ] Export database with current data: `mysqldump -u midway -p midway_storage > production-export.sql`
 - [ ] Build frontend: `cd frontend && npm run build`

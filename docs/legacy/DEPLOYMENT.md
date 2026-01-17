@@ -96,7 +96,7 @@ npm run build
 
 **⚠️ CRITICAL**: You'll need database credentials from Step 2 first. **STOP HERE** and complete Step 2.1-2.5 to get your database name, username, and password. Then come back here.
 
-1. Open file: `php-backend/config.php`
+1. Open file: `backend/config.php`
 
 2. Find these lines and update them (around lines 8-11):
 ```php
@@ -171,7 +171,7 @@ define('DEBUG_MODE', false);
 **WHAT**: Save all your current data (quotes, settings, admin account, etc.)
 
 ```bash
-cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/php-backend
+cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/backend
 mysqldump -u midway -p midway_storage > production-export.sql
 ```
 
@@ -179,7 +179,7 @@ mysqldump -u midway -p midway_storage > production-export.sql
 
 ⏳ **WAIT** 2-5 seconds
 
-✅ **YOU SHOULD SEE**: File `production-export.sql` created in `php-backend/` folder
+✅ **YOU SHOULD SEE**: File `production-export.sql` created in `backend/` folder
 ✅ **CHECK**: File size should be at least 10 KB (right-click file → Get Info)
 
 ❌ **IF COMMAND FAILS** with "command not found":
@@ -207,11 +207,11 @@ Complete these steps every time you deploy. They only take a few minutes and ens
 
 1. **Confirm submission JSON files are NOT publicly accessible**
    - Try opening URLs like:
-     - `https://midwaymobilestorage.com/php-backend/storage/submissions/demo/test.json`
+     - `https://midwaymobilestorage.com/backend/storage/submissions/demo/test.json`
      - `https://midwaymobilestorage.com/storage/submissions/demo/test.json`
      - `https://midwaymobilestorage.com/api/storage/submissions/demo/test.json`
    - ✅ Expected: each returns 403 or 404 (never download a JSON file).
-   - ❌ If a file downloads, stop deployment and verify the `.htaccess` file inside `php-backend/storage/` exists and denies access.
+   - ❌ If a file downloads, stop deployment and verify the `.htaccess` file inside `backend/storage/` exists and denies access.
 
 2. **Keep outgoing email disabled until ready**
    - Leave `SEND_EMAILS=false` until you intentionally test live notifications.
@@ -334,7 +334,7 @@ Complete these steps every time you deploy. They only take a few minutes and ens
 
 2. **CLICK**: "Choose File" button (or "Browse..." button)
 
-3. **NAVIGATE TO**: Your computer → Documents → Website Projects → Current → midway-mobile-storage-react → php-backend
+3. **NAVIGATE TO**: Your computer → Documents → Website Projects → Current → midway-mobile-storage-react → backend
 
 4. **SELECT**: File named: production-export.sql
 
@@ -354,7 +354,7 @@ Complete these steps every time you deploy. They only take a few minutes and ens
 ❌ **IF YOU SEE** red error about file size:
 ```bash
 # On YOUR COMPUTER terminal, compress the file:
-cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/php-backend
+cd /Users/jason_marshall/JAMARQ/Family/MidwayStorage/midway-mobile-storage-react/backend
 gzip production-export.sql
 ```
 - This creates: production-export.sql.gz
@@ -398,7 +398,7 @@ gzip production-export.sql
 If you prefer to start fresh without importing existing data:
 
 1. In phpMyAdmin, click "Import" tab
-2. Choose file: `php-backend/schema.sql` instead of production-export.sql
+2. Choose file: `backend/schema.sql` instead of production-export.sql
 3. Click "Import" button
 4. After import, click "admin_users" table
 5. Click "Insert" tab
@@ -506,7 +506,7 @@ If you prefer to start fresh without importing existing data:
 1. **CLICK**: "Upload" button
 
 2. **ON YOUR COMPUTER**: Navigate to:
-   - Documents → Website Projects → Current → midway-mobile-storage-react → php-backend
+   - Documents → Website Projects → Current → midway-mobile-storage-react → backend
 
 3. **SELECT AND UPLOAD** these files (one at a time or all together):
    - config.php (the one you edited in Step 1.3 - IMPORTANT!)
@@ -549,7 +549,7 @@ If you prefer to start fresh without importing existing data:
 1. **CLICK**: "Upload" button
 
 2. **ON YOUR COMPUTER**: Navigate to:
-   - Documents → Website Projects → Current → midway-mobile-storage-react → php-backend → api
+   - Documents → Website Projects → Current → midway-mobile-storage-react → backend → api
 
 3. **SELECT AND UPLOAD** these files (the main .php files):
    - router.php
@@ -587,7 +587,7 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 4. **CLICK**: "Create New Folder"
 5. **DOUBLE-CLICK**: auth folder
 6. **CLICK**: "Upload"
-7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/auth/
+7. **ON YOUR COMPUTER**: Navigate to: backend/api/auth/
 8. **UPLOAD**: login.php
 9. **GO BACK**: Click "Up One Level" button (or breadcrumb link to go back to public_html/midwaymobilestorage.com/api/api)
 
@@ -598,7 +598,7 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 4. **CLICK**: "Create New Folder"
 5. **DOUBLE-CLICK**: admin folder
 6. **CLICK**: "Upload"
-7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/admin/
+7. **ON YOUR COMPUTER**: Navigate to: backend/api/admin/
 8. **UPLOAD**: stats.php
 9. **GO BACK** to public_html/midwaymobilestorage.com/api/api
 
@@ -609,7 +609,7 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 4. **CLICK**: "Create New Folder"
 5. **DOUBLE-CLICK**: media folder
 6. **CLICK**: "Upload"
-7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/media/
+7. **ON YOUR COMPUTER**: Navigate to: backend/api/media/
 8. **UPLOAD**: tags.php
 9. **GO BACK** to public_html/midwaymobilestorage.com/api/api
 
@@ -620,7 +620,7 @@ Still need to upload the subfolders (auth/, admin/, media/, public/)
 4. **CLICK**: "Create New Folder"
 5. **DOUBLE-CLICK**: public folder
 6. **CLICK**: "Upload"
-7. **ON YOUR COMPUTER**: Navigate to: php-backend/api/public/
+7. **ON YOUR COMPUTER**: Navigate to: backend/api/public/
 8. **UPLOAD** all files:
    - hero.php
    - logo.php
@@ -1360,7 +1360,7 @@ public_html/midwaymobilestorage.com/api/api/router.php  ← MUST exist
 **Error**: "CORS error"
 - **Cause**: ALLOWED_ORIGINS wrong in config.php
 - **Fix**:
-  - Open php-backend/config.php
+  - Open backend/config.php
   - Verify ALLOWED_ORIGINS includes your domain
   - Re-upload config.php to public_html/midwaymobilestorage.com/api/
 
@@ -1606,10 +1606,10 @@ From Step 8.1 (Admin):
 
 ### Configuration Files
 - [ ] frontend/src/config.js → API_BASE = production URL
-- [ ] php-backend/config.php → DB credentials correct
-- [ ] php-backend/config.php → JWT_SECRET updated
-- [ ] php-backend/config.php → ALLOWED_ORIGINS = production only
-- [ ] php-backend/config.php → DEBUG_MODE = false
+- [ ] backend/config.php → DB credentials correct
+- [ ] backend/config.php → JWT_SECRET updated
+- [ ] backend/config.php → ALLOWED_ORIGINS = production only
+- [ ] backend/config.php → DEBUG_MODE = false
 
 ### Files Uploaded
 - [ ] Frontend files in public_html/midwaymobilestorage.com/

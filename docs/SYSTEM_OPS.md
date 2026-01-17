@@ -8,7 +8,7 @@
 Frontend:
 - VITE_API_BASE: base URL for API, ex: http://127.0.0.1:8000/api
 
-PHP Backend (php-backend/config.php):
+PHP Backend (backend/config.php):
 - DB_HOST, DB_USER, DB_PASS, DB_NAME
 - JWT_SECRET
 - ALLOWED_ORIGINS
@@ -17,7 +17,7 @@ PHP Backend (php-backend/config.php):
 - SEND_EMAILS and email config
 
 ## Security Headers
-Set in php-backend/utils.php:
+Set in backend/utils.php:
 - X-Frame-Options
 - X-Content-Type-Options
 - X-XSS-Protection

@@ -4,6 +4,6 @@
   "scripts": {
     "start": "npm --prefix frontend start",
     "start:frontend": "npm --prefix frontend start",
-    "start:backend": "npm --prefix backend run dev"
+    "start:backend": "scripts/dev-backend-start.sh"
   }
 }

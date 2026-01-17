@@ -4,7 +4,7 @@
 # Backend (PHP) server
 # BACKEND_HOST="127.0.0.1"
 # BACKEND_PORT="8000"
-# BACKEND_DIR="/absolute/path/to/php-backend"
+# BACKEND_DIR="/absolute/path/to/backend"
 
 # Frontend (Vite) server
 # FRONTEND_HOST="127.0.0.1"

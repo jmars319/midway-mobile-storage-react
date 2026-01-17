@@ -9,7 +9,7 @@
 ## Local Setup
 1) Install frontend dependencies:
    - scripts/dev-setup.sh
-2) Create php-backend/config.php (if not created):
+2) Create backend/config.php (if not created):
    - scripts/dev-setup.sh copies config.example.php when missing
 3) Set VITE_API_BASE for local dev:
    - export VITE_API_BASE=http://127.0.0.1:8000/api
@@ -36,8 +36,7 @@
 
 ## Repo Structure
 - frontend/: React + Vite client and admin UI
-- php-backend/: PHP REST API and MySQL integration
-- backend/: legacy Express server (deprecated)
+- backend/: PHP REST API and MySQL integration
 - scripts/: dev and deployment scripts
 - docs/: current documentation
 

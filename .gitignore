@@ -1,20 +1,15 @@
 copilot-instructions/
 
-# Backend (legacy Express - deprecated)
+# Backend (PHP)
 backend/.env
-backend/node_modules
-backend.log
-
-# PHP Backend (current)
-php-backend/.env
-php-backend/config.php
-php-backend/uploads/*
-!php-backend/uploads/.gitkeep
-php-backend/storage/*
-!php-backend/storage/.gitkeep
-!php-backend/storage/submissions/
-php-backend/storage/submissions/*
-!php-backend/storage/submissions/.gitkeep
+backend/config.php
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/storage/*
+!backend/storage/.gitkeep
+!backend/storage/submissions/
+backend/storage/submissions/*
+!backend/storage/submissions/.gitkeep
 
 # Frontend
 frontend/node_modules

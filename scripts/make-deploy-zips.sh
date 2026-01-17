@@ -25,7 +25,7 @@ FRONTEND_ZIP="$DEPLOY_DIR/deploy-frontend-$VERSION_TAG.zip"
 BACKEND_ZIP="$DEPLOY_DIR/deploy-backend-$VERSION_TAG.zip"
 
 FRONTEND_DIR="$ROOT_DIR/frontend"
-BACKEND_DIR="$ROOT_DIR/php-backend"
+BACKEND_DIR="$ROOT_DIR/backend"
 
 mkdir -p "$DEPLOY_DIR" "$STAGING_DIR"
 
@@ -80,7 +80,7 @@ fi
 
 if [ -f "$BACKEND_DIR/config.php" ]; then
   cp "$BACKEND_DIR/config.php" "$STAGING_DIR/backend/config.php"
-  log_warn "Included php-backend/config.php in backend zip. Verify secrets before sharing."
+  log_warn "Included backend/config.php in backend zip. Verify secrets before sharing."
 else
   log_warn "config.php not found. Using config.example.php only."
 fi

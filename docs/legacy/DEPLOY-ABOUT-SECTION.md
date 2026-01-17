@@ -92,15 +92,15 @@ npm run build
 - ✅ Proper output decoding
 
 ### Files Modified:
-- `php-backend/schema.sql`
-- `php-backend/utils.php`
-- `php-backend/api/settings.php`
-- `php-backend/api/public/settings.php`
+- `backend/schema.sql`
+- `backend/utils.php`
+- `backend/api/settings.php`
+- `backend/api/public/settings.php`
 - `frontend/src/admin/modules/SiteSettingsModule.jsx`
 - `frontend/src/components/AboutSection.jsx`
 
 ### Files Created:
-- `php-backend/migrations/add_about_section_fields.sql`
+- `backend/migrations/add_about_section_fields.sql`
 
 ---
 

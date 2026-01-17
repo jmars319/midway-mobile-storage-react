@@ -2,8 +2,7 @@
 
 ## System Map
 - Frontend: React 18 + Vite + Tailwind (frontend/)
-- Backend (active): PHP 8 REST API with MySQL (php-backend/)
-- Backend (legacy): Node/Express demo API (backend/)
+- Backend (active): PHP 8 REST API with MySQL (backend/)
 - Admin UI: Single-page admin inside frontend/ (lazy loaded)
 
 ## Runtime Flow

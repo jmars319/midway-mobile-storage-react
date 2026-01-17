@@ -95,11 +95,11 @@ Upload from `frontend/dist/` to `public_html/midwaymobilestorage.com/`:
 - ✅ Output decoding for proper display
 
 ### Files Changed:
-- `php-backend/schema.sql` - Added About fields
-- `php-backend/migrations/add_about_section_fields.sql` - Migration script
-- `php-backend/api/settings.php` - Handle About fields in admin API
-- `php-backend/api/public/settings.php` - Serve About fields to public
-- `php-backend/utils.php` - Added decodeOutput() function
+- `backend/schema.sql` - Added About fields
+- `backend/migrations/add_about_section_fields.sql` - Migration script
+- `backend/api/settings.php` - Handle About fields in admin API
+- `backend/api/public/settings.php` - Serve About fields to public
+- `backend/utils.php` - Added decodeOutput() function
 - `frontend/src/admin/modules/SiteSettingsModule.jsx` - About section form
 - `frontend/src/components/AboutSection.jsx` - Dynamic About content
 

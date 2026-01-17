@@ -16,7 +16,7 @@ Use Vercel for the React/Vite frontend. The PHP API must be hosted on a PHP-capa
 - Optional: scripts/dev-lint.sh and scripts/dev-test.sh if scripts exist.
 
 ## Backend Deployment (PHP)
-- Deploy php-backend/ to a PHP 8 host with MySQL.
+- Deploy backend/ to a PHP 8 host with MySQL.
 - Copy config.example.php to config.php and set production values.
 - Ensure api/.htaccess and storage/.htaccess are present on the server.
 - Verify /api/health returns status ok.

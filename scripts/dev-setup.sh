@@ -23,9 +23,9 @@ log_success "Frontend dependencies installed"
 if [ ! -f "$BACKEND_DIR/config.php" ]; then
   if [ -f "$BACKEND_DIR/config.example.php" ]; then
     cp "$BACKEND_DIR/config.example.php" "$BACKEND_DIR/config.php"
-    log_warn "Created php-backend/config.php from config.example.php. Review values before use."
+    log_warn "Created backend/config.php from config.example.php. Review values before use."
   else
-    log_warn "config.example.php not found. Skipping php-backend/config.php creation."
+    log_warn "config.example.php not found. Skipping backend/config.php creation."
   fi
 fi
 

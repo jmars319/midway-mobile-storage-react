@@ -5,7 +5,6 @@ Production website and admin UI for Midway Mobile Storage.
 ## Overview
 - Frontend: React 18 + Vite + Tailwind
 - Backend: PHP 8 REST API + MySQL (active)
-- Legacy backend: Node/Express (backend/)
 
 ## Start Here
 - docs/README.md
