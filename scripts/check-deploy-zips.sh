@@ -17,7 +17,7 @@ source "$SCRIPT_DIR/script-utils.sh"
 require_cmd zipinfo
 require_cmd rg
 
-DEPLOY_DIR="$ROOT_DIR/deploy"
+DEPLOY_DIR="$ROOT_DIR"
 
 frontend_zip="${FRONTEND_ZIP:-}"
 backend_zip="${BACKEND_ZIP:-}"

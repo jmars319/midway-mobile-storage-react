@@ -22,8 +22,9 @@ scripts/.pids
 scripts/.logs
 
 # Deploy artifacts
-deploy/.staging
-deploy/*.zip
+.staging
+deploy-frontend.zip
+deploy-backend.zip
 
 # OS files
 .DS_Store

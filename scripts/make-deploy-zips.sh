@@ -18,7 +18,7 @@ require_cmd npm
 require_cmd zip
 require_cmd rsync
 
-DEPLOY_DIR="$ROOT_DIR/deploy"
+DEPLOY_DIR="$ROOT_DIR"
 STAGING_DIR="$DEPLOY_DIR/.staging"
 FRONTEND_ZIP="${FRONTEND_ZIP:-$DEPLOY_DIR/deploy-frontend.zip}"
 BACKEND_ZIP="${BACKEND_ZIP:-$DEPLOY_DIR/deploy-backend.zip}"
