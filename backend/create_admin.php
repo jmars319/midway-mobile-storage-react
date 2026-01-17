@@ -12,6 +12,9 @@ require_once __DIR__ . '/database.php';
 // Configuration
 $username = 'admin';
 $password = 'admin123'; // Change this to your desired password
+$email = 'admin@midwaymobilestorage.com';
+$fullName = 'System Administrator';
+$isActive = 1;
 
 try {
     $db = Database::getInstance();
@@ -21,8 +24,12 @@ try {
         CREATE TABLE IF NOT EXISTS admin_users (
             id INT PRIMARY KEY AUTO_INCREMENT,
             username VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            password_hash VARCHAR(255) NOT NULL,
+            email VARCHAR(100) NOT NULL UNIQUE,
+            full_name VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP NULL DEFAULT NULL,
+            is_active TINYINT(1) DEFAULT 1
         )
     ");
     
@@ -35,15 +42,15 @@ try {
     if ($stmt->fetch()) {
         // Update existing user
         $db->query(
-            "UPDATE admin_users SET password = ? WHERE username = ?",
-            [$hashedPassword, $username]
+            "UPDATE admin_users SET password_hash = ?, email = ?, full_name = ?, is_active = ? WHERE username = ?",
+            [$hashedPassword, $email, $fullName, $isActive, $username]
         );
         echo "Admin user updated successfully!\n";
     } else {
         // Insert new user
         $db->query(
-            "INSERT INTO admin_users (username, password) VALUES (?, ?)",
-            [$username, $hashedPassword]
+            "INSERT INTO admin_users (username, password_hash, email, full_name, is_active) VALUES (?, ?, ?, ?, ?)",
+            [$username, $hashedPassword, $email, $fullName, $isActive]
         );
         echo "Admin user created successfully!\n";
     }
