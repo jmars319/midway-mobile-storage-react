@@ -7,7 +7,7 @@
 
 ## Verbatim Appendix
 
-### copilot-instructions/00_START_HERE.md
+### 00_START_HERE.md
 
 ```markdown
 # Midway Mobile Storage - GitHub Copilot Instructions
@@ -302,7 +302,7 @@ Your implementation is complete when:
 **Good luck! Build something awesome! 🎉**
 ```
 
-### copilot-instructions/01_PROJECT_OVERVIEW.md
+### 01_PROJECT_OVERVIEW.md
 
 ```markdown
 # Midway Mobile Storage - Project Overview
@@ -393,7 +393,7 @@ MySQL database named `midway_storage` with tables:
 - CORS enabled for local development
 ```
 
-### copilot-instructions/02_BACKEND_SETUP.md
+### 02_BACKEND_SETUP.md
 
 ```markdown
 # Backend Setup Instructions
@@ -521,7 +521,7 @@ Midway Mobile Storage API running on http://localhost:5001
 ```
 ```
 
-### copilot-instructions/03_FRONTEND_SETUP.md
+### 03_FRONTEND_SETUP.md
 
 ```markdown
 # Frontend Setup Instructions
@@ -620,7 +620,7 @@ npm start
 Opens at `http://localhost:3000`
 ```
 
-### copilot-instructions/04_APP_STRUCTURE.md
+### 04_APP_STRUCTURE.md
 
 ```markdown
 # App.js Structure
@@ -781,7 +781,7 @@ export default function App() {
 - Error handling in try/catch blocks
 ```
 
-### copilot-instructions/05_NAVBAR_COMPONENT.md
+### 05_NAVBAR_COMPONENT.md
 
 ```markdown
 # NavBar Component
@@ -879,7 +879,7 @@ function NavBar({ onLoginClick }) {
 - Box shadow: `shadow-lg`
 ```
 
-### copilot-instructions/06_PUBLIC_SECTIONS.md
+### 06_PUBLIC_SECTIONS.md
 
 ```markdown
 # Public Website Sections
@@ -1067,7 +1067,7 @@ All sections must use:
 - Proper contrast for accessibility
 ```
 
-### copilot-instructions/07_ADMIN_PANEL.md
+### 07_ADMIN_PANEL.md
 
 ```markdown
 # Admin Panel Components
@@ -1352,7 +1352,7 @@ const orders = [
 ---
 ```
 
-### copilot-instructions/08_STYLING_GUIDE.md
+### 08_STYLING_GUIDE.md
 
 ```markdown
 # Styling Guide
@@ -1661,7 +1661,7 @@ Mark with asterisk in label:
 - ✅ All text has proper contrast
 ```
 
-### copilot-instructions/09_IMPLEMENTATION_ORDER.md
+### 09_IMPLEMENTATION_ORDER.md
 
 ```markdown
 # Implementation Order
@@ -1983,7 +1983,7 @@ curl -X POST http://localhost:5001/api/login \
 - [ ] Colors match brand guidelines
 ```
 
-### copilot-instructions/COPILOT_FILES_SUMMARY.md
+### COPILOT_FILES_SUMMARY.md
 
 ```markdown
 # GitHub Copilot Instruction Files - Summary
@@ -2051,7 +2051,7 @@ I've created **10 markdown files** that you can provide to GitHub Copilot to gui
 ## 🎯 How to Use These Files with GitHub Copilot
 
 ### Option 1: All at Once (Recommended)
-1. Create a folder called `docs/` or `copilot-instructions/`
+1. Create a folder called `docs/`
 2. Copy all 10 markdown files into it
 3. Open your IDE with Copilot
 4. Tell Copilot: "Read all files in the docs/ folder and help me build this project"
@@ -2307,7 +2307,7 @@ component with mobile menu functionality and exact brand colors."
 ## 📦 File Delivery Options
 
 ### Option A: GitHub Repository
-1. Create `docs/copilot-instructions/` folder
+1. Create `docs/` folder
 2. Add all 10 .md files
 3. Commit and push
 4. Tell Copilot to read from that folder

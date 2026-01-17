@@ -30,5 +30,4 @@ Use Vercel for the React/Vite frontend. The PHP API must be hosted on a PHP-capa
 Outputs go to deploy/ as deploy-frontend-<timestamp>.zip and deploy-backend-<timestamp>.zip.
 
 ## Legacy Appendix
-Historical cPanel deployment steps and the About-section migration guide are archived in docs/legacy/.
-Use them only for reference when migrating an existing GoDaddy deployment.
+Historical cPanel deployment steps are no longer bundled in this repository.

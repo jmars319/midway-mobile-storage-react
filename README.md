@@ -17,4 +17,4 @@ Production website and admin UI for Midway Mobile Storage.
 - scripts/dev-status.sh
 
 ## Notes
-Legacy deployment notes and audits are in docs/legacy/.
+Primary documentation lives in docs/.
