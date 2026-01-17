@@ -6,6 +6,7 @@ backend/config.php
 backend/uploads/*
 !backend/uploads/.gitkeep
 backend/storage/*
+!backend/storage/.htaccess
 !backend/storage/.gitkeep
 !backend/storage/submissions/
 backend/storage/submissions/*

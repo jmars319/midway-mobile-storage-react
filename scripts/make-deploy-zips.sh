@@ -63,6 +63,8 @@ mkdir -p "$STAGING_DIR/backend/uploads" "$STAGING_DIR/backend/storage" "$STAGING
 
 if [ -f "$BACKEND_DIR/uploads/media.json" ]; then
   cp "$BACKEND_DIR/uploads/media.json" "$STAGING_DIR/backend/uploads/"
+else
+  printf "{}\n" > "$STAGING_DIR/backend/uploads/media.json"
 fi
 if [ -f "$BACKEND_DIR/uploads/.gitkeep" ]; then
   cp "$BACKEND_DIR/uploads/.gitkeep" "$STAGING_DIR/backend/uploads/"
