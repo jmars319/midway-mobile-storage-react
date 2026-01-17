@@ -14,6 +14,8 @@ export default function SiteSettingsModule() {
     country: 'US',
     hours: '',
     siteUrl: '',
+    mapEmbedUrl: '',
+    mapEmbedEnabled: false,
     aboutTitle: 'About Midway Mobile Storage',
     aboutSubtitle: 'Serving Winston-Salem and the Triad Area',
     aboutSinceYear: '1989',
@@ -46,6 +48,8 @@ export default function SiteSettingsModule() {
             country: data.settings.country || 'US',
             hours: data.settings.hours || '',
             siteUrl: data.settings.siteUrl || '',
+            mapEmbedUrl: data.settings.mapEmbedUrl || '',
+            mapEmbedEnabled: Boolean(data.settings.mapEmbedEnabled),
             aboutTitle: data.settings.aboutTitle || 'About Midway Mobile Storage',
             aboutSubtitle: data.settings.aboutSubtitle || 'Serving Winston-Salem and the Triad Area',
             aboutSinceYear: data.settings.aboutSinceYear || '1989',
@@ -209,6 +213,37 @@ export default function SiteSettingsModule() {
             className="w-full px-3 py-2 border rounded-md"
             placeholder="https://midwaymobilestorage.com"
           />
+        </div>
+
+        <div className="border-t pt-6 mt-6">
+          <h3 className="text-xl font-semibold text-[#0a2a52] mb-4">Map Embed</h3>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Google Maps Embed URL</label>
+            <input
+              type="url"
+              value={settings.mapEmbedUrl}
+              onChange={(e) => handleChange('mapEmbedUrl', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="https://www.google.com/maps/embed?pb=..."
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Leave blank to use the address-based default map link.
+            </p>
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              id="map-embed-enabled"
+              type="checkbox"
+              checked={settings.mapEmbedEnabled}
+              onChange={(e) => handleChange('mapEmbedEnabled', e.target.checked)}
+              className="h-4 w-4"
+            />
+            <label htmlFor="map-embed-enabled" className="text-sm font-medium">
+              Load map embed automatically (disable to require a click)
+            </label>
+          </div>
         </div>
 
         <div className="border-t pt-6 mt-6">

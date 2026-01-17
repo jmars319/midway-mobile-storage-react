@@ -21,7 +21,9 @@ export async function fetchSiteSettings() {
     zip: '00000',
     country: 'US',
     hours: 'Mon–Fri 8:00–17:00',
-    siteUrl: 'https://midwaymobilestorage.com'
+    siteUrl: 'https://midwaymobilestorage.com',
+    mapEmbedUrl: '',
+    mapEmbedEnabled: false
   }
 }
 

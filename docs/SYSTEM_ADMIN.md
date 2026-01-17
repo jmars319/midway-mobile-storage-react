@@ -17,6 +17,7 @@
 
 ## SEO and Content Controls
 - Site Settings drives structured data fields (business name, address, hours, site URL).
+- Site Settings controls the Google Maps embed URL and whether the map auto-loads.
 - Media Manager controls active logo/hero assets used in public pages.
 
 ## Authentication

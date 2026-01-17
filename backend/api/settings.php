@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'country' => 'US',
                 'hours' => '',
                 'siteUrl' => '',
+                'mapEmbedUrl' => '',
+                'mapEmbedEnabled' => 0,
                 'aboutTitle' => 'About Midway Mobile Storage',
                 'aboutSubtitle' => 'Serving Winston-Salem and the Triad Area',
                 'aboutSinceYear' => '1989',
@@ -64,6 +66,9 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $country = sanitizeInput($data['country'] ?? 'US');
         $hours = sanitizeInput($data['hours'] ?? '');
         $siteUrl = sanitizeInput($data['siteUrl'] ?? '');
+        $mapEmbedUrl = sanitizeInput($data['mapEmbedUrl'] ?? '');
+        $mapEmbedEnabled = filter_var($data['mapEmbedEnabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $mapEmbedEnabled = $mapEmbedEnabled ? 1 : 0;
         $aboutTitle = sanitizeInput($data['aboutTitle'] ?? 'About Midway Mobile Storage');
         $aboutSubtitle = sanitizeInput($data['aboutSubtitle'] ?? 'Serving Winston-Salem and the Triad Area');
         $aboutSinceYear = sanitizeInput($data['aboutSinceYear'] ?? '1989');
@@ -80,21 +85,24 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
             $db->query(
                 "UPDATE site_settings SET 
                     businessName = ?, email = ?, phone = ?, address = ?, 
-                    city = ?, state = ?, zip = ?, country = ?, hours = ?, siteUrl = ?,
+                    city = ?, state = ?, zip = ?, country = ?, hours = ?, siteUrl = ?, mapEmbedUrl = ?, mapEmbedEnabled = ?,
                     aboutTitle = ?, aboutSubtitle = ?, aboutSinceYear = ?, aboutText1 = ?, aboutText2 = ?, aboutCommitments = ?
                 WHERE id = ?",
-                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl, 
-                 $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2, $aboutCommitments, $existing['id']]
+                [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl,
+                 $mapEmbedUrl, $mapEmbedEnabled, $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2,
+                 $aboutCommitments, $existing['id']]
             );
         } else {
             // Insert new
             $db->query(
                 "INSERT INTO site_settings 
-                    (businessName, email, phone, address, city, state, zip, country, hours, siteUrl, 
-                     aboutTitle, aboutSubtitle, aboutSinceYear, aboutText1, aboutText2, aboutCommitments) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (businessName, email, phone, address, city, state, zip, country, hours, siteUrl,
+                     mapEmbedUrl, mapEmbedEnabled, aboutTitle, aboutSubtitle, aboutSinceYear, aboutText1, aboutText2,
+                     aboutCommitments)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [$businessName, $email, $phone, $address, $city, $state, $zip, $country, $hours, $siteUrl,
-                 $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2, $aboutCommitments]
+                 $mapEmbedUrl, $mapEmbedEnabled, $aboutTitle, $aboutSubtitle, $aboutSinceYear, $aboutText1, $aboutText2,
+                 $aboutCommitments]
             );
         }
         
