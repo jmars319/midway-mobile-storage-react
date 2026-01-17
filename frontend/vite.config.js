@@ -6,5 +6,10 @@ export default defineConfig({
   server: { 
     port: 3000,
     open: '/' // Open to public homepage instead of admin
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setupTests.js',
+    globals: true
   }
 })

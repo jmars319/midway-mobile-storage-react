@@ -47,7 +47,7 @@ export default function TermsOfService({ onBack }){
       <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
       <p className="text-gray-700 mb-4">Effective Date: November 8, 2025</p>
 
-      <p className="text-gray-700 mb-4">These Terms of Service ("Terms") govern your use of Midway Mobile Storage's website and any services offered through the site. By accessing or using the site you agree to these Terms.</p>
+      <p className="text-gray-700 mb-4">These Terms of Service (&quot;Terms&quot;) govern your use of Midway Mobile Storage&apos;s website and any services offered through the site. By accessing or using the site you agree to these Terms.</p>
 
       <h2 className="text-xl font-semibold mt-6">1. Using Our Services</h2>
       <p className="text-gray-700 mt-2">You agree to provide accurate information when placing orders, requesting quotes, or applying for positions. We may refuse or cancel orders or applications at our discretion.</p>

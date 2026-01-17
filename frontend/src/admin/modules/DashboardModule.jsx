@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { showToast } from '../../components/Toast'
 import { API_BASE } from '../../config'
 
@@ -13,23 +13,24 @@ export default function DashboardModule(){
   const [loading, setLoading] = useState(true)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
+  const load = useCallback(async () => {
+    setLoading(true)
+    try{
+      const res = await fetch(`${API_BASE}/admin/stats`, { headers: { Authorization: `Bearer ${token}` }})
+      if (res.status === 401) {
+        localStorage.removeItem('midway_token')
+        showToast('Session expired or unauthorized — please log in again', { type: 'error' })
+        window.location.reload()
+        return
+      }
+      if (res.ok) setStats(await res.json())
+    }catch(e){ if (import.meta.env.DEV) console.error(e) }
+    setLoading(false)
+  }, [token])
+
   useEffect(()=>{
-    async function load(){
-      setLoading(true)
-      try{
-        const res = await fetch(`${API_BASE}/admin/stats`, { headers: { Authorization: `Bearer ${token}` }})
-        if (res.status === 401) {
-          localStorage.removeItem('midway_token')
-          showToast('Session expired or unauthorized — please log in again', { type: 'error' })
-          window.location.reload()
-          return
-        }
-        if (res.ok) setStats(await res.json())
-      }catch(e){ if (import.meta.env.DEV) console.error(e) }
-      setLoading(false)
-    }
     load()
-  },[])
+  },[load])
 
   const cards = [
     { label: 'Pending Quotes', value: stats.quotes, color: 'bg-blue-500', icon: '📋' },

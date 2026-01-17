@@ -222,10 +222,10 @@ export default function AccountModule({ user }) {
           <ul className="text-xs text-blue-800 space-y-1">
             <li>• Use at least 12 characters for maximum security</li>
             <li>• Include a mix of uppercase, lowercase, numbers, and symbols</li>
-            <li>• Don't use personal information or common words</li>
-            <li>• Don't reuse passwords from other accounts</li>
+            <li>• Don&apos;t use personal information or common words</li>
+            <li>• Don&apos;t reuse passwords from other accounts</li>
             <li>• Consider using a password manager</li>
-            <li>• Change your password if you suspect it's been compromised</li>
+            <li>• Change your password if you suspect it&apos;s been compromised</li>
           </ul>
         </div>
       </div>

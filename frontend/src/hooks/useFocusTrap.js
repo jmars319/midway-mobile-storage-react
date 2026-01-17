@@ -86,7 +86,9 @@ export function useFocusTrap({ isActive, containerRef, onClose }) {
         requestAnimationFrame(() => {
           try {
             previous.focus()
-          } catch (_) {}
+          } catch (_) {
+            // Ignore focus restore errors.
+          }
         })
       }
     }

@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { getActiveLogoUrl } from '../lib/media'
 
-// NavBar receives `onLoginClick` so the parent can decide whether to show the
-// login view or navigate straight to the admin panel (based on token presence).
 // `scrollTo` is a helper passed from App for internal navigation.
-export default function NavBar({ onLoginClick, scrollTo }){
+export default function NavBar({ scrollTo }){
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleNavClick = (id) => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PanelSealOrderModal from './PanelSealOrderModal'
 
-export default function ProductsSection({ scrollTo }){
+export default function ProductsSection(){
   const [orderOpen, setOrderOpen] = useState(false)
   return (
     <section id="products" className="py-16 bg-gray-100" aria-labelledby="products-heading">

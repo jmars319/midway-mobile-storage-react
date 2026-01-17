@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import ConfirmModal from '../../components/ConfirmModal'
 import { showToast } from '../../components/Toast'
 import { SERVICES_DATA } from '../../components/ServicesSection'
@@ -8,7 +8,6 @@ export default function SettingsModule(){
   const [selectedFile, setSelectedFile] = useState(null)
   const [selectedPreviewUrl, setSelectedPreviewUrl] = useState(null)
   const [selectedTags, setSelectedTags] = useState([])
-  const [info, setInfo] = useState({ phone:'', email:'', address:'' })
   const [media, setMedia] = useState([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState(null)
@@ -17,9 +16,8 @@ export default function SettingsModule(){
   const [brokenImages, setBrokenImages] = useState([])
   const [pendingDelete, setPendingDelete] = useState(null)
 
-  const save = ()=> showToast('Settings saved (demo)', { type: 'success' })
 
-  async function loadMedia(){
+  const loadMedia = useCallback(async () => {
     setError(null)
     try{
       const q = filter && filter !== 'all' ? `?tag=${encodeURIComponent(filter)}` : ''
@@ -28,10 +26,9 @@ export default function SettingsModule(){
       if (res.ok){ const j = await res.json(); setMedia(j.media || []) }
       else setError('Failed to load media')
     }catch(e){ if (import.meta.env.DEV) console.error(e); setError(String(e)) }
-  }
+  }, [filter, token])
 
-  useEffect(()=>{ loadMedia() },[])
-  useEffect(()=>{ loadMedia() },[filter])
+  useEffect(()=>{ loadMedia() },[loadMedia])
 
   // revoke preview object URL when selected file changes/unmount
   useEffect(()=>{

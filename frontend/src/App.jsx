@@ -14,8 +14,6 @@ import PrivacyPolicy from './components/PrivacyPolicy'
 import TermsOfService from './components/TermsOfService'
 import ErrorBoundary from './components/ErrorBoundary'
 import { fetchSiteSettings, generateStructuredData, injectStructuredData } from './lib/structuredData'
-
-import { API_BASE } from './config'
 // Lazy load admin components for better performance
 const LoginPage = lazy(() => import('./admin/LoginPage'))
 const AdminPanel = lazy(() => import('./admin/AdminPanel'))
@@ -28,7 +26,6 @@ const AdminPanel = lazy(() => import('./admin/AdminPanel'))
 export default function App(){
   const [currentPage, setCurrentPage] = useState('public')
   const [user, setUser] = useState(null)
-  const [siteSettings, setSiteSettings] = useState(null)
 
   useEffect(()=>{
     // set document padding to avoid header overlap
@@ -36,7 +33,6 @@ export default function App(){
     
     // Fetch site settings and inject structured data
     fetchSiteSettings().then(settings => {
-      setSiteSettings(settings)
       const structuredData = generateStructuredData(settings)
       injectStructuredData(structuredData)
     })
@@ -90,6 +86,7 @@ export default function App(){
   // Update page title and meta tags when currentPage changes
   useEffect(()=>{
     const updateMeta = (title, description, url) => {
+      const ogImage = 'https://midwaymobilestorage.com/og-image.png'
       document.title = title
       const metaDesc = document.querySelector('meta[name="description"]')
       if (metaDesc) metaDesc.setAttribute('content', description)
@@ -102,12 +99,18 @@ export default function App(){
       
       const ogUrl = document.querySelector('meta[property="og:url"]')
       if (ogUrl) ogUrl.setAttribute('content', url)
+
+      const ogImageTag = document.querySelector('meta[property="og:image"]')
+      if (ogImageTag) ogImageTag.setAttribute('content', ogImage)
       
       const twitterTitle = document.querySelector('meta[name="twitter:title"]')
       if (twitterTitle) twitterTitle.setAttribute('content', title)
       
       const twitterDesc = document.querySelector('meta[name="twitter:description"]')
       if (twitterDesc) twitterDesc.setAttribute('content', description)
+
+      const twitterImage = document.querySelector('meta[name="twitter:image"]')
+      if (twitterImage) twitterImage.setAttribute('content', ogImage)
       
       const canonical = document.querySelector('link[rel="canonical"]')
       if (canonical) canonical.setAttribute('href', url)

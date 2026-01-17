@@ -25,7 +25,7 @@ export default function HeroSection(){
           alt="Row of storage containers at Midway Mobile Storage"
           className="absolute inset-0 w-full h-full object-cover"
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
           decoding="sync"
           width="1200"
           height="630"

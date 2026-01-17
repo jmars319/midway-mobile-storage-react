@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { showToast } from '../../components/Toast'
 import { API_BASE } from '../../config'
 
@@ -25,11 +25,7 @@ export default function SiteSettingsModule() {
   const [fetchLoading, setFetchLoading] = useState(true)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
 
-  useEffect(() => {
-    fetchSettings()
-  }, [])
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     setFetchLoading(true)
     try {
       const res = await fetch(`${API_BASE}/settings`, {
@@ -64,7 +60,11 @@ export default function SiteSettingsModule() {
     } finally {
       setFetchLoading(false)
     }
-  }
+  }, [token])
+
+  useEffect(() => {
+    fetchSettings()
+  }, [fetchSettings])
 
   const handleSave = async () => {
     setLoading(true)
