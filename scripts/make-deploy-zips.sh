@@ -80,8 +80,7 @@ if [ -f "$BACKEND_DIR/storage/submissions/.gitkeep" ]; then
 fi
 
 if [ -f "$BACKEND_DIR/config.php" ]; then
-  cp "$BACKEND_DIR/config.php" "$STAGING_DIR/backend/config.php"
-  log_warn "Included backend/config.php in backend zip. Verify secrets before sharing."
+  log_warn "Skipping backend/config.php in backend zip. Copy config.example.php and set production values on deploy."
 else
   log_warn "config.php not found. Using config.example.php only."
 fi
