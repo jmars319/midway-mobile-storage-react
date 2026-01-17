@@ -155,17 +155,13 @@ All endpoints are accessed via: `https://yourdomain.com/api/`
 
 ## Frontend Configuration
 
-Update your frontend to use the PHP backend:
+Use the Vite environment variable instead of hard-coding API_BASE:
 
-In `frontend/src/config.js`:
-```javascript
-export const API_BASE = 'https://yourdomain.com/api';
+```bash
+VITE_API_BASE=https://yourdomain.com/api
 ```
 
-Or update individual module files that have hardcoded API URLs:
-```javascript
-const API_BASE = 'https://yourdomain.com/api';
-```
+For local dev, scripts/dev-frontend-start.sh will default VITE_API_BASE if it is not set.
 
 ## Default Login Credentials
 
