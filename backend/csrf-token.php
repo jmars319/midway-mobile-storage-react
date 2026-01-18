@@ -18,6 +18,9 @@ try {
     // 3. Rate limiting here causes UX issues when users navigate between pages
     // 4. The actual form submissions are rate limited instead
     if ($method === 'GET') {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
         $token = generateCsrfToken();
         jsonResponse(['csrf_token' => $token]);
     } else {

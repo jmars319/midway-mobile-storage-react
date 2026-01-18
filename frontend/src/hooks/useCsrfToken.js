@@ -9,9 +9,10 @@ async function requestCsrfToken(forceRefresh = false) {
   if (!forceRefresh && cachedToken) return cachedToken
   if (tokenPromise && !forceRefresh) return tokenPromise
 
-  tokenPromise = fetch(`${API_BASE}/csrf-token`, {
+  tokenPromise = fetch(`${API_BASE}/csrf-token?ts=${Date.now()}`, {
     method: 'GET',
-    credentials: 'include'
+    credentials: 'include',
+    cache: 'no-store'
   })
     .then(res => {
       if (!res.ok) throw new Error('Failed to fetch CSRF token')
