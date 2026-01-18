@@ -45,15 +45,6 @@ STAGING_BACKEND="$STAGING_DIR/backend"
 rm -rf "$STAGING_BACKEND"
 mkdir -p "$STAGING_BACKEND"
 
-# Copy API contents to the staging root so /api/api nesting does not occur in production.
-rsync -a \
-  --exclude ".git" \
-  --exclude ".cache" \
-  --exclude ".tmp" \
-  --exclude ".DS_Store" \
-  "$BACKEND_DIR/api/" "$STAGING_BACKEND/"
-
-# Copy backend root files (excluding api directory and deploy-unsafe artifacts).
 rsync -a \
   --exclude ".git" \
   --exclude ".cache" \
@@ -66,7 +57,6 @@ rsync -a \
   --exclude "uploads" \
   --exclude "storage" \
   --exclude "*.zip" \
-  --exclude "api" \
   "$BACKEND_DIR/" "$STAGING_BACKEND/"
 
 mkdir -p "$STAGING_BACKEND/uploads" "$STAGING_BACKEND/storage" "$STAGING_BACKEND/storage/submissions"

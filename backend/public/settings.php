@@ -4,8 +4,8 @@
  * Returns site settings (no authentication required)
  */
 
-require_once __DIR__ . '/../../utils.php';
-require_once __DIR__ . '/../../database.php';
+require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/../database.php';
 
 setCorsHeaders();
 

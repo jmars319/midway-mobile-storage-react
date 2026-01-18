@@ -4,7 +4,7 @@
  * Simple endpoint to verify API is working
  */
 
-require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/utils.php';
 
 setCorsHeaders();
 

@@ -4,14 +4,14 @@
  * Update tags for a specific media file
  */
 
-require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../utils.php';
 
 setCorsHeaders();
 
 requireAuth();
 
-$uploadsDir = __DIR__ . '/../../uploads';
+$uploadsDir = __DIR__ . '/../uploads';
 $metaFile = $uploadsDir . '/media.json';
 
 // Helper to read media metadata

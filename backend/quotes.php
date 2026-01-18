@@ -4,9 +4,9 @@
  * Handles quote requests (GET, POST, PUT, DELETE)
  */
 
-require_once __DIR__ . '/../utils.php';
-require_once __DIR__ . '/../database.php';
-require_once __DIR__ . '/../notifications.php';
+require_once __DIR__ . '/utils.php';
+require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/notifications.php';
 
 setCorsHeaders();
 

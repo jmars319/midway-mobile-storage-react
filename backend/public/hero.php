@@ -1,10 +1,10 @@
 <?php
 /**
- * Public Logo Endpoint
- * Returns the active logo image (no authentication required)
+ * Public Hero Endpoint
+ * Returns the active hero image (no authentication required)
  */
 
-require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../utils.php';
 
 setCorsHeaders();
 
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $uploadsDir = __DIR__ . '/../../uploads';
+    $uploadsDir = __DIR__ . '/../uploads';
     $metaFile = $uploadsDir . '/media.json';
     
     // Read metadata
@@ -44,26 +44,26 @@ try {
         }
     }
     
-    // Filter for logo tag
-    $logos = array_filter($files, function($file) {
-        return is_array($file['tags']) && in_array('logo', $file['tags']);
+    // Filter for hero tag
+    $heroes = array_filter($files, function($file) {
+        return is_array($file['tags']) && in_array('hero', $file['tags']);
     });
     
-    if (empty($logos)) {
+    if (empty($heroes)) {
         jsonResponse(['url' => null]);
     }
     
-    // Return first logo
-    $logo = array_values($logos)[0];
+    // Return first hero
+    $hero = array_values($heroes)[0];
     jsonResponse([
-        'url' => $logo['url'],
-        'name' => $logo['name'],
-        'originalName' => $logo['originalName']
+        'url' => $hero['url'],
+        'name' => $hero['name'],
+        'originalName' => $hero['originalName']
     ]);
     
 } catch (Exception $e) {
     if (DEBUG_MODE) {
-        error_log("Logo endpoint error: " . $e->getMessage());
+        error_log("Hero endpoint error: " . $e->getMessage());
     }
     jsonResponse(['error' => 'Failed to read uploads'], 500);
 }

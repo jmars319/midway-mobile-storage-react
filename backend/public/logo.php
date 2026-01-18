@@ -1,10 +1,10 @@
 <?php
 /**
- * Public Services Media Endpoint
- * Returns mapping of service slugs to image URLs (no authentication required)
+ * Public Logo Endpoint
+ * Returns the active logo image (no authentication required)
  */
 
-require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../utils.php';
 
 setCorsHeaders();
 
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $uploadsDir = __DIR__ . '/../../uploads';
+    $uploadsDir = __DIR__ . '/../uploads';
     $metaFile = $uploadsDir . '/media.json';
     
     // Read metadata
@@ -32,9 +32,11 @@ try {
             if (is_file($filePath)) {
                 $meta = $metadata[$filename] ?? [];
                 $tags = $meta['tags'] ?? [];
+                $originalName = $meta['originalName'] ?? null;
                 
                 $files[] = [
                     'name' => $filename,
+                    'originalName' => $originalName,
                     'tags' => $tags,
                     'url' => '/api/uploads/' . rawurlencode($filename)
                 ];
@@ -42,27 +44,26 @@ try {
         }
     }
     
-    // Build service slug to URL mapping
-    $map = [];
-    foreach ($files as $file) {
-        if (!is_array($file['tags'])) continue;
-        
-        foreach ($file['tags'] as $tag) {
-            if (is_string($tag) && strpos($tag, 'service:') === 0) {
-                $slug = substr($tag, 8); // Remove 'service:' prefix
-                // Only include first occurrence (uniqueness)
-                if (!isset($map[$slug])) {
-                    $map[$slug] = $file['url'];
-                }
-            }
-        }
+    // Filter for logo tag
+    $logos = array_filter($files, function($file) {
+        return is_array($file['tags']) && in_array('logo', $file['tags']);
+    });
+    
+    if (empty($logos)) {
+        jsonResponse(['url' => null]);
     }
     
-    jsonResponse($map);
+    // Return first logo
+    $logo = array_values($logos)[0];
+    jsonResponse([
+        'url' => $logo['url'],
+        'name' => $logo['name'],
+        'originalName' => $logo['originalName']
+    ]);
     
 } catch (Exception $e) {
     if (DEBUG_MODE) {
-        error_log("Services media endpoint error: " . $e->getMessage());
+        error_log("Logo endpoint error: " . $e->getMessage());
     }
     jsonResponse(['error' => 'Failed to read uploads'], 500);
 }

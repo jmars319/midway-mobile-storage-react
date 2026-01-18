@@ -5,7 +5,7 @@
  */
 
 // Load utilities and config for CORS
-require_once __DIR__ . '/../utils.php';
+require_once __DIR__ . '/utils.php';
 
 // Set CORS headers for all requests
 setCorsHeaders();
@@ -83,9 +83,9 @@ foreach ($routes as $route => $file) {
 if (preg_match('#^uploads/(.+)$#', $path, $matches)) {
     // Prevent path traversal attacks
     $filename = basename($matches[1]);
-    $filePath = __DIR__ . '/../uploads/' . $filename;
+    $filePath = __DIR__ . '/uploads/' . $filename;
     $realPath = realpath($filePath);
-    $uploadsDir = realpath(__DIR__ . '/../uploads/');
+    $uploadsDir = realpath(__DIR__ . '/uploads/');
     
     if ($realPath && $uploadsDir && strpos($realPath, $uploadsDir) === 0 && is_file($realPath)) {
         // Determine content type - use finfo for files without extensions
