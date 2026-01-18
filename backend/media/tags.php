@@ -28,14 +28,12 @@ function saveMediaMeta($metaFile, $meta) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Get filename from URL
-        $pathParts = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
-        // Find 'media' in path and get filename after it
-        $mediaIndex = array_search('media', $pathParts);
-        if ($mediaIndex === false || !isset($pathParts[$mediaIndex + 1])) {
+        // Get filename from URL path
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        if (!preg_match('#/media/([^/]+)/tags/?$#', $path, $matches)) {
             jsonResponse(['error' => 'Invalid request'], 400);
         }
-        $filename = urldecode($pathParts[$mediaIndex + 1]);
+        $filename = urldecode($matches[1]);
         
         // Security check
         if (strpos($filename, '..') !== false || strpos($filename, '/') !== false) {
@@ -44,8 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Get tags from request body
         $data = getRequestBody();
-        $tags = $data['tags'] ?? [];
-        
+        $tags = $data['tags'] ?? ($_POST['tags'] ?? []);
+        if (is_string($tags)) {
+            $tags = array_filter(array_map('trim', explode(',', $tags)));
+        }
         if (!is_array($tags)) {
             jsonResponse(['error' => 'Tags must be an array'], 400);
         }
@@ -53,10 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update metadata
         $meta = getMediaMeta($metaFile);
         if (!isset($meta[$filename])) {
-            jsonResponse(['error' => 'File not found'], 404);
+            $filePath = $uploadsDir . '/' . $filename;
+            if (!is_file($filePath)) {
+                jsonResponse(['error' => 'File not found'], 404);
+            }
+            $meta[$filename] = [
+                'originalName' => $filename,
+                'tags' => [],
+                'uploadedAt' => date('Y-m-d H:i:s', filemtime($filePath))
+            ];
         }
-        
-        $meta[$filename]['tags'] = $tags;
+
+        $meta[$filename]['tags'] = array_values($tags);
         saveMediaMeta($metaFile, $meta);
         
         jsonResponse(['ok' => true, 'tags' => $tags]);
