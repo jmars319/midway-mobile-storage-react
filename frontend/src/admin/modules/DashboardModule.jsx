@@ -16,7 +16,10 @@ export default function DashboardModule(){
   const load = useCallback(async () => {
     setLoading(true)
     try{
-      const res = await fetch(`${API_BASE}/admin/stats`, { headers: { Authorization: `Bearer ${token}` }})
+      const res = await fetch(`${API_BASE}/admin/stats?ts=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store'
+      })
       if (res.status === 401) {
         localStorage.removeItem('midway_token')
         showToast('Session expired or unauthorized — please log in again', { type: 'error' })

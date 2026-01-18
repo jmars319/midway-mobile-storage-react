@@ -143,28 +143,50 @@ if ($method === 'GET') {
     try {
         $meta = getMediaMeta($metaFile);
         $media = [];
-        
+        $metaDirty = false;
+
         // Get filter tag if provided (sanitize input)
         $filterTag = isset($_GET['tag']) ? sanitizeInput($_GET['tag']) : null;
-        
-        foreach ($meta as $filename => $info) {
-            $filepath = $uploadsDir . '/' . $filename;
-            if (file_exists($filepath)) {
+
+        if (is_dir($uploadsDir)) {
+            $files = array_diff(scandir($uploadsDir), ['.', '..', 'media.json']);
+            foreach ($files as $filename) {
+                $filepath = $uploadsDir . '/' . $filename;
+                if (!is_file($filepath)) {
+                    continue;
+                }
+
+                if (!isset($meta[$filename])) {
+                    $meta[$filename] = [
+                        'originalName' => $filename,
+                        'tags' => [],
+                        'uploadedAt' => date('Y-m-d H:i:s', filemtime($filepath))
+                    ];
+                    $metaDirty = true;
+                }
+
+                $info = $meta[$filename];
+                $tags = $info['tags'] ?? [];
+
                 // Filter by tag if specified
                 if ($filterTag && $filterTag !== 'all') {
-                    if (!isset($info['tags']) || !in_array($filterTag, $info['tags'])) {
+                    if (!is_array($tags) || !in_array($filterTag, $tags)) {
                         continue;
                     }
                 }
-                
+
                 $media[] = [
                     'name' => $filename,
                     'originalName' => $info['originalName'] ?? $filename,
                     'url' => '/api/uploads/' . $filename,
-                    'tags' => $info['tags'] ?? [],
+                    'tags' => $tags,
                     'uploadedAt' => $info['uploadedAt'] ?? null
                 ];
             }
+        }
+
+        if ($metaDirty) {
+            saveMediaMeta($metaFile, $meta);
         }
         
         jsonResponse(['media' => $media]);
