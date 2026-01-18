@@ -11,38 +11,10 @@ RewriteBase /api/
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=204,L]
 
-# Route: /api/health
-RewriteRule ^health/?$ health.php [L,QSA]
-
-# Route: /api/auth/login
-RewriteRule ^auth/login/?$ auth/login.php [L,QSA]
-
-# Route: /api/public/logo
-RewriteRule ^public/logo/?$ public/logo.php [L,QSA]
-
-# Route: /api/public/hero
-RewriteRule ^public/hero/?$ public/hero.php [L,QSA]
-
-# Route: /api/public/services-media
-RewriteRule ^public/services-media/?$ public/services-media.php [L,QSA]
-
-# Route: /api/public/settings
-RewriteRule ^public/settings/?$ public/settings.php [L,QSA]
-
-# Route: /api/quotes (with optional ID for DELETE)
-RewriteRule ^quotes/?([0-9]+)?$ quotes.php [L,QSA]
-
-# Route: /api/messages (with optional ID for DELETE)
-RewriteRule ^messages/?([0-9]+)?$ messages.php [L,QSA]
-
-# Route: /api/applications (with optional ID for DELETE)
-RewriteRule ^applications/?([0-9]+)?$ applications.php [L,QSA]
-
-# Route: /api/orders (with optional ID for DELETE)
-RewriteRule ^orders/?([0-9]+)?$ orders.php [L,QSA]
-
-# Route: /api/inventory (with optional ID for DELETE)
-RewriteRule ^inventory/?([0-9]+)?$ inventory.php [L,QSA]
+# Route all API requests through router.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ router.php [L,QSA]
 
 # Security headers
 <IfModule mod_headers.c>
