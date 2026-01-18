@@ -11,6 +11,11 @@ RewriteBase /api/
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ $1 [R=204,L]
 
+# Route media endpoints even though /media is a directory
+RewriteRule ^media/?$ media.php [L,QSA]
+RewriteRule ^media/[^/]+/tags/?$ media/tags.php [L,QSA]
+RewriteRule ^media/[^/]+$ media.php [L,QSA]
+
 # Route all API requests through router.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
