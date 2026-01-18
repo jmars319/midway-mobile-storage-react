@@ -46,9 +46,9 @@ log_success "Frontend zip looks good"
 log_info "Checking backend zip: $backend_zip"
 backend_files=$(zipinfo -1 "$backend_zip")
 
-echo "$backend_files" | rg -q "^api/router.php$" || die "Backend zip missing api/router.php"
-echo "$backend_files" | rg -q "^api/health.php$" || die "Backend zip missing api/health.php"
-echo "$backend_files" | rg -q "^api/\.htaccess$" || die "Backend zip missing api/.htaccess"
+echo "$backend_files" | rg -q "^router.php$" || die "Backend zip missing router.php"
+echo "$backend_files" | rg -q "^health.php$" || die "Backend zip missing health.php"
+echo "$backend_files" | rg -q "^\\.htaccess$" || die "Backend zip missing .htaccess"
 echo "$backend_files" | rg -q "^utils.php$" || die "Backend zip missing utils.php"
 echo "$backend_files" | rg -q "^config.example.php$" || die "Backend zip missing config.example.php"
 echo "$backend_files" | rg -q "^uploads/media.json$" || die "Backend zip missing uploads/media.json"

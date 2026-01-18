@@ -41,9 +41,19 @@ rm -f "$FRONTEND_ZIP"
 log_success "Frontend zip created"
 
 log_info "Staging backend files"
-rm -rf "$STAGING_DIR/backend"
-mkdir -p "$STAGING_DIR/backend"
+STAGING_BACKEND="$STAGING_DIR/backend"
+rm -rf "$STAGING_BACKEND"
+mkdir -p "$STAGING_BACKEND"
 
+# Copy API contents to the staging root so /api/api nesting does not occur in production.
+rsync -a \
+  --exclude ".git" \
+  --exclude ".cache" \
+  --exclude ".tmp" \
+  --exclude ".DS_Store" \
+  "$BACKEND_DIR/api/" "$STAGING_BACKEND/"
+
+# Copy backend root files (excluding api directory and deploy-unsafe artifacts).
 rsync -a \
   --exclude ".git" \
   --exclude ".cache" \
@@ -56,27 +66,28 @@ rsync -a \
   --exclude "uploads" \
   --exclude "storage" \
   --exclude "*.zip" \
-  "$BACKEND_DIR/" "$STAGING_DIR/backend/"
+  --exclude "api" \
+  "$BACKEND_DIR/" "$STAGING_BACKEND/"
 
-mkdir -p "$STAGING_DIR/backend/uploads" "$STAGING_DIR/backend/storage" "$STAGING_DIR/backend/storage/submissions"
+mkdir -p "$STAGING_BACKEND/uploads" "$STAGING_BACKEND/storage" "$STAGING_BACKEND/storage/submissions"
 
 if [ -f "$BACKEND_DIR/uploads/media.json" ]; then
-  cp "$BACKEND_DIR/uploads/media.json" "$STAGING_DIR/backend/uploads/"
+  cp "$BACKEND_DIR/uploads/media.json" "$STAGING_BACKEND/uploads/"
 else
-  printf "{}\n" > "$STAGING_DIR/backend/uploads/media.json"
+  printf "{}\n" > "$STAGING_BACKEND/uploads/media.json"
 fi
 if [ -f "$BACKEND_DIR/uploads/.gitkeep" ]; then
-  cp "$BACKEND_DIR/uploads/.gitkeep" "$STAGING_DIR/backend/uploads/"
+  cp "$BACKEND_DIR/uploads/.gitkeep" "$STAGING_BACKEND/uploads/"
 fi
 if [ -f "$BACKEND_DIR/storage/.htaccess" ]; then
-  cp "$BACKEND_DIR/storage/.htaccess" "$STAGING_DIR/backend/storage/"
+  cp "$BACKEND_DIR/storage/.htaccess" "$STAGING_BACKEND/storage/"
 fi
 if [ -f "$BACKEND_DIR/storage/.gitkeep" ]; then
-  cp "$BACKEND_DIR/storage/.gitkeep" "$STAGING_DIR/backend/storage/"
+  cp "$BACKEND_DIR/storage/.gitkeep" "$STAGING_BACKEND/storage/"
 fi
 if [ -f "$BACKEND_DIR/storage/submissions/.gitkeep" ]; then
-  mkdir -p "$STAGING_DIR/backend/storage/submissions"
-  cp "$BACKEND_DIR/storage/submissions/.gitkeep" "$STAGING_DIR/backend/storage/submissions/"
+  mkdir -p "$STAGING_BACKEND/storage/submissions"
+  cp "$BACKEND_DIR/storage/submissions/.gitkeep" "$STAGING_BACKEND/storage/submissions/"
 fi
 
 if [ -f "$BACKEND_DIR/config.php" ]; then
@@ -88,7 +99,7 @@ fi
 log_info "Packaging backend zip: $BACKEND_ZIP"
 rm -f "$BACKEND_ZIP"
 (
-  cd "$STAGING_DIR/backend"
+  cd "$STAGING_BACKEND"
   zip -r "$BACKEND_ZIP" . -x "*.DS_Store" >/dev/null
 )
 log_success "Backend zip created"
