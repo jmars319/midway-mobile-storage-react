@@ -24,6 +24,50 @@ function saveMediaMeta($metaFile, $meta) {
     file_put_contents($metaFile, json_encode($meta, JSON_PRETTY_PRINT));
 }
 
+function handleTagsRequest($uploadsDir, $metaFile) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return false;
+    }
+
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if (!preg_match('#/media/([^/]+)/tags/?$#', $path, $matches)) {
+        return false;
+    }
+
+    $filename = urldecode($matches[1]);
+    if (strpos($filename, '..') !== false || strpos($filename, '/') !== false) {
+        jsonResponse(['error' => 'Invalid filename'], 400);
+    }
+
+    $data = getRequestBody();
+    $tags = $data['tags'] ?? ($_POST['tags'] ?? []);
+    if (is_string($tags)) {
+        $tags = array_filter(array_map('trim', explode(',', $tags)));
+    }
+    if (!is_array($tags)) {
+        jsonResponse(['error' => 'Tags must be an array'], 400);
+    }
+
+    $filePath = $uploadsDir . '/' . $filename;
+    if (!is_file($filePath)) {
+        jsonResponse(['error' => 'File not found'], 404);
+    }
+
+    $meta = getMediaMeta($metaFile);
+    if (!isset($meta[$filename])) {
+        $meta[$filename] = [
+            'originalName' => $filename,
+            'tags' => [],
+            'uploadedAt' => date('Y-m-d H:i:s', filemtime($filePath))
+        ];
+    }
+
+    $meta[$filename]['tags'] = array_values($tags);
+    saveMediaMeta($metaFile, $meta);
+
+    jsonResponse(['ok' => true, 'tags' => $tags]);
+}
+
 /**
  * Validate uploaded file meets size/type requirements
  */
@@ -199,6 +243,8 @@ if ($method === 'GET') {
 // POST - Upload new media
 elseif ($method === 'POST') {
     requireAuth();
+
+    handleTagsRequest($uploadsDir, $metaFile);
     
     try {
         if (!isset($_FILES['file'])) {
