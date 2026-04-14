@@ -44,6 +44,10 @@ export default function Footer({ onLoginClick, onNavigate }){
     {label:'Products', href:'#products'},
     {label:'Careers', href:'#careers'}
   ]
+  const siteSeal = {
+    imageUrl: 'https://www.rapidscansecure.com/siteseal/Seal.aspx?code=65,BB4FABB95860B75BEE33365C5A134A147FE90CF1',
+    verifyUrl: 'https://www.rapidscansecure.com/siteseal/Verify.aspx?code=65,BB4FABB95860B75BEE33365C5A134A147FE90CF1'
+  }
 
   const contactModalId = 'contact-modal'
 
@@ -53,6 +57,26 @@ export default function Footer({ onLoginClick, onNavigate }){
         <div>
           <div className="text-xl font-bold text-[#e84424]">Midway Mobile Storage</div>
           <p className="mt-2 text-sm text-gray-200">Based in Winston-Salem, NC — serving customers across the eastern United States.</p>
+          <div className="mt-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-300">Site Security</div>
+            <a
+              href={siteSeal.verifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Verify Midway Mobile Storage site security"
+              className="mt-2 inline-flex rounded-lg bg-white/95 p-2 shadow-sm transition hover:bg-white focus-visible:ring-2 focus-visible:ring-[#e84424] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a2a52]"
+            >
+              <img
+                src={siteSeal.imageUrl}
+                alt="CompliAssure SiteSeal"
+                width="160"
+                height="69"
+                loading="lazy"
+                decoding="async"
+                className="h-[69px] w-auto"
+              />
+            </a>
+          </div>
           {onLoginClick && (
             <div className="mt-4">
               <button type="button" onClick={(e) => { e.preventDefault(); onLoginClick(); }} className="text-xs text-gray-200 hover:text-white underline focus:outline-none">Admin Login</button>

@@ -13,6 +13,38 @@ setCorsHeaders();
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::getInstance();
 
+function parseQuoteStatusValue($status) {
+    $normalized = strtolower(trim((string) sanitizeInput($status)));
+    if ($normalized === 'pending') {
+        return 'new';
+    }
+
+    $allowedStatuses = ['new', 'responded', 'handled', 'dismissed'];
+    return in_array($normalized, $allowedStatuses, true) ? $normalized : null;
+}
+
+function normalizeStoredQuoteStatus($status) {
+    return parseQuoteStatusValue($status) ?? 'new';
+}
+
+function decorateQuoteRow(array $row) {
+    $row['status'] = normalizeStoredQuoteStatus($row['status'] ?? null);
+
+    $extras = loadSubmissionPayload('quotes', $row['id']) ?? [];
+    if (!empty($extras)) {
+        $extras['status'] = normalizeStoredQuoteStatus($extras['status'] ?? $row['status']);
+    }
+
+    $merged = array_merge($extras, $row);
+    $row['display'] = buildSubmissionDisplay('quote_request', $merged, [
+        'formLabel' => 'Quote Request',
+        'timestampKey' => 'createdAt',
+        'primaryKeys' => ['name', 'serviceType', 'email']
+    ]);
+
+    return $row;
+}
+
 try {
     // GET - List quotes (requires auth)
     if ($method === 'GET') {
@@ -27,16 +59,7 @@ try {
         );
         
         $quotes = $stmt->fetchAll();
-        $quotes = array_map(function ($row) {
-            $extras = loadSubmissionPayload('quotes', $row['id']) ?? [];
-            $merged = array_merge($extras, $row);
-            $row['display'] = buildSubmissionDisplay('quote_request', $merged, [
-                'formLabel' => 'Quote Request',
-                'timestampKey' => 'createdAt',
-                'primaryKeys' => ['name', 'serviceType', 'email']
-            ]);
-            return $row;
-        }, $quotes);
+        $quotes = array_map('decorateQuoteRow', $quotes);
         jsonResponse(['quotes' => $quotes]);
     }
     
@@ -117,16 +140,26 @@ try {
         
         $data = getRequestBody();
         $id = intval($data['id'] ?? 0);
-        $status = sanitizeInput($data['status'] ?? '');
+        $status = parseQuoteStatusValue($data['status'] ?? '');
         
         if ($id <= 0) {
             jsonResponse(['error' => 'Invalid quote ID'], 400);
+        }
+        if ($status === null) {
+            jsonResponse(['error' => 'Invalid quote status'], 400);
         }
         
         $db->query(
             "UPDATE quotes SET status = ? WHERE id = ?",
             [$status, $id]
         );
+
+        $existingPayload = loadSubmissionPayload('quotes', $id) ?? [];
+        if (!empty($existingPayload)) {
+            persistSubmissionPayload('quotes', $id, array_merge($existingPayload, [
+                'status' => $status
+            ]));
+        }
         
         // Return updated quote
         $stmt = $db->query(
@@ -139,13 +172,7 @@ try {
         
         $quote = $stmt->fetch();
         if ($quote) {
-            $extras = loadSubmissionPayload('quotes', $quote['id']) ?? [];
-            $merged = array_merge($extras, $quote);
-            $quote['display'] = buildSubmissionDisplay('quote_request', $merged, [
-                'formLabel' => 'Quote Request',
-                'timestampKey' => 'createdAt',
-                'primaryKeys' => ['name', 'serviceType', 'email']
-            ]);
+            $quote = decorateQuoteRow($quote);
         }
         jsonResponse(['ok' => true, 'quote' => $quote]);
     }

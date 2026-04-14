@@ -19,6 +19,35 @@ const QUOTE_FIELDS_TO_DECODE = [
   'status'
 ]
 
+const QUOTE_STATUS_META = {
+  new: {
+    label: 'New',
+    badgeClass: 'bg-blue-100 text-blue-800'
+  },
+  responded: {
+    label: 'Responded',
+    badgeClass: 'bg-amber-100 text-amber-800'
+  },
+  handled: {
+    label: 'Handled',
+    badgeClass: 'bg-green-100 text-green-800'
+  },
+  dismissed: {
+    label: 'Dismissed',
+    badgeClass: 'bg-gray-200 text-gray-700'
+  }
+}
+
+const QUOTE_STATUS_OPTIONS = ['new', 'responded', 'handled', 'dismissed']
+
+const normalizeQuoteStatus = (status) => {
+  const normalized = typeof status === 'string' ? status.trim().toLowerCase() : ''
+  if (normalized === 'pending') return 'new'
+  return QUOTE_STATUS_META[normalized] ? normalized : 'new'
+}
+
+const getQuoteStatusMeta = (status) => QUOTE_STATUS_META[normalizeQuoteStatus(status)] || QUOTE_STATUS_META.new
+
 const decodeQuoteFields = (quote) => {
   if (!quote) return quote
   const decoded = { ...quote }
@@ -27,6 +56,7 @@ const decodeQuoteFields = (quote) => {
       decoded[field] = decodeHtmlEntities(decoded[field])
     }
   })
+  decoded.status = normalizeQuoteStatus(decoded.status)
   return decoded
 }
 
@@ -37,6 +67,7 @@ export default function QuotesModule(){
   const [selected, setSelected] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingDeleteLoading, setPendingDeleteLoading] = useState(false)
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null)
   const token = typeof window !== 'undefined' ? localStorage.getItem('midway_token') : null
   const detailTitleId = useId()
   const detailDescriptionId = useId()
@@ -65,6 +96,42 @@ export default function QuotesModule(){
   }, [token])
 
   useEffect(()=>{ load() },[load])
+
+  const updateQuoteStatus = useCallback(async (quoteId, nextStatus) => {
+    setStatusUpdatingId(quoteId)
+    try {
+      const res = await fetch(`${API_BASE}/quotes`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ id: quoteId, status: nextStatus })
+      })
+      if (res.status === 401) {
+        localStorage.removeItem('midway_token')
+        showToast('Session expired or unauthorized — please log in again', { type: 'error' })
+        window.location.reload()
+        return
+      }
+
+      const payload = await res.json().catch(() => null)
+      if (!res.ok || !payload?.quote) {
+        showToast(payload?.error || 'Status update failed', { type: 'error' })
+        return
+      }
+
+      const updatedQuote = decodeQuoteFields(payload.quote)
+      setQuotes(prev => prev.map((quote) => quote.id === updatedQuote.id ? updatedQuote : quote))
+      setSelected(prev => (prev && prev.id === updatedQuote.id ? updatedQuote : prev))
+      showToast(`Quote marked ${getQuoteStatusMeta(updatedQuote.status).label.toLowerCase()}`, { type: 'success' })
+    } catch (e) {
+      if (import.meta.env.DEV) console.error(e)
+      showToast('Status update error', { type: 'error' })
+    } finally {
+      setStatusUpdatingId(null)
+    }
+  }, [token])
 
   return (
     <div className="p-6">
@@ -100,8 +167,10 @@ export default function QuotesModule(){
               </tr>
             </thead>
             <tbody>
-              {quotes.map(q => (
-                <tr key={q.id} className="border-b hover:bg-gray-50">
+              {quotes.map(q => {
+                const statusMeta = getQuoteStatusMeta(q.status)
+                return (
+                <tr key={q.id} className="border-b hover:bg-gray-50 align-top">
                   <td className="px-6 py-4">
                     <div className="font-semibold text-gray-900">{q.display?.summary?.primary || q.name}</div>
                     <div className="text-xs text-gray-500">
@@ -112,13 +181,31 @@ export default function QuotesModule(){
                   </td>
                   <td className="px-6 py-4">{q.serviceType || '—'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{q.display?.meta?.submittedAt ? new Date(q.display.meta.submittedAt).toLocaleString() : (q.createdAt ? new Date(q.createdAt).toLocaleString() : '—')}</td>
-                  <td className="px-6 py-4"><span className={`px-3 py-1 rounded-full text-sm ${q.status==='responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{q.status||'pending'}</span></td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col items-start gap-2">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm ${statusMeta.badgeClass}`}>{statusMeta.label}</span>
+                      <label htmlFor={`quote-status-${q.id}`} className="sr-only">Update status for {q.name || `quote ${q.id}`}</label>
+                      <select
+                        id={`quote-status-${q.id}`}
+                        value={normalizeQuoteStatus(q.status)}
+                        onChange={(e) => void updateQuoteStatus(q.id, e.target.value)}
+                        disabled={statusUpdatingId === q.id}
+                        className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:ring-2 focus:ring-[#e84424] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {QUOTE_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {QUOTE_STATUS_META[status].label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelected(q)} className="text-[#e84424] hover:text-[#d13918] font-semibold mr-3">View</button>
                     <button onClick={() => setPendingDelete(q)} className="text-red-600 hover:text-red-700 font-semibold">Delete</button>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         )}
@@ -176,6 +263,7 @@ export default function QuotesModule(){
           <div className="min-h-0 flex-1 overflow-y-auto [-webkit-overflow-scrolling:touch] px-6 py-4">
             {(() => {
               const display = ensureSubmissionDisplay(selected, { formLabel: 'Quote Request', submittedAtKey: 'createdAt' })
+              const statusMeta = getQuoteStatusMeta(selected.status)
               return (
                 <>
                   <SubmissionMeta display={display} />
@@ -183,36 +271,27 @@ export default function QuotesModule(){
                   <SubmissionFieldList display={display} />
                   <div className="mt-6">
                     <div className="font-semibold text-gray-700">Status</div>
-                    <button
-                      onClick={async () => {
-                        const newStatus = selected.status === 'responded' ? 'pending' : 'responded'
-                        try {
-                          const res = await fetch(`${API_BASE}/quotes`, {
-                            method: 'PUT',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              Authorization: `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ id: selected.id, status: newStatus })
-                          })
-                          if (res.ok) {
-                            const j = await res.json()
-                            const updatedQuote = decodeQuoteFields(j.quote)
-                            setSelected(updatedQuote)
-                            setQuotes(prev => prev.map(q => q.id === updatedQuote.id ? updatedQuote : q))
-                            showToast('Status updated', { type: 'success' })
-                          } else {
-                            showToast('Status update failed', { type: 'error' })
-                          }
-                        } catch (e) {
-                          if (import.meta.env.DEV) console.error(e)
-                          showToast('Status update error', { type: 'error' })
-                        }
-                      }}
-                      className={`px-3 py-1 rounded-full text-sm ${selected.status === 'responded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-                    >
-                      {selected.status || 'pending'}
-                    </button>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm ${statusMeta.badgeClass}`}>
+                        {statusMeta.label}
+                      </span>
+                      <label htmlFor={`selected-quote-status-${selected.id}`} className="sr-only">Update selected quote status</label>
+                      <select
+                        id={`selected-quote-status-${selected.id}`}
+                        value={normalizeQuoteStatus(selected.status)}
+                        onChange={(e) => void updateQuoteStatus(selected.id, e.target.value)}
+                        disabled={statusUpdatingId === selected.id}
+                        className="rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-[#e84424] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {QUOTE_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {QUOTE_STATUS_META[status].label}
+                          </option>
+                        ))}
+                      </select>
+                      {statusUpdatingId === selected.id && <span className="text-xs text-gray-500">Updating…</span>}
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">Use “Dismissed” for spam or invalid requests. Use “Handled” once the quote is fully closed out.</p>
                   </div>
                   <SubmissionAttachments display={display} />
                   <SubmissionRawPayload payload={display?.raw || selected} />
