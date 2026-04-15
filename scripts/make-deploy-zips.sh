@@ -61,11 +61,6 @@ rsync -a \
 
 mkdir -p "$STAGING_BACKEND/uploads" "$STAGING_BACKEND/storage" "$STAGING_BACKEND/storage/submissions"
 
-if [ -f "$BACKEND_DIR/uploads/media.json" ]; then
-  cp "$BACKEND_DIR/uploads/media.json" "$STAGING_BACKEND/uploads/"
-else
-  printf "{}\n" > "$STAGING_BACKEND/uploads/media.json"
-fi
 if [ -f "$BACKEND_DIR/uploads/.gitkeep" ]; then
   cp "$BACKEND_DIR/uploads/.gitkeep" "$STAGING_BACKEND/uploads/"
 fi
@@ -85,6 +80,7 @@ if [ -f "$BACKEND_DIR/config.php" ]; then
 else
   log_warn "config.php not found. Using config.example.php only."
 fi
+log_warn "Skipping uploads/media.json in backend zip to avoid overwriting live media tags on deploy."
 
 log_info "Packaging backend zip: $BACKEND_ZIP"
 rm -f "$BACKEND_ZIP"

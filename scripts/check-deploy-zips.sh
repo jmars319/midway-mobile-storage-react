@@ -51,8 +51,10 @@ echo "$backend_files" | rg -q "^health.php$" || die "Backend zip missing health.
 echo "$backend_files" | rg -q "^\\.htaccess$" || die "Backend zip missing .htaccess"
 echo "$backend_files" | rg -q "^utils.php$" || die "Backend zip missing utils.php"
 echo "$backend_files" | rg -q "^config.example.php$" || die "Backend zip missing config.example.php"
-echo "$backend_files" | rg -q "^uploads/media.json$" || die "Backend zip missing uploads/media.json"
 echo "$backend_files" | rg -q "^storage/\.htaccess$" || die "Backend zip missing storage/.htaccess"
+if echo "$backend_files" | rg -q "^uploads/media.json$"; then
+  die "Backend zip should not include uploads/media.json because it can overwrite live media tags"
+fi
 
 log_success "Backend zip looks good"
 log_success "Deploy zip checks complete"
