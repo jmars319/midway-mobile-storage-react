@@ -25,6 +25,15 @@ AddType text/css .css
   AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
 </IfModule>
 
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header unset X-Powered-By
+</IfModule>
+
 # Browser caching
 <IfModule mod_expires.c>
   ExpiresActive On
