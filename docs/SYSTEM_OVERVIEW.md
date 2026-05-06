@@ -16,9 +16,9 @@
   - / (home sections)
   - /privacy
   - /terms
-- Admin:
-  - /admin (client-side state in App.jsx)
-  - /login (client-side state in App.jsx)
+- Admin SPA views:
+  - /admin and /login are not server-rendered routes. They are client-side views selected by state in frontend/src/App.jsx.
+  - Direct requests should fall back to the frontend shell; App.jsx only parses /privacy and /terms from window.location.
 - API (PHP backend): /api/*
 
 ## Canonical Doc Spine
@@ -29,7 +29,9 @@
 - docs/DEVELOPER_GUIDE.md
 - docs/DEPLOYMENT_GUIDE.md
 - docs/PAGESPEED_TRADEOFFS.md
-- docs/COPILOT_INSTRUCTIONS_SUMMARY.md
+
+## Archived Docs
+- docs/COPILOT_INSTRUCTIONS_SUMMARY.md (legacy Copilot assumptions only; not implementation guidance)
 
 ## Content Guardrails
 - Brand voice: clear, local, professional, service-forward.

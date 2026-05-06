@@ -10,4 +10,6 @@ Start here for the current system, development, and deployment guidance.
 - docs/DEVELOPER_GUIDE.md
 - docs/DEPLOYMENT_GUIDE.md
 - docs/PAGESPEED_TRADEOFFS.md
+
+## Archived
 - docs/COPILOT_INSTRUCTIONS_SUMMARY.md

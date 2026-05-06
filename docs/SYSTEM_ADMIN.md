@@ -3,7 +3,8 @@
 ## Admin Surface
 - No standalone admin service; admin UI is bundled inside the frontend SPA.
 - Entry is from the footer "Admin Login" action.
-- Routes are handled client-side in frontend/src/App.jsx.
+- `/admin` and `/login` are client-side SPA views handled by state in `frontend/src/App.jsx`, not independent server routes.
+- `App.jsx` only deep-links `/privacy` and `/terms`; admin/login visibility comes from the admin login action, local storage token check, and in-memory `currentPage` state.
 
 ## Admin Modules
 - Dashboard
